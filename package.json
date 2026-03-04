@@ -1,0 +1,11 @@
+{
+  "name": "axxerion-workorder-flow",
+  "version": "1.0.0",
+  "description": "Axxerion Work Order Flow Visualization",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
