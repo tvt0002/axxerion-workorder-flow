@@ -1,0 +1,151 @@
+const express = require("express");
+const path = require("path");
+const https = require("https");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// ── Axxerion API config ──
+const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult";
+const AX_AUTH = "Basic " + Buffer.from("iapiuser:***REMOVED***").toString("base64");
+const AX_REPORT_WO = "IPG-REP-085";
+const AX_REPORT_REQ = "IPG-REP-087";
+const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const RETRY_DELAY = 60 * 1000; // 1 minute retry when a fetch was skipped
+
+let cachedWO = null;
+let cacheWOTimestamp = 0;
+let fetchWOInProgress = false;
+let lastFetchStartTime = 0;
+
+let cachedReq = null;
+let cacheReqTimestamp = 0;
+let fetchReqInProgress = false;
+
+function fetchReport(reference, label, onSuccess) {
+  const start = Date.now();
+  console.log(`[Cache] Fetching ${label} (${reference})...`);
+
+  const body = JSON.stringify({ reference });
+  const opts = {
+    hostname: "ipg.axxerion.us",
+    path: "/webservices/ipg/rest/functions/completereportresult",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: AX_AUTH,
+      "Content-Length": Buffer.byteLength(body),
+    },
+  };
+
+  const req = https.request(opts, (res) => {
+    let raw = "";
+    res.on("data", (chunk) => (raw += chunk));
+    res.on("end", () => {
+      const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+      try {
+        const json = JSON.parse(raw);
+        if (json.data && json.data.length) {
+          console.log(
+            `[Cache] ${label}: ${json.data.length} records (${(raw.length / 1024 / 1024).toFixed(1)}MB) in ${elapsed}s`
+          );
+          onSuccess(json.data);
+        } else {
+          console.warn(`[Cache] ${label} empty in ${elapsed}s:`, json.errorMessage || "no data");
+          onSuccess(null);
+        }
+      } catch (e) {
+        console.error(`[Cache] ${label} parse error in ${elapsed}s:`, e.message);
+        onSuccess(null);
+      }
+    });
+  });
+
+  req.setTimeout(5 * 60 * 1000, () => {
+    console.error(`[Cache] ${label} timed out after 5 minutes`);
+    req.destroy();
+    onSuccess(null);
+  });
+
+  req.on("error", (e) => {
+    console.error(`[Cache] ${label} fetch failed:`, e.message);
+    onSuccess(null);
+  });
+
+  req.write(body);
+  req.end();
+}
+
+function fetchFromAxxerion() {
+  let skipped = false;
+
+  if (!fetchWOInProgress) {
+    fetchWOInProgress = true;
+    lastFetchStartTime = Date.now();
+    fetchReport(AX_REPORT_WO, "Work Orders", (data) => {
+      fetchWOInProgress = false;
+      if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); }
+    });
+  } else {
+    console.log("[Cache] Skipping Work Orders — previous fetch still in progress");
+    skipped = true;
+  }
+
+  if (!fetchReqInProgress) {
+    fetchReqInProgress = true;
+    fetchReport(AX_REPORT_REQ, "Requests", (data) => {
+      fetchReqInProgress = false;
+      if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); }
+    });
+  } else {
+    console.log("[Cache] Skipping Requests — previous fetch still in progress");
+    skipped = true;
+  }
+
+  if (skipped) {
+    console.log("[Cache] Will retry skipped reports in 1 minute");
+    setTimeout(fetchFromAxxerion, RETRY_DELAY);
+  }
+}
+
+// ── API endpoints for browser ──
+app.get("/api/workorders", (req, res) => {
+  if (cachedWO) {
+    const ageMin = Math.round((Date.now() - cacheWOTimestamp) / 60000);
+    res.json({ data: cachedWO, cached: true, age: ageMin, count: cachedWO.length, refreshing: fetchWOInProgress });
+  } else {
+    res.json({ data: [], cached: false, message: "Cache loading, try again shortly", refreshing: fetchWOInProgress });
+  }
+});
+
+app.get("/api/requests", (req, res) => {
+  if (cachedReq) {
+    const ageMin = Math.round((Date.now() - cacheReqTimestamp) / 60000);
+    res.json({ data: cachedReq, cached: true, age: ageMin, count: cachedReq.length, refreshing: fetchReqInProgress });
+  } else {
+    res.json({ data: [], cached: false, message: "Cache loading, try again shortly", refreshing: fetchReqInProgress });
+  }
+});
+
+app.get("/api/status", (req, res) => {
+  const nextRefreshMs = lastFetchStartTime ? (lastFetchStartTime + REFRESH_INTERVAL) - Date.now() : 0;
+  const nextRefreshMin = Math.max(0, Math.round(nextRefreshMs / 60000));
+  res.json({
+    workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress },
+    requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress },
+    nextRefreshMin: nextRefreshMin,
+  });
+});
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  // Fetch immediately on startup, then every 30 min
+  fetchFromAxxerion();
+  setInterval(fetchFromAxxerion, REFRESH_INTERVAL);
+});

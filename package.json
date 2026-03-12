@@ -1,0 +1,15 @@
+{
+  "name": "axxerion-workorder-flow",
+  "version": "1.0.0",
+  "description": "Axxerion Operations Hub — Work Order Flow & FM Dashboard",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

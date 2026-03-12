@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Axxerion Work Order Flow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+:root{--bg:#0a0c10;--surface:#111318;--card:#161a22;--border:#252a35;--accent:#4f8ef7;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--yellow:#fbbf24;--text:#e8eaf0;--muted:#6b7280;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:auto;zoom:1.55;}
+.hdr{padding:20px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);padding:3px 9px;border-radius:4px;}
+.hdr h1{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.hsub{font-size:11px;color:var(--muted);margin-left:auto;}
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:100px;}
+.bb{background:rgba(79,142,247,.15);color:var(--accent);border:1px solid rgba(79,142,247,.3);}
+.bp{background:rgba(167,139,250,.15);color:var(--accent2);border:1px solid rgba(167,139,250,.3);}
+.bg{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25);}
+.bo{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.25);}
+.br{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.by{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.25);}
+.stats{display:flex;gap:18px;padding:12px 32px;border-bottom:1px solid var(--border);background:var(--surface);}
+.st{display:flex;flex-direction:column;gap:1px;}
+.sv{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+.sl{font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.sdiv{width:1px;background:var(--border);}
+.canvas{padding:28px 32px;min-width:1200px;}
+.ph{display:flex;align-items:center;gap:10px;margin:24px 0 14px;}
+.pt{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.phl{flex:1;height:1px;background:var(--border);}
+.row{display:flex;align-items:flex-start;gap:0;flex-wrap:nowrap;padding-bottom:4px;}
+.en{position:relative;cursor:pointer;flex-shrink:0;}
+.ec{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;width:196px;transition:all .2s;position:relative;overflow:hidden;}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.ec.assign::before{background:var(--accent2);}
+.ec.trigger::before{background:var(--green);}
+.ec.confirm::before{background:var(--yellow);}
+.ec.approval::before{background:var(--accent);}
+.ec.financial::before{background:var(--green);}
+.ec.rejection::before{background:var(--red);}
+.ec.change::before{background:var(--orange);}
+.ec:hover{border-color:rgba(79,142,247,.45);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.ec.active{border-color:rgba(79,142,247,.7);box-shadow:0 0 0 2px rgba(79,142,247,.2);}
+.cs{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.07em;margin-bottom:4px;}
+.cq{font-size:11px;font-weight:600;line-height:1.4;margin-bottom:7px;}
+.cc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.chip{font-size:9px;font-family:'DM Mono',monospace;padding:2px 5px;border-radius:100px;}
+.cbb{background:rgba(79,142,247,.1);color:#93bbfa;border:1px solid rgba(79,142,247,.2);}
+.cbp{background:rgba(167,139,250,.1);color:#c4b5fd;border:1px solid rgba(167,139,250,.2);}
+.cbg{background:rgba(52,211,153,.08);color:#6ee7b7;border:1px solid rgba(52,211,153,.2);}
+.cbo{background:rgba(251,146,60,.08);color:#fdba74;border:1px solid rgba(251,146,60,.2);}
+.cbr{background:rgba(248,113,113,.08);color:#fca5a5;border:1px solid rgba(248,113,113,.2);}
+.cby{background:rgba(251,191,36,.08);color:#fde68a;border:1px solid rgba(251,191,36,.2);}
+.ci{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;padding-top:4px;border-top:1px solid var(--border);}
+.arr{display:flex;align-items:center;padding-top:44px;flex-shrink:0;}
+.al{height:1px;}
+.al-sm{width:18px;}.al-md{width:32px;}.al-lg{width:52px;}
+.at{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(79,142,247,.45);flex-shrink:0;}
+.atg{border-left-color:rgba(52,211,153,.45);}
+.atr{border-left-color:rgba(248,113,113,.45);}
+.ato{border-left-color:rgba(251,146,60,.45);}
+.bw{display:flex;flex-direction:column;gap:12px;flex-shrink:0;}
+.brow{display:flex;align-items:center;gap:5px;}
+.bl{font-size:9px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.blg{color:var(--green);}.blr{color:var(--red);}
+.bline{height:1px;background:var(--border);}
+.bl-sm{width:18px;}.bl-md{width:32px;}
+.panel{position:fixed;right:0;top:0;bottom:0;width:420px;background:var(--surface);border-left:1px solid var(--border);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);z-index:200;}
+.panel.open{transform:translateX(0);}
+
+.pc{position:absolute;top:12px;right:12px;background:var(--border);border:none;color:var(--muted);width:25px;height:25px;border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.pc:hover{background:var(--card);color:var(--text);}
+.ps{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.pti{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;line-height:1.5;margin-bottom:16px;word-break:break-word;white-space:normal;padding-right:30px;}
+.psec{margin-bottom:16px;}
+.psl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.pchips{display:flex;flex-wrap:wrap;gap:4px;}
+.pchip{font-size:11px;padding:4px 9px;border-radius:5px;border:1px solid var(--border);}
+.pconn{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);padding:7px 11px;border-radius:7px;}
+.pdiv{height:1px;background:var(--border);margin:12px 0;}
+.ptrig{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:12px;line-height:1.5;}
+.ptrig strong{color:var(--accent);font-family:'DM Mono',monospace;font-size:9px;}
+.filterbar{display:flex;align-items:center;gap:12px;padding:10px 32px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;position:sticky;top:57px;z-index:90;}
+.fl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.ftags{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.ftag{font-family:'DM Mono',monospace;font-size:9px;padding:4px 11px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;letter-spacing:.04em;}
+.ftag:hover{border-color:rgba(79,142,247,.4);color:var(--accent);}
+.ftag.active{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.5);color:var(--accent);}
+.ftag.person-active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.5);color:var(--accent2);}
+.fcount{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap;margin-left:auto;}
+.en.dim .ec{opacity:.18;filter:grayscale(.6);transform:none !important;pointer-events:none;}
+.en.dim .ec:hover{border-color:var(--border);box-shadow:none;}
+.en.highlight .ec{border-color:rgba(167,139,250,.6);box-shadow:0 0 0 2px rgba(167,139,250,.18),0 6px 20px rgba(0,0,0,.4);}
+
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">IPG</div>
+  <h1>Axxerion Work Order Flow</h1>
+  <div style="display:flex;gap:7px;margin-left:10px">
+    <span class="badge bb">Secure Space Self Storage</span>
+    <span class="badge bp">10 Email Triggers</span>
+  </div>
+  <span class="hsub">IPG-WF-2403005-01 &nbsp;·&nbsp; Click any card for details</span>
+</div>
+
+<div class="stats">
+  <div class="st"><span class="sv">10</span><span class="sl">Email Triggers</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">8</span><span class="sl">Unique Roles</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">4</span><span class="sl">Workflow Phases</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">1</span><span class="sl">Change Order Path</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">2</span><span class="sl">Rejection Loops</span></div>
+</div>
+
+<div id="filterbar" style="position:sticky;top:57px;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 32px;white-space:nowrap;overflow-x:auto;">
+    <span class="fl">Filter:</span>
+    <button class="ftag active" data-person="all" onclick="setFilter('all',this)">All</button>
+    <button class="ftag" data-person="District Manager" onclick="setFilter('District Manager',this)">District Manager</button>
+    <button class="ftag" data-person="Regional Manager" onclick="setFilter('Regional Manager',this)">Regional Manager</button>
+    <button class="ftag" data-person="IPG Facility Manager" onclick="setFilter('IPG Facility Manager',this)">IPG Facility Manager</button>
+    <button class="ftag" data-person="Work Order Executor" onclick="setFilter('Work Order Executor',this)">Work Order Executor</button>
+    <button class="ftag" data-person="IPG Vendor Contact" onclick="setFilter('IPG Vendor Contact',this)">IPG Vendor Contact</button>
+    <button class="ftag" data-person="Store Manager" onclick="setFilter('Store Manager',this)">Store Manager</button>
+    <button class="ftag" data-person="IPG Accounts Payable" onclick="setFilter('IPG Accounts Payable',this)">IPG Accounts Payable</button>
+    <button class="ftag" data-person="Randy Hillman" onclick="setFilter('Randy Hillman',this)">Randy Hillman</button>
+    <button class="ftag" data-person="Assigner" onclick="setFilter('Assigner',this)">Assigner</button>
+    <span class="fcount" id="fcount" style="margin-left:auto;">Showing 10 of 10</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;padding:6px 32px;white-space:nowrap;overflow-x:auto;border-top:1px solid var(--border);">
+    <span class="fl">Legend:</span>
+    <div class="li"><div class="ld" style="background:var(--accent2)"></div>Assignment</div>
+    <div class="li"><div class="ld" style="background:var(--green)"></div>Trigger / Confirm</div>
+    <div class="li"><div class="ld" style="background:var(--accent)"></div>Approval Required</div>
+    <div class="li"><div class="ld" style="background:var(--red)"></div>Rejection / Loop</div>
+    <div class="li"><div class="ld" style="background:var(--orange)"></div>Change Order</div>
+    <div class="li"><div class="ld" style="background:var(--yellow)"></div>Confirmation Notice</div>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <div class="ph"><span class="badge bp">Phase 1</span><span class="pt">Assignment &amp; Confirmation</span><div class="phl"></div></div>
+  <div class="row">
+    <div class="en" onclick="sp('e1')"><div class="ec assign" id="card-e1"><div class="cs">EMAIL 01 · IPG-CN-0063</div><div class="cq">"{extRef} has been assigned to you by Secure Space Self Storage"</div><div class="cc"><span class="chip cbb">District Mgr</span><span class="chip cbb">Regional Mgr</span><span class="chip cbp">IPG Facility Mgr</span><span class="chip cbg">WO Executor</span><span class="chip cbo">Vendor Contact</span><span class="chip cby">Store Manager</span></div><div class="ci">TRIGGER: Work order assigned → Connector</div></div></div>
+    <div class="arr"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(79,142,247,.35),var(--border))"></div><div class="at"></div></div>
+    <div class="en" onclick="sp('e2')"><div class="ec trigger" id="card-e2"><div class="cs">EMAIL 02 · START DATE TRIGGER</div><div class="cq">"Please Confirm Your Work Assignment for Secure Space {extRef}"</div><div class="cc"><span class="chip cbg">WO Executor</span></div><div class="ci">TRIGGER: Start date (Triggertype)</div></div></div>
+    <div class="arr"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(79,142,247,.35),var(--border))"></div><div class="at"></div></div>
+    <div class="en" onclick="sp('e3')"><div class="ec confirm" id="card-e3"><div class="cs">EMAIL 03 · IPG-CN-0253</div><div class="cq">"Workorder {extRef} has been confirmed"</div><div class="cc"><span class="chip cby">Store Manager</span></div><div class="ci">TRIGGER: Worker confirms assignment</div></div></div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bb">Phase 2</span><span class="pt">Work Execution &amp; Manager Approval</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e4')"><div class="ec approval" id="card-e4"><div class="cs">EMAIL 04 · IPG-CN-0067</div><div class="cq">"Work is finished on a workorder, and requires approval {extRef}"</div><div class="cc"><span class="chip cbb">Regional Manager</span></div><div class="ci">TRIGGER: Executor marks work done (Stop Work)</div></div></div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bg">Phase 3</span><span class="pt">Financial Confirmation</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e5')" style="margin-top:8px"><div class="ec financial" id="card-e5"><div class="cs">EMAIL 05 · IPG-CN-0069</div><div class="cq">"Work is approved and requires you to confirm financials {extRef}"</div><div class="cc"><span class="chip cbg">IPG Accounts Payable</span></div><div class="ci">TRIGGER: Regional Manager approves work</div></div></div>
+    <div class="arr" style="padding-top:52px"><div class="al al-md" style="background:var(--border)"></div><div class="at"></div></div>
+    <div class="bw" style="margin-top:0">
+      <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Decision: Confirm or Reject</div>
+      <div class="brow">
+        <div class="bline bl-sm"></div><span class="bl blg">✓ Confirmed</span><div class="bline bl-md"></div><div class="at atg"></div>
+        <div style="margin-left:7px;font-size:10px;font-family:'DM Mono',monospace;color:var(--green);padding:8px 12px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;">Work Order Complete ✓</div>
+      </div>
+      <div class="brow" style="margin-top:6px">
+        <div class="bline bl-sm"></div><span class="bl blr">✗ Rejected</span><div class="bline bl-md"></div><div class="at atr"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e6')"><div class="ec rejection" id="card-e6"><div class="cs">EMAIL 06 · IPG-CN-0082</div><div class="cq">"The financials were rejected for the workorder {extRef}"</div><div class="cc"><span class="chip cbr">Assigner</span></div><div class="ci">TRIGGER: Financials rejected → loops back</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bo">Phase 4</span><span class="pt">Change Order Process</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e7')" style="margin-top:8px"><div class="ec change" id="card-e7"><div class="cs">EMAIL 07 · IPG-CN-0318</div><div class="cq">"A Change Order has been requested {extRef}"</div><div class="cc"><span class="chip cbo">Randy Hillman</span></div><div class="ci">TRIGGER: Change order submitted</div></div></div>
+    <div class="arr" style="padding-top:52px"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(251,146,60,.35),var(--border))"></div><div class="at ato"></div></div>
+    <div class="bw" style="margin-top:0">
+      <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Decision: Approve or Reject Change Order</div>
+      <div class="brow">
+        <div class="bline bl-sm"></div><span class="bl blg">✓ Approved</span><div class="bline bl-md"></div><div class="at atg"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e8')"><div class="ec approval" id="card-e8"><div class="cs">EMAIL 08 · IPG-CN-0320</div><div class="cq">"Change Order Approved {extRef}"</div><div class="cc"><span class="chip cbb">Assigner</span><span class="chip cbg">WO Executor</span></div><div class="ci">TRIGGER: Randy approves change order</div></div></div></div>
+      </div>
+      <div class="brow" style="margin-top:6px">
+        <div class="bline bl-sm"></div><span class="bl blr">✗ Rejected</span><div class="bline bl-md"></div><div class="at atr"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e9')"><div class="ec rejection" id="card-e9"><div class="cs">EMAIL 09 · IPG-CN-0321</div><div class="cq">"Change Order Rejected {extRef}"</div><div class="cc"><span class="chip cbg">WO Executor</span><span class="chip cbb">Assigner</span></div><div class="ci">TRIGGER: Change order rejected → resubmit</div></div></div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;align-self:flex-end;margin-bottom:0;padding-bottom:0">
+      <div style="width:44px;height:1px;background:var(--border);margin-left:10px"></div>
+      <div class="at ato"></div>
+      <div style="margin-left:7px">
+        <div class="en" onclick="sp('e10')"><div class="ec change" id="card-e10"><div class="cs">EMAIL 10 · IPG-CN-0323 (RESUBMIT)</div><div class="cq">"A Change Order has been requested {extRef}"</div><div class="cc"><span class="chip cbo">Randy Hillman</span></div><div class="ci">TRIGGER: Resubmitted change order</div></div></div>
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;margin-top:3px">↑ rejection loops to resubmit</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="panel" id="panel">
+  <button class="pc" onclick="cp()">✕</button>
+  <div id="pc"></div>
+</div>
+
+<script>
+var D={
+  e1:{step:'EMAIL 01 · Phase 1',title:'{extRef} has been assigned to you by Secure Space Self Storage',type:'Assignment',badge:'bp',connector:'IPG-CN-0063-assign',trigger:'Fired immediately when a work order is assigned. Notifies all primary stakeholders simultaneously.',to:[['District Manager','cbb'],['Regional Manager','cbb'],['IPG Facility Manager','cbp'],['Work Order Executor','cbg'],['IPG Vendor Contact','cbo'],['Store Manager','cby']],cc:['WO Executor - Additional Email Contacts','IPG Vendor Contact - Additional Email Contacts'],notes:'Widest distribution in the flow — 6 primary recipients. Sets the stage for all downstream actions.',emailPreview:{from:'Felipe Lopez <felipe@insitepg.com>',to:'Store Manager, Randy Hillman, Felipe Lopez, Amber Quesada, Michael Abell, American Heritage Landscape LP',subject:'0010818 has been assigned to you by Secure Space Self Storage',body:'A work order has been assigned. All primary stakeholders are notified simultaneously, including the District Manager, Regional Manager, IPG Facility Manager, Work Order Executor, IPG Vendor Contact, and Store Manager. The executor and vendor contacts are expected to confirm the assignment.'}},
+  e2:{step:'EMAIL 02 · Phase 1',title:'Please Confirm Your Work Assignment for Secure Space Self Storage {extRef}',type:'Time Trigger',badge:'bg',connector:'Start date (Triggertype)',trigger:'Automatically sent when the work order start date arrives. Prompts the executor to formally confirm.',to:[['Work Order Executor','cbg']],cc:['WO Executor - Additional Email Contacts'],notes:'Time-based trigger. If the executor does not confirm, work may be re-assigned to another vendor.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'AR.Inquiry <ar.inquiry@schindler.com>',cc:'Terence Anglin, Erica Peterlin, WorkOrders2, Barbara Van Andel',subject:'[EXTERNAL] Please Confirm Your Work Assignment for Secure Space Self Storage WRK-261451',body:'A workorder assigned to you is waiting for confirmation.\n\nSubject: Elevator Maintenance - Monthly\nReference: WRK-261451\nIssue: Monthly Maintenance-R&M\nPriority: Medium\nAddress: 3737 NE Columbia Blvd, Portland, OR, 97211\nOffice Hours: Mon-Fri 9:30am-6pm Sat 9am-5:30pm Closed Sun\nAccess Hours: 6AM - 10PM\nNot To Exceed Amount: $856.41\n\nPlease log in and confirm that you accept the assignment, and enter the date when you are planning to come or reject it so we can assign someone else.'}},
+  e3:{step:'EMAIL 03 · Phase 1',title:'Workorder {extRef} has been confirmed',type:'Confirmation Notice',badge:'by',connector:'IPG-CN-0253-confirmworker',trigger:'Sent after the Work Order Executor confirms their assignment in the system.',to:[['Store Manager','cby']],cc:[],notes:'Keeps the Store Manager informed that a confirmed worker is scheduled to arrive.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'SecureSpace Palm Springs <palmsprings@securespace.com>',subject:'Workorder 0010349 has been confirmed',body:'The vendor The Comfort Zone is set to arrive to do the work at 2/14/2026 1:36 PM.\n\nSubject: INSULATION LINER ON BACK OF DRIVE UP UNIT S020 UNIT DOOR\nProblem: Unit Repairs - R&M\nProperty: L077 - Palm Springs'}},
+  e4:{step:'EMAIL 04 · Phase 2',title:'Work is finished on a workorder, and requires approval {extRef}',type:'Approval Request',badge:'bb',connector:'IPG-CN-0067-stopwork',trigger:'Sent when the executor clicks End Work / Stop Work. Notifies manager to review and approve.',to:[['Regional Manager','cbb']],cc:[],notes:'Primary work completion path. Regional Manager must approve before financials can be processed.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Julio Gloria <jgloria@securespace.com>',subject:'Work is finished on a workorder, and requires approval WRK-257535',body:'Work has been marked complete on work order WRK-257535. The Regional Manager must now review the completed work and approve it before financial processing can proceed.\n\nClick the link in the system to review and approve the work order.'}},
+  e5:{step:'EMAIL 05 · Phase 3',title:'Work is approved on a workorder and requires you to confirm financials {extRef}',type:'Financial Action Required',badge:'bg',connector:'IPG-CN-0069-approve',trigger:'Sent when Regional Manager approves completed work. Routes to financial review.',to:[['IPG Accounts Payable','cbg']],cc:[],notes:'Directed to a named individual (IPG Accounts Payable) for financial review and confirmation.',emailPreview:{from:'Axxerion Support <niko@axxerionusa.com>',to:'IPG Accounts Payable <ap@insitepg.com>',subject:'Work is approved on a workorder and requires you to confirm financials 0005731',body:'Work on work order 0005731 has been approved by the Regional Manager and is now awaiting financial confirmation.\n\nPlease log in to the system to review and confirm the financials for this work order. A direct bookmark link is included in the system email.'}},
+  e6:{step:'EMAIL 06 · Phase 3',title:'The financials were rejected for the workorder {extRef}',type:'Rejection',badge:'br',connector:'IPG-CN-0082-rejectFinancials',trigger:'Sent when financials are rejected — creates a loop back to the Assigner to correct and resubmit.',to:[['Assigner','cbr']],cc:[],notes:'Creates a loop — Assigner must review and correct the financials before resubmission.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Felipe Lopez <felipe@insitepg.com>',subject:'The financials were rejectcted for the workorder 0008637-R',body:'The financials submitted for work order 0008637-R have been rejected. The Assigner must review the financial details, make corrections, and resubmit for approval.\n\nNote: The subject line typo ("rejectcted") is present in the live system email.'}},
+  e7:{step:'EMAIL 07 · Phase 4',title:'A Change Order has been requested {extRef}',type:'Change Order Request',badge:'bo',connector:'IPG-CN-0318-submitchangeorder',trigger:'Sent when executor or assigner submits a change order request during work execution.',to:[['Randy Hillman','cbo']],cc:[],notes:'Named approver Randy Hillman handles all change order decisions.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Randy Hillman <rhillman@securespace.com>',subject:'A Change Order has been requested {extRef}',body:'A change order has been submitted on an active work order and requires your review and decision.\n\nRandy Hillman is the sole approver for all change order requests. Please log in to the system to review the details and approve or reject the change order.'}},
+  e8:{step:'EMAIL 08 · Phase 4',title:'Change Order Approved {extRef}',type:'Approval',badge:'bg',connector:'IPG-CN-0320-approve',trigger:'Sent when Randy Hillman approves the change order. Both assigner and executor are notified.',to:[['Assigner','cbb'],['Work Order Executor','cbg']],cc:['WO Executor - Additional Email Contacts'],notes:'Both parties notified so work can proceed with the updated scope.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Consumer Research Bureau, INC <info@crbsecurity.com>; Felipe Lopez <felipe@insitepg.com>',subject:'Change Order Approved 0009330',body:'The change order for work order 0009330 has been approved. Both the Assigner and the Work Order Executor are notified so work can continue under the updated scope and cost.\n\nA second example: Change Order Approved 0009529 was sent to Felipe Lopez and Century Commercial Service, with CC to Kristi Warner and Emily Rosenblatt.'}},
+  e9:{step:'EMAIL 09 · Phase 4',title:'Change Order Rejected {extRef}',type:'Rejection',badge:'br',connector:'IPG-CN-0321-rejectChangeOrder',trigger:'Sent when Randy Hillman rejects the change order. System allows resubmission via EMAIL 10.',to:[['Work Order Executor','cbg'],['Assigner','cbb']],cc:['WO Executor - Additional Email Contacts'],notes:'Both parties notified. System allows resubmission via EMAIL 10 (IPG-CN-0323).',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Nations Roof LLC <Servicecenter@nationsroof.com>; Felipe Lopez <felipe@insitepg.com>',subject:'Change Order Rejected 0009287',body:'The change order for work order 0009287 has been rejected by Randy Hillman. Both the Work Order Executor and the Assigner are notified.\n\nThe change order may be revised and resubmitted — when resubmitted, EMAIL 10 (IPG-CN-0323) is fired and Randy Hillman reviews the updated submission.'}},
+  e10:{step:'EMAIL 10 · Phase 4',title:'A Change Order has been requested {extRef}',type:'Change Order Resubmit',badge:'bo',connector:'IPG-CN-0323-Resubmit',trigger:'Sent when a previously rejected change order is resubmitted for re-review.',to:[['Randy Hillman','cbo']],cc:[],notes:'Same recipient as EMAIL 07 — Randy Hillman reviews again after the updated resubmission.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Randy Hillman <rhillman@securespace.com>',subject:'A Change Order has been requested {extRef} (Resubmission)',body:'A previously rejected change order has been revised and resubmitted for your review.\n\nThis uses the same flow as EMAIL 07 (IPG-CN-0318) but fires via connector IPG-CN-0323. Randy Hillman reviews the updated change order and can approve (→ EMAIL 08) or reject again (→ EMAIL 09).'}}
+};
+
+function sp(id){
+  var d=D[id];if(!d)return;
+  var toH=d.to.map(function(r){return'<span class="pchip '+r[1]+'" style="background:rgba(0,0,0,.2)">'+r[0]+'</span>';}).join('');
+  var ccH=d.cc.length?d.cc.map(function(r){return'<span class="pchip" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.2);color:#c4b5fd">'+r+'</span>';}).join(''):'<span style="font-size:11px;color:var(--muted)">None</span>';
+  var emailH='';
+  if(d.emailPreview){
+    var ep=d.emailPreview;
+    var bodyLines=ep.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    var ccRow=ep.cc?'<div style="font-size:10px;margin-top:3px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">CC:</span> '+ep.cc+'</div>':'';
+    emailH='<div class="pdiv"></div><div class="psec"><div class="psl">📧 Actual Email Example</div><div style="background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px;line-height:1.6">'
+      +'<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'
+      +'<div style="margin-bottom:2px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">FROM:</span> <span style="color:#93bbfa">'+ep.from+'</span></div>'
+      +'<div style="margin-bottom:2px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">TO:</span> <span style="color:var(--text)">'+ep.to+'</span></div>'
+      +ccRow
+      +'<div style="margin-top:6px;font-weight:600;color:var(--text)">'+ep.subject+'</div>'
+      +'</div>'
+      +'<div style="color:var(--muted);font-size:11px;line-height:1.7">'+bodyLines+'</div>'
+      +'</div></div>';
+  }
+  document.getElementById('pc').innerHTML='<div class="ps">'+d.step+'</div><div class="pti">"'+d.title+'"</div><div class="psec"><div class="psl">Email Type</div><span class="badge '+d.badge+'" style="font-size:11px;padding:4px 11px">'+d.type+'</span></div><div class="pdiv"></div><div class="psec"><div class="psl">📨 To — Primary Recipients</div><div class="pchips">'+toH+'</div></div><div class="psec"><div class="psl">📋 CC</div><div class="pchips">'+ccH+'</div></div><div class="pdiv"></div><div class="psec"><div class="psl">⚡ Trigger Condition</div><div class="ptrig"><strong>WHEN:</strong><br>'+d.trigger+'</div></div><div class="psec"><div class="psl">🔗 Connector / Object ID</div><div class="pconn">'+d.connector+'</div></div><div class="pdiv"></div><div class="psec"><div class="psl">📝 Notes</div><div style="font-size:12px;color:var(--muted);line-height:1.6">'+d.notes+'</div></div>'+emailH;
+  document.querySelectorAll('.ec').forEach(function(c){c.classList.remove('active');});
+  var el=document.getElementById('card-'+id);if(el)el.classList.add('active');
+  document.getElementById('panel').classList.add('open');
+}
+function cp(){
+  document.getElementById('panel').classList.remove('open');
+  document.querySelectorAll('.ec').forEach(function(c){c.classList.remove('active');});
+}
+// Person → email IDs mapping
+var personMap={
+  'District Manager':['e1'],
+  'Regional Manager':['e1','e4'],
+  'IPG Facility Manager':['e1'],
+  'Work Order Executor':['e1','e2','e8','e9'],
+  'IPG Vendor Contact':['e1'],
+  'Store Manager':['e1','e3'],
+  'IPG Accounts Payable':['e5'],
+  'Randy Hillman':['e7','e10'],
+  'Assigner':['e6','e8','e9']
+};
+var currentFilter='all';
+function setFilter(person,btn){
+  currentFilter=person;
+  document.querySelectorAll('.ftag').forEach(function(b){b.classList.remove('active','person-active');});
+  btn.classList.add(person==='all'?'active':'person-active');
+  var allCards=document.querySelectorAll('.en');
+  var shown=0;
+  allCards.forEach(function(el){
+    var id=el.querySelector('.ec')?el.querySelector('.ec').id.replace('card-',''):null;
+    if(!id)return;
+    if(person==='all'){el.classList.remove('dim','highlight');shown++;}
+    else{
+      var ids=personMap[person]||[];
+      if(ids.indexOf(id)>=0){el.classList.remove('dim');el.classList.add('highlight');shown++;}
+      else{el.classList.add('dim');el.classList.remove('highlight');}
+    }
+  });
+  var total=allCards.length;
+  document.getElementById('fcount').textContent=(person==='all'?'Showing '+total+' of '+total:'Showing '+shown+' of '+total+' — '+person);
+}
+
+document.addEventListener('click',function(e){
+  var p=document.getElementById('panel');
+  if(p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.en')&&!e.target.closest('.ftag'))cp();
+});
+</script>
+</body>
+</html>

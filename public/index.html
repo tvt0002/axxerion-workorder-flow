@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Axxerion — IPG Operations Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="requests.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+:root{--bg:#0a0c10;--surface:#111318;--card:#161a22;--border:#252a35;--accent:#4f8ef7;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--yellow:#fbbf24;--text:#e8eaf0;--muted:#6b7280;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ── Global Nav ── */
+.gnav{display:flex;align-items:center;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:300;gap:16px;}
+.gnav .logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.15em;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);padding:5px 12px;border-radius:5px;}
+.gnav h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.gtabs{display:flex;gap:6px;margin-left:24px;}
+.gtab{font-family:'DM Mono',monospace;font-size:12px;padding:7px 18px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;letter-spacing:.05em;text-transform:uppercase;}
+.gtab:hover{border-color:rgba(79,142,247,.4);color:var(--accent);}
+.gtab.active{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.5);color:var(--accent);}
+.gright{margin-left:auto;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.view{display:none;}.view.active{display:block;}
+
+/* ── Workflow View (original styles) ── */
+.hdr{padding:14px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);}
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:100px;}
+.bb{background:rgba(79,142,247,.15);color:var(--accent);border:1px solid rgba(79,142,247,.3);}
+.bp{background:rgba(167,139,250,.15);color:var(--accent2);border:1px solid rgba(167,139,250,.3);}
+.bg{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25);}
+.bo{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.25);}
+.br{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.by{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.25);}
+.stats{display:flex;gap:18px;padding:12px 32px;border-bottom:1px solid var(--border);background:var(--surface);}
+.st{display:flex;flex-direction:column;gap:1px;}
+.sv{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+.sl{font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.sdiv{width:1px;background:var(--border);}
+.canvas{padding:28px 32px;min-width:1200px;}
+.ph{display:flex;align-items:center;gap:10px;margin:24px 0 14px;}
+.pt{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.phl{flex:1;height:1px;background:var(--border);}
+.row{display:flex;align-items:flex-start;gap:0;flex-wrap:nowrap;padding-bottom:4px;}
+.en{position:relative;cursor:pointer;flex-shrink:0;}
+.ec{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;width:196px;transition:all .2s;position:relative;overflow:hidden;}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.ec.assign::before{background:var(--accent2);}
+.ec.trigger::before{background:var(--green);}
+.ec.confirm::before{background:var(--yellow);}
+.ec.approval::before{background:var(--accent);}
+.ec.financial::before{background:var(--green);}
+.ec.rejection::before{background:var(--red);}
+.ec.change::before{background:var(--orange);}
+.ec:hover{border-color:rgba(79,142,247,.45);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.ec.active{border-color:rgba(79,142,247,.7);box-shadow:0 0 0 2px rgba(79,142,247,.2);}
+.cs{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.07em;margin-bottom:4px;}
+.cq{font-size:11px;font-weight:600;line-height:1.4;margin-bottom:7px;}
+.cc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.chip{font-size:9px;font-family:'DM Mono',monospace;padding:2px 5px;border-radius:100px;}
+.cbb{background:rgba(79,142,247,.1);color:#93bbfa;border:1px solid rgba(79,142,247,.2);}
+.cbp{background:rgba(167,139,250,.1);color:#c4b5fd;border:1px solid rgba(167,139,250,.2);}
+.cbg{background:rgba(52,211,153,.08);color:#6ee7b7;border:1px solid rgba(52,211,153,.2);}
+.cbo{background:rgba(251,146,60,.08);color:#fdba74;border:1px solid rgba(251,146,60,.2);}
+.cbr{background:rgba(248,113,113,.08);color:#fca5a5;border:1px solid rgba(248,113,113,.2);}
+.cby{background:rgba(251,191,36,.08);color:#fde68a;border:1px solid rgba(251,191,36,.2);}
+.ci{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;padding-top:4px;border-top:1px solid var(--border);}
+.arr{display:flex;align-items:center;padding-top:44px;flex-shrink:0;}
+.al{height:1px;}
+.al-sm{width:18px;}.al-md{width:32px;}.al-lg{width:52px;}
+.at{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(79,142,247,.45);flex-shrink:0;}
+.atg{border-left-color:rgba(52,211,153,.45);}
+.atr{border-left-color:rgba(248,113,113,.45);}
+.ato{border-left-color:rgba(251,146,60,.45);}
+.bw{display:flex;flex-direction:column;gap:12px;flex-shrink:0;}
+.brow{display:flex;align-items:center;gap:5px;}
+.bl{font-size:9px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.blg{color:var(--green);}.blr{color:var(--red);}
+.bline{height:1px;background:var(--border);}
+.bl-sm{width:18px;}.bl-md{width:32px;}
+.panel{position:fixed;right:0;top:0;bottom:0;width:420px;background:var(--surface);border-left:1px solid var(--border);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);z-index:200;}
+.panel.open{transform:translateX(0);}
+.pc{position:absolute;top:12px;right:12px;background:var(--border);border:none;color:var(--muted);width:25px;height:25px;border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.pc:hover{background:var(--card);color:var(--text);}
+.ps{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.pti{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;line-height:1.5;margin-bottom:16px;word-break:break-word;white-space:normal;padding-right:30px;}
+.psec{margin-bottom:16px;}
+.psl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.pchips{display:flex;flex-wrap:wrap;gap:4px;}
+.pchip{font-size:11px;padding:4px 9px;border-radius:5px;border:1px solid var(--border);}
+.pconn{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);padding:7px 11px;border-radius:7px;}
+.pdiv{height:1px;background:var(--border);margin:12px 0;}
+.ptrig{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:12px;line-height:1.5;}
+.ptrig strong{color:var(--accent);font-family:'DM Mono',monospace;font-size:9px;}
+.fl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.ftag{font-family:'DM Mono',monospace;font-size:9px;padding:4px 11px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;letter-spacing:.04em;}
+.ftag:hover{border-color:rgba(79,142,247,.4);color:var(--accent);}
+.ftag.active{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.5);color:var(--accent);}
+.ftag.person-active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.5);color:var(--accent2);}
+.fcount{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap;margin-left:auto;}
+.en.dim .ec{opacity:.18;filter:grayscale(.6);transform:none !important;pointer-events:none;}
+.en.dim .ec:hover{border-color:var(--border);box-shadow:none;}
+.en.highlight .ec{border-color:rgba(167,139,250,.6);box-shadow:0 0 0 2px rgba(167,139,250,.18),0 6px 20px rgba(0,0,0,.4);}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.hsub{font-size:11px;color:var(--muted);margin-left:auto;}
+
+/* ── Dashboard Filters ── */
+.db-filters{display:flex;align-items:center;gap:10px 14px;padding:12px 32px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:56px;z-index:90;}
+.db-filter-group{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:140px;max-width:280px;}
+.db-filter-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.db-select{font-family:'DM Mono',monospace;font-size:10px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;width:100%;min-width:0;appearance:auto;}
+.db-select:hover{border-color:rgba(79,142,247,.4);}
+.db-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,142,247,.15);}
+.ms-wrap{position:relative;flex:1;min-width:0;}
+.ms-btn{font-family:'DM Mono',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 12px;cursor:pointer;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
+.ms-btn:hover{border-color:rgba(79,142,247,.4);}
+.ms-btn.open,.ms-btn.has-sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,142,247,.15);}
+.ms-btn .ms-count{font-size:8px;background:var(--accent);color:#fff;border-radius:3px;padding:1px 5px;margin-left:auto;flex-shrink:0;}
+.ms-dd{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:280px;max-height:360px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.6);}
+.ms-dd.open{display:block;}
+.ms-list{max-height:290px;overflow-y:auto;padding:4px 0;}
+.ms-list::-webkit-scrollbar{width:6px;}
+.ms-list::-webkit-scrollbar-track{background:var(--surface);border-radius:3px;margin:4px 0;}
+.ms-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;transition:background .2s;}
+.ms-list::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+.ms-search{width:100%;padding:8px 12px;border:none;border-bottom:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;box-sizing:border-box;border-radius:8px 8px 0 0;}
+.ms-search::placeholder{color:var(--muted);}
+.ms-actions{display:flex;gap:0;border-bottom:1px solid var(--border);}
+.ms-actions button{flex:1;padding:6px;border:none;background:transparent;color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.04em;transition:background .15s;}
+.ms-actions button:hover{background:rgba(79,142,247,.12);}
+.ms-actions button:first-child{border-right:1px solid var(--border);}
+.ms-opt{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-family:'DM Mono',monospace;transition:background .12s;}
+.ms-opt:hover{background:rgba(79,142,247,.08);}
+.ms-opt.hidden{display:none;}
+.ms-cb{width:14px;height:14px;border:1.5px solid var(--border);border-radius:3px;background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.ms-opt.sel .ms-cb{background:var(--accent);border-color:var(--accent);}
+.ms-opt.sel .ms-cb::after{content:'✓';font-size:9px;color:#fff;line-height:1;}
+.ms-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.db-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;}
+.db-toggle input{display:none;}
+.db-toggle-slider{width:32px;height:18px;background:var(--border);border-radius:9px;position:relative;transition:background .2s;flex-shrink:0;}
+.db-toggle-slider::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:all .2s;}
+.db-toggle input:checked+.db-toggle-slider{background:var(--accent);}
+.db-toggle input:checked+.db-toggle-slider::after{left:16px;background:#fff;}
+.db-filter-reset{font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:auto;transition:all .18s;white-space:nowrap;}
+.db-filter-reset:hover{border-color:var(--red);color:var(--red);}
+.db-filter-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
+
+/* ── Dashboard View ── */
+.db{padding:24px 32px;}
+.db-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:28px;}
+.db-kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
+.db-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.db-kpi.kpi-blue::before{background:var(--accent);}
+.db-kpi.kpi-green::before{background:var(--green);}
+.db-kpi.kpi-purple::before{background:var(--accent2);}
+.db-kpi.kpi-orange::before{background:var(--orange);}
+.db-kpi.kpi-yellow::before{background:var(--yellow);}
+.db-kpi.kpi-red::before{background:var(--red);}
+.kpi-clickable{cursor:pointer;transition:border-color .18s,box-shadow .18s;}
+.kpi-clickable:hover{border-color:rgba(79,142,247,.5);box-shadow:0 0 12px rgba(79,142,247,.15);}
+.kpi-clickable .kpi-lbl::after{content:' ↗';font-size:9px;opacity:.5;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:clamp(14px,2.2vw,24px);font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.kpi-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.elev-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px;}
+.db-section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:14px;color:var(--text);}
+.db-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.db-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.db-card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.db-card-title .badge{font-size:9px;}
+.db-table{width:100%;border-collapse:collapse;font-size:12px;}
+.db-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:500;}
+.db-table th.r{text-align:right;}
+.db-table td{padding:7px 8px;border-bottom:1px solid rgba(37,42,53,.6);}
+.db-table td.r{text-align:right;font-family:'DM Mono',monospace;font-size:11px;}
+.db-table tr:last-child td{border-bottom:none;}
+.db-table tr:hover td{background:rgba(79,142,247,.04);}
+.db-bar-wrap{display:flex;align-items:center;gap:8px;}
+.db-bar{height:6px;border-radius:3px;min-width:2px;transition:width .5s ease;}
+.db-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:38px;text-align:right;}
+.chart-wrap{position:relative;width:100%;}
+.chart-wrap-priority{position:relative;width:100%;height:0;padding-bottom:70%;}
+.db-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;}
+.db-prop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 24px;}
+.db-prop-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(37,42,53,.4);font-size:11px;}
+.db-prop-row span:last-child{font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;}
+.db-section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:28px 0 14px;display:flex;align-items:center;gap:10px;}
+.db-section-title .phl{flex:1;height:1px;background:var(--border);}
+</style>
+</head>
+<body>
+
+<!-- ══════════ GLOBAL NAV ══════════ -->
+<div class="gnav">
+  <div class="logo">IPG</div>
+  <h1>Axxerion Operations Hub</h1>
+  <div class="gtabs">
+    <button class="gtab active" onclick="switchView('dashboard',this)">Dashboard</button>
+    <button class="gtab" onclick="switchView('workflow',this)">Workflow</button>
+  </div>
+  <span class="gright">Secure Space Self Storage</span>
+</div>
+
+<!-- ══════════ VIEW 1: WORKFLOW ══════════ -->
+<div id="view-workflow" class="view" style="zoom:1.55;">
+
+<div class="hdr">
+  <div style="display:flex;gap:7px">
+    <span class="badge bb">Secure Space Self Storage</span>
+    <span class="badge bp">10 Email Triggers</span>
+  </div>
+  <span class="hsub">IPG-WF-2403005-01 &nbsp;·&nbsp; Click any card for details</span>
+</div>
+
+<div class="stats">
+  <div class="st"><span class="sv">10</span><span class="sl">Email Triggers</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">8</span><span class="sl">Unique Roles</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">4</span><span class="sl">Workflow Phases</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">1</span><span class="sl">Change Order Path</span></div>
+  <div class="sdiv"></div>
+  <div class="st"><span class="sv">2</span><span class="sl">Rejection Loops</span></div>
+</div>
+
+<div id="filterbar" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 32px;white-space:nowrap;overflow-x:auto;">
+    <span class="fl">Filter:</span>
+    <button class="ftag active" data-person="all" onclick="setFilter('all',this)">All</button>
+    <button class="ftag" data-person="District Manager" onclick="setFilter('District Manager',this)">District Manager</button>
+    <button class="ftag" data-person="Regional Manager" onclick="setFilter('Regional Manager',this)">Regional Manager</button>
+    <button class="ftag" data-person="IPG Facility Manager" onclick="setFilter('IPG Facility Manager',this)">IPG Facility Manager</button>
+    <button class="ftag" data-person="Work Order Executor" onclick="setFilter('Work Order Executor',this)">Work Order Executor</button>
+    <button class="ftag" data-person="IPG Vendor Contact" onclick="setFilter('IPG Vendor Contact',this)">IPG Vendor Contact</button>
+    <button class="ftag" data-person="Store Manager" onclick="setFilter('Store Manager',this)">Store Manager</button>
+    <button class="ftag" data-person="IPG Accounts Payable" onclick="setFilter('IPG Accounts Payable',this)">IPG Accounts Payable</button>
+    <button class="ftag" data-person="Randy Hillman" onclick="setFilter('Randy Hillman',this)">Randy Hillman</button>
+    <button class="ftag" data-person="Assigner" onclick="setFilter('Assigner',this)">Assigner</button>
+    <span class="fcount" id="fcount" style="margin-left:auto;">Showing 10 of 10</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;padding:6px 32px;white-space:nowrap;overflow-x:auto;border-top:1px solid var(--border);">
+    <span class="fl">Legend:</span>
+    <div class="li"><div class="ld" style="background:var(--accent2)"></div>Assignment</div>
+    <div class="li"><div class="ld" style="background:var(--green)"></div>Trigger / Confirm</div>
+    <div class="li"><div class="ld" style="background:var(--accent)"></div>Approval Required</div>
+    <div class="li"><div class="ld" style="background:var(--red)"></div>Rejection / Loop</div>
+    <div class="li"><div class="ld" style="background:var(--orange)"></div>Change Order</div>
+    <div class="li"><div class="ld" style="background:var(--yellow)"></div>Confirmation Notice</div>
+  </div>
+</div>
+
+<div class="canvas">
+  <div class="ph"><span class="badge bp">Phase 1</span><span class="pt">Assignment &amp; Confirmation</span><div class="phl"></div></div>
+  <div class="row">
+    <div class="en" onclick="sp('e1')"><div class="ec assign" id="card-e1"><div class="cs">EMAIL 01 · IPG-CN-0063</div><div class="cq">"{extRef} has been assigned to you by Secure Space Self Storage"</div><div class="cc"><span class="chip cbb">District Mgr</span><span class="chip cbb">Regional Mgr</span><span class="chip cbp">IPG Facility Mgr</span><span class="chip cbg">WO Executor</span><span class="chip cbo">Vendor Contact</span><span class="chip cby">Store Manager</span></div><div class="ci">TRIGGER: Work order assigned → Connector</div></div></div>
+    <div class="arr"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(79,142,247,.35),var(--border))"></div><div class="at"></div></div>
+    <div class="en" onclick="sp('e2')"><div class="ec trigger" id="card-e2"><div class="cs">EMAIL 02 · START DATE TRIGGER</div><div class="cq">"Please Confirm Your Work Assignment for Secure Space {extRef}"</div><div class="cc"><span class="chip cbg">WO Executor</span></div><div class="ci">TRIGGER: Start date (Triggertype)</div></div></div>
+    <div class="arr"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(79,142,247,.35),var(--border))"></div><div class="at"></div></div>
+    <div class="en" onclick="sp('e3')"><div class="ec confirm" id="card-e3"><div class="cs">EMAIL 03 · IPG-CN-0253</div><div class="cq">"Workorder {extRef} has been confirmed"</div><div class="cc"><span class="chip cby">Store Manager</span></div><div class="ci">TRIGGER: Worker confirms assignment</div></div></div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bb">Phase 2</span><span class="pt">Work Execution &amp; Manager Approval</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e4')"><div class="ec approval" id="card-e4"><div class="cs">EMAIL 04 · IPG-CN-0067</div><div class="cq">"Work is finished on a workorder, and requires approval {extRef}"</div><div class="cc"><span class="chip cbb">Regional Manager</span></div><div class="ci">TRIGGER: Executor marks work done (Stop Work)</div></div></div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bg">Phase 3</span><span class="pt">Financial Confirmation</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e5')" style="margin-top:8px"><div class="ec financial" id="card-e5"><div class="cs">EMAIL 05 · IPG-CN-0069</div><div class="cq">"Work is approved and requires you to confirm financials {extRef}"</div><div class="cc"><span class="chip cbg">IPG Accounts Payable</span></div><div class="ci">TRIGGER: Regional Manager approves work</div></div></div>
+    <div class="arr" style="padding-top:52px"><div class="al al-md" style="background:var(--border)"></div><div class="at"></div></div>
+    <div class="bw" style="margin-top:0">
+      <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Decision: Confirm or Reject</div>
+      <div class="brow">
+        <div class="bline bl-sm"></div><span class="bl blg">✓ Confirmed</span><div class="bline bl-md"></div><div class="at atg"></div>
+        <div style="margin-left:7px;font-size:10px;font-family:'DM Mono',monospace;color:var(--green);padding:8px 12px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;">Work Order Complete ✓</div>
+      </div>
+      <div class="brow" style="margin-top:6px">
+        <div class="bline bl-sm"></div><span class="bl blr">✗ Rejected</span><div class="bline bl-md"></div><div class="at atr"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e6')"><div class="ec rejection" id="card-e6"><div class="cs">EMAIL 06 · IPG-CN-0082</div><div class="cq">"The financials were rejected for the workorder {extRef}"</div><div class="cc"><span class="chip cbr">Assigner</span></div><div class="ci">TRIGGER: Financials rejected → loops back</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ph" style="margin-top:32px"><span class="badge bo">Phase 4</span><span class="pt">Change Order Process</span><div class="phl"></div></div>
+  <div class="row" style="align-items:flex-start">
+    <div class="en" onclick="sp('e7')" style="margin-top:8px"><div class="ec change" id="card-e7"><div class="cs">EMAIL 07 · IPG-CN-0318</div><div class="cq">"A Change Order has been requested {extRef}"</div><div class="cc"><span class="chip cbo">Randy Hillman</span></div><div class="ci">TRIGGER: Change order submitted</div></div></div>
+    <div class="arr" style="padding-top:52px"><div class="al al-md" style="background:linear-gradient(90deg,var(--border),rgba(251,146,60,.35),var(--border))"></div><div class="at ato"></div></div>
+    <div class="bw" style="margin-top:0">
+      <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Decision: Approve or Reject Change Order</div>
+      <div class="brow">
+        <div class="bline bl-sm"></div><span class="bl blg">✓ Approved</span><div class="bline bl-md"></div><div class="at atg"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e8')"><div class="ec approval" id="card-e8"><div class="cs">EMAIL 08 · IPG-CN-0320</div><div class="cq">"Change Order Approved {extRef}"</div><div class="cc"><span class="chip cbb">Assigner</span><span class="chip cbg">WO Executor</span></div><div class="ci">TRIGGER: Randy approves change order</div></div></div></div>
+      </div>
+      <div class="brow" style="margin-top:6px">
+        <div class="bline bl-sm"></div><span class="bl blr">✗ Rejected</span><div class="bline bl-md"></div><div class="at atr"></div>
+        <div style="margin-left:7px"><div class="en" onclick="sp('e9')"><div class="ec rejection" id="card-e9"><div class="cs">EMAIL 09 · IPG-CN-0321</div><div class="cq">"Change Order Rejected {extRef}"</div><div class="cc"><span class="chip cbg">WO Executor</span><span class="chip cbb">Assigner</span></div><div class="ci">TRIGGER: Change order rejected → resubmit</div></div></div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;align-self:flex-end;margin-bottom:0;padding-bottom:0">
+      <div style="width:44px;height:1px;background:var(--border);margin-left:10px"></div>
+      <div class="at ato"></div>
+      <div style="margin-left:7px">
+        <div class="en" onclick="sp('e10')"><div class="ec change" id="card-e10"><div class="cs">EMAIL 10 · IPG-CN-0323 (RESUBMIT)</div><div class="cq">"A Change Order has been requested {extRef}"</div><div class="cc"><span class="chip cbo">Randy Hillman</span></div><div class="ci">TRIGGER: Resubmitted change order</div></div></div>
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;margin-top:3px">↑ rejection loops to resubmit</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /view-workflow -->
+
+<!-- ══════════ VIEW 2: DASHBOARD ══════════ -->
+<div id="view-dashboard" class="view active">
+
+<!-- Filter Bar -->
+<div class="db-filters">
+  <span class="db-filter-label">Filters:</span>
+  <label class="db-toggle" title="Hide Closed, Invoiced, Cancelled, Completed">
+    <input type="checkbox" id="hideClosedToggle" checked onchange="applyFilters()">
+    <span class="db-toggle-slider"></span>
+    <span class="db-filter-label" style="cursor:pointer">Open Only</span>
+  </label>
+  <div class="db-filter-group" style="max-width:180px;">
+    <label class="db-filter-label">Type</label>
+    <div class="ms-wrap" id="fRecordType"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label">Property</label>
+    <div class="ms-wrap" id="fProperty"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label" id="lblDM">DM</label>
+    <div class="ms-wrap" id="fDM"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label">Service Type</label>
+    <div class="ms-wrap" id="fServiceType"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label">Status</label>
+    <div class="ms-wrap" id="fStatus"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label">Facility Mgr</label>
+    <div class="ms-wrap" id="fFM"></div>
+  </div>
+  <div class="db-filter-group">
+    <label class="db-filter-label">Maint Sched</label>
+    <div class="ms-wrap" id="fMaint"></div>
+  </div>
+  <button class="db-filter-reset" onclick="resetFilters()">Reset All</button>
+  <span class="db-filter-count" id="dbFilterCount"></span>
+</div>
+
+<div class="db">
+  <!-- KPI Cards -->
+  <div class="db-kpis">
+    <div class="db-kpi kpi-blue kpi-clickable" onclick="openRawData()" title="Click to view raw data"><div class="kpi-val" id="kpiWO">--</div><div class="kpi-lbl" id="kpiWOLabel">Total Work Orders</div></div>
+    <div class="db-kpi kpi-green"><div class="kpi-val" id="kpiNTE">--</div><div class="kpi-lbl">Total NTE</div></div>
+    <div class="db-kpi kpi-purple"><div class="kpi-val" id="kpiSpend">--</div><div class="kpi-lbl">Total Spend</div></div>
+    <div class="db-kpi kpi-yellow"><div class="kpi-val" id="kpiUtil">--</div><div class="kpi-lbl">NTE Utilization</div></div>
+    <div class="db-kpi kpi-orange"><div class="kpi-val" id="kpiAvg">--</div><div class="kpi-lbl">Avg Cost / WO</div></div>
+    <div class="db-kpi kpi-green"><div class="kpi-val" id="kpiExceed">--</div><div class="kpi-lbl">NTE Exceeded</div></div>
+  </div>
+
+  <!-- Status + Priority -->
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-card-title">Status Breakdown</div>
+      <div id="tblStatus"></div>
+    </div>
+    <div class="db-card" style="display:flex;flex-direction:column;">
+      <div class="db-card-title">Priority Breakdown</div>
+      <div class="chart-wrap chart-wrap-priority"><canvas id="chartPriority" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DM + Regional -->
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-card-title">District Manager Breakdown</div>
+      <div id="tblDM"></div>
+      <div class="chart-wrap" style="height:180px;margin-top:14px;position:relative;"><canvas id="chartDM"></canvas></div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-title">Regional Breakdown</div>
+      <div class="chart-wrap" style="height:280px;position:relative;"><canvas id="chartRegion"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Service Types + Vendors -->
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-card-title">Top 10 Service Types</div>
+      <div id="tblService"></div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-title">Top 10 Vendors</div>
+      <div id="tblVendor"></div>
+    </div>
+  </div>
+
+  <!-- Property Breakdown -->
+  <div class="db-section-title">Property Breakdown <div class="phl"></div></div>
+  <div class="db-card" style="margin-bottom:18px;"><div id="tblProperty" class="db-prop-grid"></div></div>
+
+  <!-- Elevator Breakdown -->
+  <div class="db-section-title">Elevator Operations <div class="phl"></div></div>
+  <div class="elev-kpis" id="elevKpis">
+    <div class="db-kpi kpi-blue"><div class="kpi-val" id="elevTotal">--</div><div class="kpi-lbl">Elevator WOs</div></div>
+    <div class="db-kpi kpi-green"><div class="kpi-val" id="elevNTE">--</div><div class="kpi-lbl">Elevator NTE</div></div>
+    <div class="db-kpi kpi-purple"><div class="kpi-val" id="elevSpend">--</div><div class="kpi-lbl">Elevator Spend</div></div>
+    <div class="db-kpi kpi-orange"><div class="kpi-val" id="elevPM">--</div><div class="kpi-lbl">PM (Maintenance)</div></div>
+    <div class="db-kpi kpi-red"><div class="kpi-val" id="elevReactive">--</div><div class="kpi-lbl">Reactive</div></div>
+  </div>
+  <div class="db-grid">
+    <div class="db-card" style="display:flex;flex-direction:column;">
+      <div class="db-card-title">Issue Type Breakdown</div>
+      <div class="chart-wrap" style="position:relative;flex:1;min-height:240px;"><canvas id="chartElevType" style="cursor:pointer;"></canvas></div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-title">Top Elevator Vendors</div>
+      <div class="chart-wrap" style="height:240px;position:relative;"><canvas id="chartElevVendor"></canvas></div>
+    </div>
+  </div>
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-card-title">Top 15 Properties by Elevator WOs</div>
+      <div class="chart-wrap" style="height:320px;position:relative;"><canvas id="chartElevProperty"></canvas></div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-title">Elevator Status Breakdown</div>
+      <div class="chart-wrap" style="height:320px;position:relative;"><canvas id="chartElevStatus"></canvas></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /view-dashboard -->
+
+<!-- ══════════ DETAIL PANEL ══════════ -->
+<div class="panel" id="panel">
+  <button class="pc" onclick="cp()">✕</button>
+  <div id="pc"></div>
+</div>
+
+<script>
+/* ── View Switching ── */
+function switchView(view, btn) {
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.gtab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('view-'+view).classList.add('active');
+  btn.classList.add('active');
+  if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
+}
+
+/* ── Workflow: Email Panel ── */
+var D={
+  e1:{step:'EMAIL 01 · Phase 1',title:'{extRef} has been assigned to you by Secure Space Self Storage',type:'Assignment',badge:'bp',connector:'IPG-CN-0063-assign',trigger:'Fired immediately when a work order is assigned. Notifies all primary stakeholders simultaneously.',to:[['District Manager','cbb'],['Regional Manager','cbb'],['IPG Facility Manager','cbp'],['Work Order Executor','cbg'],['IPG Vendor Contact','cbo'],['Store Manager','cby']],cc:['WO Executor - Additional Email Contacts','IPG Vendor Contact - Additional Email Contacts'],notes:'Widest distribution in the flow — 6 primary recipients.',emailPreview:{from:'Felipe Lopez <felipe@insitepg.com>',to:'Store Manager, Randy Hillman, Felipe Lopez, Amber Quesada, Michael Abell, American Heritage Landscape LP',subject:'0010818 has been assigned to you by Secure Space Self Storage',body:'A work order has been assigned. All primary stakeholders are notified simultaneously, including the District Manager, Regional Manager, IPG Facility Manager, Work Order Executor, IPG Vendor Contact, and Store Manager.'}},
+  e2:{step:'EMAIL 02 · Phase 1',title:'Please Confirm Your Work Assignment for Secure Space Self Storage {extRef}',type:'Time Trigger',badge:'bg',connector:'Start date (Triggertype)',trigger:'Automatically sent when the work order start date arrives. Prompts the executor to formally confirm.',to:[['Work Order Executor','cbg']],cc:['WO Executor - Additional Email Contacts'],notes:'Time-based trigger. If the executor does not confirm, work may be re-assigned.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'AR.Inquiry <ar.inquiry@schindler.com>',cc:'Terence Anglin, Erica Peterlin, WorkOrders2, Barbara Van Andel',subject:'[EXTERNAL] Please Confirm Your Work Assignment for Secure Space Self Storage WRK-261451',body:'A workorder assigned to you is waiting for confirmation.\n\nSubject: Elevator Maintenance - Monthly\nReference: WRK-261451\nIssue: Monthly Maintenance-R&M\nPriority: Medium\nAddress: 3737 NE Columbia Blvd, Portland, OR, 97211\nNot To Exceed Amount: $856.41\n\nPlease log in and confirm that you accept the assignment.'}},
+  e3:{step:'EMAIL 03 · Phase 1',title:'Workorder {extRef} has been confirmed',type:'Confirmation Notice',badge:'by',connector:'IPG-CN-0253-confirmworker',trigger:'Sent after the Work Order Executor confirms their assignment in the system.',to:[['Store Manager','cby']],cc:[],notes:'Keeps the Store Manager informed that a confirmed worker is scheduled to arrive.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'SecureSpace Palm Springs <palmsprings@securespace.com>',subject:'Workorder 0010349 has been confirmed',body:'The vendor The Comfort Zone is set to arrive to do the work at 2/14/2026 1:36 PM.\n\nSubject: INSULATION LINER ON BACK OF DRIVE UP UNIT S020 UNIT DOOR\nProblem: Unit Repairs - R&M\nProperty: L077 - Palm Springs'}},
+  e4:{step:'EMAIL 04 · Phase 2',title:'Work is finished on a workorder, and requires approval {extRef}',type:'Approval Request',badge:'bb',connector:'IPG-CN-0067-stopwork',trigger:'Sent when the executor clicks End Work / Stop Work. Notifies manager to review and approve.',to:[['Regional Manager','cbb']],cc:[],notes:'Regional Manager must approve before financials can be processed.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Julio Gloria <jgloria@securespace.com>',subject:'Work is finished on a workorder, and requires approval WRK-257535',body:'Work has been marked complete on work order WRK-257535. The Regional Manager must now review and approve.'}},
+  e5:{step:'EMAIL 05 · Phase 3',title:'Work is approved on a workorder and requires you to confirm financials {extRef}',type:'Financial Action Required',badge:'bg',connector:'IPG-CN-0069-approve',trigger:'Sent when Regional Manager approves completed work. Routes to financial review.',to:[['IPG Accounts Payable','cbg']],cc:[],notes:'Directed to IPG Accounts Payable for financial review and confirmation.',emailPreview:{from:'Axxerion Support <niko@axxerionusa.com>',to:'IPG Accounts Payable <ap@insitepg.com>',subject:'Work is approved on a workorder and requires you to confirm financials 0005731',body:'Work on work order 0005731 has been approved by the Regional Manager and is now awaiting financial confirmation.'}},
+  e6:{step:'EMAIL 06 · Phase 3',title:'The financials were rejected for the workorder {extRef}',type:'Rejection',badge:'br',connector:'IPG-CN-0082-rejectFinancials',trigger:'Sent when financials are rejected — creates a loop back to the Assigner to correct and resubmit.',to:[['Assigner','cbr']],cc:[],notes:'Creates a loop — Assigner must review and correct the financials before resubmission.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Felipe Lopez <felipe@insitepg.com>',subject:'The financials were rejectcted for the workorder 0008637-R',body:'The financials submitted for work order 0008637-R have been rejected. The Assigner must review and resubmit.'}},
+  e7:{step:'EMAIL 07 · Phase 4',title:'A Change Order has been requested {extRef}',type:'Change Order Request',badge:'bo',connector:'IPG-CN-0318-submitchangeorder',trigger:'Sent when executor or assigner submits a change order request during work execution.',to:[['Randy Hillman','cbo']],cc:[],notes:'Named approver Randy Hillman handles all change order decisions.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Randy Hillman <rhillman@securespace.com>',subject:'A Change Order has been requested {extRef}',body:'A change order has been submitted and requires your review.'}},
+  e8:{step:'EMAIL 08 · Phase 4',title:'Change Order Approved {extRef}',type:'Approval',badge:'bg',connector:'IPG-CN-0320-approve',trigger:'Sent when Randy Hillman approves the change order.',to:[['Assigner','cbb'],['Work Order Executor','cbg']],cc:['WO Executor - Additional Email Contacts'],notes:'Both parties notified so work can proceed with the updated scope.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Consumer Research Bureau, INC; Felipe Lopez',subject:'Change Order Approved 0009330',body:'The change order has been approved. Both the Assigner and the Work Order Executor are notified.'}},
+  e9:{step:'EMAIL 09 · Phase 4',title:'Change Order Rejected {extRef}',type:'Rejection',badge:'br',connector:'IPG-CN-0321-rejectChangeOrder',trigger:'Sent when Randy Hillman rejects the change order. System allows resubmission via EMAIL 10.',to:[['Work Order Executor','cbg'],['Assigner','cbb']],cc:['WO Executor - Additional Email Contacts'],notes:'Both parties notified. System allows resubmission via EMAIL 10 (IPG-CN-0323).',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Nations Roof LLC; Felipe Lopez',subject:'Change Order Rejected 0009287',body:'The change order has been rejected. It may be revised and resubmitted.'}},
+  e10:{step:'EMAIL 10 · Phase 4',title:'A Change Order has been requested {extRef}',type:'Change Order Resubmit',badge:'bo',connector:'IPG-CN-0323-Resubmit',trigger:'Sent when a previously rejected change order is resubmitted for re-review.',to:[['Randy Hillman','cbo']],cc:[],notes:'Same recipient as EMAIL 07 — Randy Hillman reviews again after the updated resubmission.',emailPreview:{from:'Axxerion <noreply@axxerion.us>',to:'Randy Hillman <rhillman@securespace.com>',subject:'A Change Order has been requested {extRef} (Resubmission)',body:'A previously rejected change order has been revised and resubmitted for your review.'}}
+};
+
+function sp(id){
+  var d=D[id];if(!d)return;
+  var toH=d.to.map(function(r){return'<span class="pchip '+r[1]+'" style="background:rgba(0,0,0,.2)">'+r[0]+'</span>';}).join('');
+  var ccH=d.cc.length?d.cc.map(function(r){return'<span class="pchip" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.2);color:#c4b5fd">'+r+'</span>';}).join(''):'<span style="font-size:11px;color:var(--muted)">None</span>';
+  var emailH='';
+  if(d.emailPreview){
+    var ep=d.emailPreview;
+    var bodyLines=ep.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    var ccRow=ep.cc?'<div style="font-size:10px;margin-top:3px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">CC:</span> '+ep.cc+'</div>':'';
+    emailH='<div class="pdiv"></div><div class="psec"><div class="psl">Actual Email Example</div><div style="background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px;line-height:1.6"><div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px"><div style="margin-bottom:2px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">FROM:</span> <span style="color:#93bbfa">'+ep.from+'</span></div><div style="margin-bottom:2px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">TO:</span> <span style="color:var(--text)">'+ep.to+'</span></div>'+ccRow+'<div style="margin-top:6px;font-weight:600;color:var(--text)">'+ep.subject+'</div></div><div style="color:var(--muted);font-size:11px;line-height:1.7">'+bodyLines+'</div></div></div>';
+  }
+  document.getElementById('pc').innerHTML='<div class="ps">'+d.step+'</div><div class="pti">"'+d.title+'"</div><div class="psec"><div class="psl">Email Type</div><span class="badge '+d.badge+'" style="font-size:11px;padding:4px 11px">'+d.type+'</span></div><div class="pdiv"></div><div class="psec"><div class="psl">To — Primary Recipients</div><div class="pchips">'+toH+'</div></div><div class="psec"><div class="psl">CC</div><div class="pchips">'+ccH+'</div></div><div class="pdiv"></div><div class="psec"><div class="psl">Trigger Condition</div><div class="ptrig"><strong>WHEN:</strong><br>'+d.trigger+'</div></div><div class="psec"><div class="psl">Connector / Object ID</div><div class="pconn">'+d.connector+'</div></div><div class="pdiv"></div><div class="psec"><div class="psl">Notes</div><div style="font-size:12px;color:var(--muted);line-height:1.6">'+d.notes+'</div></div>'+emailH;
+  document.querySelectorAll('.ec').forEach(function(c){c.classList.remove('active');});
+  var el=document.getElementById('card-'+id);if(el)el.classList.add('active');
+  document.getElementById('panel').classList.add('open');
+}
+function cp(){
+  document.getElementById('panel').classList.remove('open');
+  document.querySelectorAll('.ec').forEach(function(c){c.classList.remove('active');});
+}
+
+/* ── Workflow: Person Filter ── */
+var personMap={
+  'District Manager':['e1'],'Regional Manager':['e1','e4'],'IPG Facility Manager':['e1'],
+  'Work Order Executor':['e1','e2','e8','e9'],'IPG Vendor Contact':['e1'],
+  'Store Manager':['e1','e3'],'IPG Accounts Payable':['e5'],
+  'Randy Hillman':['e7','e10'],'Assigner':['e6','e8','e9']
+};
+function setFilter(person,btn){
+  document.querySelectorAll('.ftag').forEach(function(b){b.classList.remove('active','person-active');});
+  btn.classList.add(person==='all'?'active':'person-active');
+  var allCards=document.querySelectorAll('.en');
+  var shown=0;
+  allCards.forEach(function(el){
+    var id=el.querySelector('.ec')?el.querySelector('.ec').id.replace('card-',''):null;
+    if(!id)return;
+    if(person==='all'){el.classList.remove('dim','highlight');shown++;}
+    else{
+      var ids=personMap[person]||[];
+      if(ids.indexOf(id)>=0){el.classList.remove('dim');el.classList.add('highlight');shown++;}
+      else{el.classList.add('dim');el.classList.remove('highlight');}
+    }
+  });
+  document.getElementById('fcount').textContent=(person==='all'?'Showing '+allCards.length+' of '+allCards.length:'Showing '+shown+' of '+allCards.length+' — '+person);
+}
+document.addEventListener('click',function(e){
+  var p=document.getElementById('panel');
+  if(p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.en')&&!e.target.closest('.ftag'))cp();
+});
+
+/* ── Dashboard: Data Engine ── */
+// Columns: [0]property [1]status [2]priority [3]serviceType [4]nte [5]spend [6]vendor [7]region [8]dm [9]maintSched
+// [10]reference [11]subject [12]created [13]address [14]bookmark [15]recordType [16]requestor  (from API)
+// RAW loaded via data.js (fallback) or /api/workorders (live)
+// ALLDATA = combined WO + Request rows; RAW = just WOs for fallback compat
+var DATA_SOURCE='static';
+var ALLDATA=[];
+var _chartPriority,_chartDM,_chartRegion,_chartElevType,_chartElevVendor,_chartElevProperty,_chartElevStatus;
+var fontMono="'DM Mono',monospace";
+
+function $(id){return document.getElementById(id);}
+function fmt$(n){return n>=1000?'$'+Math.round(n).toLocaleString():'$'+n.toFixed(2);}
+function pct(n,t){return t?((n/t)*100).toFixed(1)+'%':'0%';}
+
+function buildMultiSelect(id,values,onChange){
+  var wrap=$(id);
+  var prev=wrap._selected||new Set();
+  var btn=document.createElement('button');btn.className='ms-btn';btn.type='button';
+  btn.innerHTML='All';
+  var dd=document.createElement('div');dd.className='ms-dd';
+  var search=document.createElement('input');search.className='ms-search';search.placeholder='Search...';
+  var acts=document.createElement('div');acts.className='ms-actions';
+  var selAll=document.createElement('button');selAll.type='button';selAll.textContent='Select All';
+  var clrAll=document.createElement('button');clrAll.type='button';clrAll.textContent='Clear All';
+  acts.appendChild(selAll);acts.appendChild(clrAll);
+  dd.appendChild(search);dd.appendChild(acts);
+  var list=document.createElement('div');list.className='ms-list';
+  var opts=[];
+  values.forEach(function(v){
+    var row=document.createElement('div');row.className='ms-opt';row.dataset.val=v;
+    if(prev.has(v))row.classList.add('sel');
+    row.innerHTML='<span class="ms-cb"></span><span class="ms-lbl">'+v.replace(/</g,'&lt;')+'</span>';
+    row.addEventListener('click',function(e){
+      e.stopPropagation();
+      row.classList.toggle('sel');
+      updateMs();if(onChange)onChange();applyFilters();
+    });
+    list.appendChild(row);opts.push(row);
+  });
+  dd.appendChild(list);
+  wrap.innerHTML='';wrap.appendChild(btn);wrap.appendChild(dd);
+  function updateMs(){
+    var sel=[];opts.forEach(function(o){if(o.classList.contains('sel'))sel.push(o.dataset.val);});
+    wrap._selected=new Set(sel);
+    if(sel.length===0){btn.innerHTML='All';btn.classList.remove('has-sel');}
+    else{
+      var txt=sel.length===1?sel[0]:sel.length+' selected';
+      btn.innerHTML=txt+'<span class="ms-count">'+sel.length+'</span>';
+      btn.classList.add('has-sel');
+    }
+  }
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    closeAllMs(wrap);
+    dd.classList.toggle('open');btn.classList.toggle('open');
+    if(dd.classList.contains('open')){
+      search.value='';search.focus();opts.forEach(function(o){o.classList.remove('hidden');});
+      var btnRect=btn.getBoundingClientRect();
+      dd.style.position='fixed';
+      dd.style.top=(btnRect.bottom+4)+'px';
+      var left=btnRect.left;
+      if(left+280>window.innerWidth){left=window.innerWidth-284;}
+      if(left<4)left=4;
+      dd.style.left=left+'px';
+      dd.style.right='auto';
+    }
+  });
+  search.addEventListener('input',function(){
+    var q=search.value.toLowerCase();
+    opts.forEach(function(o){o.classList.toggle('hidden',o.dataset.val.toLowerCase().indexOf(q)===-1);});
+  });
+  search.addEventListener('click',function(e){e.stopPropagation();});
+  selAll.addEventListener('click',function(e){
+    e.stopPropagation();
+    opts.forEach(function(o){if(!o.classList.contains('hidden'))o.classList.add('sel');});
+    updateMs();if(onChange)onChange();applyFilters();
+  });
+  clrAll.addEventListener('click',function(e){
+    e.stopPropagation();
+    opts.forEach(function(o){o.classList.remove('sel');});
+    updateMs();if(onChange)onChange();applyFilters();
+  });
+  updateMs();
+}
+function closeAllMs(except){
+  document.querySelectorAll('.ms-wrap').forEach(function(w){
+    if(w===except)return;
+    var d=w.querySelector('.ms-dd');if(d)d.classList.remove('open');
+    var b=w.querySelector('.ms-btn');if(b)b.classList.remove('open');
+  });
+}
+document.addEventListener('click',function(){closeAllMs();});
+function getSelected(id){var w=$(id);return w._selected&&w._selected.size?w._selected:null;}
+function populateSelect(id,values){buildMultiSelect(id,values);}
+
+function groupBy(arr,idx){
+  var m={};arr.forEach(function(r){var k=r[idx]||'(blank)';if(!m[k])m[k]={count:0,nte:0,spend:0};m[k].count++;m[k].nte+=r[4];m[k].spend+=r[5];});
+  return Object.keys(m).sort(function(a,b){return m[b].count-m[a].count;}).map(function(k){return{label:k,count:m[k].count,nte:m[k].nte,spend:m[k].spend};});
+}
+
+function buildStatusTable(data,total){
+  var groups=groupBy(data,1);
+  var colors={'Assigned':'var(--accent)','Work in progress':'var(--green)','Approver Review':'var(--yellow)',
+    'Work finished':'var(--accent2)','Completed':'var(--green)','Draft':'var(--muted)',
+    'Additional Change Order Review':'var(--orange)','Financials Submitted':'var(--accent)',
+    'Accepted':'var(--green)','Needs Reassignment':'var(--red)','Prepare Financials':'var(--yellow)',
+    'Financials Rejected':'var(--red)','Change Order Submitted':'var(--orange)',
+    'Change Order Rejected':'var(--red)','Invoiced':'var(--green)','Work approved':'var(--green)',
+    'Rejected':'var(--red)','Not Resolved':'var(--red)'};
+  var h='<table class="db-table"><tr><th>Status</th><th class="r">Count</th><th style="width:45%"></th><th class="r">%</th></tr>';
+  groups.forEach(function(g){
+    if(g.count===0)return;
+    var p=total?(g.count/total*100):0;
+    var c=colors[g.label]||'var(--muted)';
+    h+='<tr><td>'+g.label+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
+  });
+  h+='</table>';
+  $('tblStatus').innerHTML=h;
+}
+
+function buildGroupTable(id,data,colIdx,headers){
+  var groups=groupBy(data,colIdx).slice(0,10);
+  var h='<table class="db-table"><tr>';
+  headers.forEach(function(hh){h+='<th'+(hh.r?' class="r"':'')+'>'+hh.t+'</th>';});
+  h+='</tr>';
+  groups.forEach(function(g){
+    if(g.count===0)return;
+    h+='<tr><td>'+g.label+'</td><td class="r">'+g.count+'</td><td class="r">'+fmt$(g.nte)+'</td>';
+    if(headers.length>3)h+='<td class="r">'+fmt$(g.spend)+'</td>';
+    h+='</tr>';
+  });
+  h+='</table>';
+  $(id).innerHTML=h;
+}
+
+function buildPropertyGrid(data){
+  var groups=groupBy(data,0);
+  var third=Math.ceil(groups.length/3);
+  var cols=['','',''];
+  groups.forEach(function(g,i){
+    var ci=i<third?0:(i<third*2?1:2);
+    cols[ci]+='<div class="db-prop-row"><span>'+g.label+'</span><span>'+g.count+'</span></div>';
+  });
+  $('tblProperty').innerHTML='<div>'+cols[0]+'</div><div>'+cols[1]+'</div><div>'+cols[2]+'</div>';
+}
+
+var CLOSED_STATUSES=new Set(['Closed','Invoiced','Cancelled','Completed']);
+function applyFilters(){
+  var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
+      fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
+  var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
+  var filtered=ALLDATA.filter(function(r){
+    if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
+    if(fT && !fT.has(r[15]))return false;
+    if(fP && !fP.has(r[0]))return false;
+    if(fD && !fD.has(r[8]))return false;
+    if(fS && !fS.has(r[3]))return false;
+    if(fSt && !fSt.has(r[1]))return false;
+    if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
+    if(fFM && !fFM.has(r[17]||'(Unassigned)'))return false;
+    return true;
+  });
+  renderDashboard(filtered);
+}
+
+function resetFilters(){
+  document.querySelectorAll('.ms-wrap').forEach(function(w){
+    w._selected=new Set();
+    w.querySelectorAll('.ms-opt').forEach(function(o){o.classList.remove('sel');});
+    var b=w.querySelector('.ms-btn');if(b){b.innerHTML='All';b.classList.remove('has-sel');}
+  });
+  var tog=$('hideClosedToggle');if(tog)tog.checked=true;
+  applyFilters();
+}
+
+function renderDashboard(data){
+  var total=data.length;
+  var nte=0,spend=0,exceeded=0;
+  data.forEach(function(r){nte+=r[4];spend+=r[5];if(r[5]>r[4]&&r[4]>0)exceeded++;});
+  var util=nte?((spend/nte)*100):0;
+  var avg=total?(spend/total):0;
+
+  $('kpiWO').textContent=total.toLocaleString();
+  var fTk=getSelected('fRecordType');
+  $('kpiWOLabel').textContent=(!fTk||fTk.size===0||fTk.size===2)?'Total Records':(fTk.has('Work Order')?'Total Work Orders':'Total Requests');
+  $('kpiNTE').textContent=fmt$(nte);
+  $('kpiSpend').textContent=fmt$(spend);
+  $('kpiUtil').textContent=util.toFixed(1)+'%';
+  $('kpiAvg').textContent=fmt$(avg);
+  $('kpiExceed').textContent=exceeded;
+  sizeKPIs();
+  var fT=getSelected('fRecordType');
+  var typeLabel=(!fT||fT.size===0||fT.size===2)?'records':(fT.has('Work Order')?'work orders':'requests');
+  $('dbFilterCount').textContent='Showing '+total+' of '+ALLDATA.length+' '+typeLabel;
+
+  buildStatusTable(data,total);
+  buildGroupTable('tblDM',data,8,[{t:'District Manager'},{t:'WO Count',r:1},{t:'Total NTE',r:1}]);
+  buildGroupTable('tblService',data,3,[{t:'Service Type'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
+  buildGroupTable('tblVendor',data,6,[{t:'Vendor'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
+  buildPropertyGrid(data);
+
+  // Charts
+  var priGroups=groupBy(data,2);
+  var priOrder=['Critical','High','Medium','Low','Very low'];
+  var priColors=['#f87171','#fb923c','#fbbf24','#4f8ef7','#6b7280'];
+  var priData=priOrder.map(function(p){var f=priGroups.find(function(g){return g.label===p;});return f?f.count:0;});
+
+  // Filter out priorities with zero count so chart and legend scale correctly
+  var priLabelsFiltered=[],priDataFiltered=[],priColorsFiltered=[];
+  priOrder.forEach(function(p,i){if(priData[i]>0){priLabelsFiltered.push(p);priDataFiltered.push(priData[i]);priColorsFiltered.push(priColors[i]);}});
+  if(priLabelsFiltered.length===0){priLabelsFiltered=['No Data'];priDataFiltered=[1];priColorsFiltered=['#252a35'];}
+
+  if(_chartPriority)_chartPriority.destroy();
+  _chartPriority=new Chart($('chartPriority'),{type:'doughnut',data:{labels:priLabelsFiltered,datasets:[{data:priDataFiltered,backgroundColor:priColorsFiltered,borderColor:'#161a22',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:8},onClick:function(evt,elements){if(elements.length>0){var idx=elements[0].index;var label=priLabelsFiltered[idx];if(label&&label!=='No Data')openRawData({priority:label});}},plugins:{legend:{position:'right',align:'center',labels:{color:'#e8eaf0',boxWidth:12,padding:10,font:{family:fontMono,size:10},generateLabels:function(chart){return chart.data.labels.map(function(label,i){var val=chart.data.datasets[0].data[i];var total=chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);var pctVal=total?((val/total)*100).toFixed(1):'0';return{text:label+' ('+val+', '+pctVal+'%)',fontColor:'#e8eaf0',fillStyle:chart.data.datasets[0].backgroundColor[i],strokeStyle:'#161a22',lineWidth:2,index:i};});}}}}}});
+
+  // ── Elevator Breakdown ──
+  var elevData=data.filter(function(r){return(r[3]||'').toLowerCase().indexOf('elevator')!==-1;});
+  var elevNTE=0,elevSpend=0,elevPM=0,elevReactive=0;
+  elevData.forEach(function(r){elevNTE+=r[4];elevSpend+=r[5];if(r[9])elevPM++;else elevReactive++;});
+  $('elevTotal').textContent=elevData.length.toLocaleString();
+  $('elevNTE').textContent=fmt$(elevNTE);
+  $('elevSpend').textContent=fmt$(elevSpend);
+  $('elevPM').textContent=elevPM.toLocaleString();
+  $('elevReactive').textContent=elevReactive.toLocaleString();
+
+  // Issue Type doughnut
+  var elevTypeMap={},elevTypeLabelToRaw={};
+  elevData.forEach(function(r){
+    var raw=r[3]||'(blank)';
+    var t=raw.replace(/-R&M$/,'').replace(/-Capex$/,'').replace(/^PM - /,'PM: ');
+    elevTypeMap[t]=(elevTypeMap[t]||0)+1;
+    if(!elevTypeLabelToRaw[t])elevTypeLabelToRaw[t]=[];
+    if(elevTypeLabelToRaw[t].indexOf(raw)===-1)elevTypeLabelToRaw[t].push(raw);
+  });
+  var elevTypes=Object.entries(elevTypeMap).sort(function(a,b){return b[1]-a[1];});
+  var elevTypeLabels=elevTypes.map(function(e){return e[0];});
+  var elevTypeData=elevTypes.map(function(e){return e[1];});
+  var elevTypeColors=['#f87171','#fb923c','#fbbf24','#4f8ef7','#a78bfa','#34d399','#6b7280','#f472b6','#38bdf8','#a3e635','#e879f9','#fdba74','#94a3b8','#67e8f9'];
+  if(_chartElevType)_chartElevType.destroy();
+  _chartElevType=new Chart($('chartElevType'),{type:'doughnut',data:{labels:elevTypeLabels,datasets:[{data:elevTypeData,backgroundColor:elevTypeColors.slice(0,elevTypeLabels.length),borderColor:'#161a22',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:4},onClick:function(evt,elements){if(elements.length>0){var idx=elements[0].index;var label=elevTypeLabels[idx];var rawTypes=elevTypeLabelToRaw[label]||[];if(rawTypes.length)openRawData({serviceTypes:rawTypes});}},plugins:{legend:{position:'right',align:'center',labels:{color:'#e8eaf0',boxWidth:10,padding:8,font:{family:fontMono,size:9},generateLabels:function(chart){return chart.data.labels.map(function(label,i){var val=chart.data.datasets[0].data[i];var total=chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);var pctVal=total?((val/total)*100).toFixed(1):'0';return{text:label+' ('+val+', '+pctVal+'%)',fontColor:'#e8eaf0',fillStyle:chart.data.datasets[0].backgroundColor[i],strokeStyle:'#161a22',lineWidth:2,index:i};});}}}}}});
+
+  // Top Vendors horizontal bar
+  var elevVendorMap={};
+  elevData.forEach(function(r){var v=r[6]||'(blank)';elevVendorMap[v]=(elevVendorMap[v]||0)+1;});
+  var elevVendors=Object.entries(elevVendorMap).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var elevVLabels=elevVendors.map(function(e){return e[0];});
+  var elevVData=elevVendors.map(function(e){return e[1];});
+  if(_chartElevVendor)_chartElevVendor.destroy();
+  _chartElevVendor=new Chart($('chartElevVendor'),{type:'bar',data:{labels:elevVLabels,datasets:[{label:'WO Count',data:elevVData,backgroundColor:'rgba(167,139,250,.6)',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}},y:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{display:false}}}});
+
+  // Top Properties horizontal bar
+  var elevPropMap={};
+  elevData.forEach(function(r){var p=r[0]||'(blank)';elevPropMap[p]=(elevPropMap[p]||0)+1;});
+  var elevProps=Object.entries(elevPropMap).sort(function(a,b){return b[1]-a[1];}).slice(0,15);
+  var elevPLabels=elevProps.map(function(e){return e[0];});
+  var elevPData=elevProps.map(function(e){return e[1];});
+  if(_chartElevProperty)_chartElevProperty.destroy();
+  _chartElevProperty=new Chart($('chartElevProperty'),{type:'bar',data:{labels:elevPLabels,datasets:[{label:'WO Count',data:elevPData,backgroundColor:'rgba(79,142,247,.6)',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}},y:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{display:false}}}});
+
+  // Status breakdown horizontal bar
+  var elevStatMap={};
+  elevData.forEach(function(r){var s=r[1]||'(blank)';elevStatMap[s]=(elevStatMap[s]||0)+1;});
+  var elevStats=Object.entries(elevStatMap).sort(function(a,b){return b[1]-a[1];});
+  var elevSLabels=elevStats.map(function(e){return e[0];});
+  var elevSData=elevStats.map(function(e){return e[1];});
+  var elevSColors=elevSLabels.map(function(s){
+    if(s==='Invoiced'||s==='Completed'||s==='Closed')return'rgba(52,211,153,.6)';
+    if(s==='Cancelled')return'rgba(107,114,128,.5)';
+    if(s==='Rejected'||s==='Unsatisfactory'||s==='Not Resolved')return'rgba(248,113,113,.6)';
+    return'rgba(251,191,36,.6)';
+  });
+  if(_chartElevStatus)_chartElevStatus.destroy();
+  _chartElevStatus=new Chart($('chartElevStatus'),{type:'bar',data:{labels:elevSLabels,datasets:[{label:'WO Count',data:elevSData,backgroundColor:elevSColors,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}},y:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{display:false}}}});
+
+  var dmGroups=groupBy(data,8);
+  var dmLabels=dmGroups.map(function(g){return g.label;});
+  var dmCounts=dmGroups.map(function(g){return g.count;});
+  var dmNTE=dmGroups.map(function(g){return Math.round(g.nte/1000);});
+  if(_chartDM)_chartDM.destroy();
+  _chartDM=new Chart($('chartDM'),{type:'bar',data:{labels:dmLabels,datasets:[{label:'WO Count',data:dmCounts,backgroundColor:'rgba(79,142,247,.6)',borderRadius:4},{label:'NTE ($K)',data:dmNTE,backgroundColor:'rgba(167,139,250,.5)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}},y:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{labels:{boxWidth:10,padding:10,font:{family:fontMono,size:9}}}}}});
+
+  var regGroups=groupBy(data,7);
+  var regLabels=regGroups.map(function(g){return g.label;});
+  var regCounts=regGroups.map(function(g){return g.count;});
+  var regNTE=regGroups.map(function(g){return Math.round(g.nte/1000);});
+  var regSpend=regGroups.map(function(g){return Math.round(g.spend/1000);});
+  if(_chartRegion)_chartRegion.destroy();
+  _chartRegion=new Chart($('chartRegion'),{type:'bar',data:{labels:regLabels,datasets:[{label:'WO Count',data:regCounts,backgroundColor:'rgba(79,142,247,.6)',borderRadius:4},{label:'NTE ($K)',data:regNTE,backgroundColor:'rgba(52,211,153,.5)',borderRadius:4},{label:'Spend ($K)',data:regSpend,backgroundColor:'rgba(251,146,60,.5)',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}},y:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{labels:{boxWidth:10,padding:8,font:{family:fontMono,size:9}}}}}});
+}
+
+function openRawData(extra){
+  extra=extra||{};
+  var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
+      fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
+  var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
+  var data=ALLDATA.filter(function(r){
+    if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
+    if(fT && !fT.has(r[15]))return false;
+    if(fP && !fP.has(r[0]))return false;
+    if(fD && !fD.has(r[8]))return false;
+    if(fS && !fS.has(r[3]))return false;
+    if(fSt && !fSt.has(r[1]))return false;
+    if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
+    if(fFM && !fFM.has(r[17]||'(Unassigned)'))return false;
+    if(extra.priority && r[2]!==extra.priority)return false;
+    if(extra.serviceTypes && extra.serviceTypes.indexOf(r[3])===-1)return false;
+    return true;
+  });
+  var filters=[];
+  if(fT)filters.push('Type: '+Array.from(fT).join(', '));
+  if(extra.priority)filters.push('Priority: '+extra.priority);
+  if(extra.serviceTypes)filters.push('Service Type: '+extra.serviceTypes.join(', '));
+  if(fP)filters.push('Property: '+Array.from(fP).join(', '));
+  if(fD)filters.push('DM: '+Array.from(fD).join(', '));
+  if(fFM)filters.push('Facility Mgr: '+Array.from(fFM).join(', '));
+  if(fS)filters.push('Service Type: '+Array.from(fS).join(', '));
+  if(fSt)filters.push('Status: '+Array.from(fSt).join(', '));
+  if(fM)filters.push('Maint Sched: '+Array.from(fM).join(', '));
+  var filterText=filters.length?filters.join(' | '):'No filters applied (all records)';
+
+  var isLive=DATA_SOURCE==='live';
+  var rows='';
+  data.forEach(function(r){
+    var nteExceeded=r[5]>r[4]&&r[4]>0;
+    var isReq=(r[15]==='Request');
+    var typeBadge=isReq?'<span style="color:#fb923c;font-size:9px;font-weight:600">REQ</span>':'<span style="color:#4f8ef7;font-size:9px;font-weight:600">WO</span>';
+    rows+='<tr>';
+    rows+='<td>'+typeBadge+'</td>';
+    if(isLive && r[10])rows+='<td>'+(r[14]?'<a href="'+r[14]+'" target="_blank" style="color:var(--accent)">'+r[10]+'</a>':r[10])+'</td>';
+    rows+='<td>'+r[0]+'</td>'
+      +'<td>'+r[1]+'</td>'
+      +'<td>'+r[2]+'</td>'
+      +'<td>'+r[3]+'</td>'
+      +'<td class="r">'+fmt$(r[4])+'</td>'
+      +'<td class="r'+(nteExceeded?' exceeded':'')+'">'+fmt$(r[5])+'</td>';
+    if(isLive){rows+='<td>'+r[6]+'</td><td>'+r[7]+'</td><td>'+r[8]+'</td><td>'+(r[9]||'')+'</td>'
+      +'<td>'+r[11]+'</td><td>'+r[12]+'</td>';}
+    else{rows+='<td>'+r[6]+'</td><td>'+r[7]+'</td><td>'+r[8]+'</td><td>'+r[9]+'</td>';}
+    rows+='</tr>';
+  });
+
+  var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+    +'<title>Records — Raw Data ('+data.length+' records)</title>'
+    +'<style>'
+    +"@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');"
+    +':root{--bg:#0a0c10;--surface:#111318;--card:#161a22;--border:#252a35;--accent:#4f8ef7;--text:#e8eaf0;--muted:#6b7280;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}'
+    +"body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:24px 32px;}"
+    +".header{display:flex;align-items:center;gap:14px;margin-bottom:8px;}"
+    +".logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);padding:3px 9px;border-radius:4px;}"
+    +"h1{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}"
+    +".meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:20px;}"
+    +'table{width:100%;border-collapse:collapse;font-size:11px;}'
+    +'thead{position:sticky;top:0;z-index:10;}'
+    +"th{background:var(--surface);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:10px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;}"
+    +'td{padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}'
+    +'tr:hover td{background:rgba(79,142,247,.04);}'
+    +'.r{text-align:right;}'
+    +'.exceeded{color:#f87171;font-weight:600;}'
+    +'th.r{text-align:right;}'
+    +'</style></head><body>'
+    +'<div class="header"><span class="logo">AXX</span><h1>Records — Raw Data</h1></div>'
+    +'<div class="meta">'+filterText+' &nbsp;·&nbsp; '+data.length+' of '+ALLDATA.length+' records</div>'
+    +'<table><thead><tr>'
+    +'<th>Type</th>'
+    +(isLive?'<th>Reference</th>':'')
+    +'<th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th>'
+    +'<th class="r">NTE</th><th class="r">Spend</th>'
+    +'<th>Vendor</th><th>Region</th><th>District Manager</th><th>Maint Sched</th>'
+    +(isLive?'<th>Subject</th><th>Created</th>':'')
+    +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +'</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+function sizeKPIs(){
+  document.querySelectorAll('.kpi-val').forEach(function(el){
+    el.style.fontSize='';
+    var parent=el.parentElement;
+    var maxW=parent.clientWidth-36;
+    var size=24;
+    el.style.fontSize=size+'px';
+    while(el.scrollWidth>maxW&&size>10){size--;el.style.fontSize=size+'px';}
+  });
+}
+var _resizeTimer;
+window.addEventListener('resize',function(){
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(function(){
+    sizeKPIs();
+    if(_chartPriority){_chartPriority.resize();}
+    if(_chartElevType){_chartElevType.resize();}
+    if(_chartElevVendor){_chartElevVendor.resize();}
+    if(_chartElevProperty){_chartElevProperty.resize();}
+    if(_chartElevStatus){_chartElevStatus.resize();}
+    if(_chartDM){_chartDM.resize();}
+    if(_chartRegion){_chartRegion.resize();}
+  },150);
+});
+
+function rebuildDependentFilters(){
+  var fT=getSelected('fRecordType');
+  var subset=ALLDATA.filter(function(r){return !fT||fT.has(r[15]);});
+  var unique=function(idx){var s=new Set();subset.forEach(function(r){if(r[idx])s.add(r[idx]);});return Array.from(s).sort();};
+  buildMultiSelect('fProperty',unique(0));
+  buildMultiSelect('fDM',unique(8));
+  buildMultiSelect('fServiceType',unique(3));
+  buildMultiSelect('fStatus',unique(1));
+  var fmVals=new Set();subset.forEach(function(r){var v=r[17];fmVals.add(v?v:'(Unassigned)');});
+  buildMultiSelect('fFM',Array.from(fmVals).sort());
+  var maintVals=new Set();subset.forEach(function(r){var v=r[9];maintVals.add(v?v:'(No Schedule)');});
+  buildMultiSelect('fMaint',Array.from(maintVals).sort());
+  // Dynamic DM/Requestor label
+  var lbl=$('lblDM');
+  if(lbl){
+    if(!fT||fT.size===0||fT.size===2) lbl.textContent='DM / Requestor';
+    else if(fT.has('Request')) lbl.textContent='Requestor';
+    else lbl.textContent='DM';
+  }
+}
+
+function initDashboard(){
+  Chart.defaults.color='#6b7280';
+  Chart.defaults.font.family="'Inter',sans-serif";
+  Chart.defaults.font.size=11;
+  // Build combined dataset from static fallback if not already loaded from API
+  if(!ALLDATA.length && RAW.length){
+    var woRows=RAW.map(function(r){return r.length>17?r:r.concat(['Work Order','','']).slice(0,18);});
+    var reqRows=(typeof RAW_REQ!=='undefined' && RAW_REQ.length)?RAW_REQ:[];
+    ALLDATA=woRows.concat(reqRows);
+    RAW=woRows;
+  }
+  // Populate filter dropdowns from combined data
+  buildMultiSelect('fRecordType',['Work Order','Request'],rebuildDependentFilters);
+  rebuildDependentFilters();
+  applyFilters();
+}
+
+/* ── Live data loader (direct browser → Axxerion API) ── */
+var AX_API='https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult';
+var AX_AUTH='Basic '+btoa('iapiuser:***REMOVED***');
+var AX_REPORT='IPG-REP-085';
+
+function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
+function mapApiRows(data){
+  return data.map(function(r){return[
+    r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
+    parseNum(r['Not To Exceed']),parseNum(r['Total']),
+    r['Vendor']||'',r['Region']||'',r['Area Manager']||'',r['Maintenance schedule']||'',
+    r['Reference']||'',r['Subject']||'',r['Created']||'',r['Address']||'',r['Bookmark']||'',
+    'Work Order','',r['Facility Manager']||''];});
+}
+function mapRequestRows(data){
+  return data.map(function(r){return[
+    r['Concerns']||'',r['Status']||'',r['Priority']||'',r['Subject']||'',
+    0,0,
+    '','',r['Requestor']||'','',
+    r['Reference']||'',r['Subject']||'',r['Request date']||'','',r['Bookmark']||'',
+    'Request',r['Requestor']||'',r['Facility Manager']||''];});
+}
+
+var AX_CACHE_KEY='ax_workorders_v2';
+var AX_CACHE_KEY_REQ='ax_requests_v1';
+var AX_CACHE_TTL=60*60*1000; // 1 hour
+
+function fetchRequests(source){
+  // Try server cache for requests
+  if(source==='server'){
+    return fetch('/api/requests').then(function(res){return res.json();}).then(function(json){
+      if(json.data && json.data.length){
+        var reqRows=mapRequestRows(json.data);
+        console.log('Server cache: '+reqRows.length+' requests');
+        try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+        return reqRows;
+      }
+      return [];
+    }).catch(function(){return[];});
+  }
+  // Direct API
+  return fetch(AX_API,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+    body:JSON.stringify({reference:'IPG-REP-087'})
+  }).then(function(res){return res.json();}).then(function(json){
+    if(json.data && json.data.length){
+      var reqRows=mapRequestRows(json.data);
+      console.log('Direct API: '+reqRows.length+' requests');
+      try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+      return reqRows;
+    }
+    return[];
+  }).catch(function(){return[];});
+}
+
+function combineData(woRows,reqRows){
+  RAW=woRows;
+  ALLDATA=woRows.concat(reqRows);
+}
+
+function loadFromServer(){
+  return Promise.all([
+    fetch('/api/workorders').then(function(res){return res.json();}),
+    fetch('/api/requests').then(function(res){return res.json();}).catch(function(){return{data:[]};})
+  ]).then(function(results){
+    var woJson=results[0], reqJson=results[1];
+    if(woJson.data && woJson.data.length){
+      var woRows=mapApiRows(woJson.data);
+      var reqRows=(reqJson.data && reqJson.data.length)?mapRequestRows(reqJson.data):[];
+      DATA_SOURCE='live';
+      combineData(woRows,reqRows);
+      var age=woJson.age||0;
+      var refreshing=woJson.refreshing||false;
+      console.log('Server cache: '+woRows.length+' WOs + '+reqRows.length+' requests');
+      try{localStorage.setItem(AX_CACHE_KEY,JSON.stringify({data:woRows,ts:Date.now()}));}catch(e){}
+      if(reqRows.length)try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+      initDashboard();
+      if(refreshing){
+        showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs · refreshing...','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+      } else {
+        showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs'+(age?' · cached '+age+'m ago':''),'rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
+      }
+      startStatusPoller();
+      return true;
+    }
+    return false;
+  });
+}
+
+var _statusPollTimer=null;
+var _lastWOAge=null;
+function startStatusPoller(){
+  if(_statusPollTimer)return;
+  _statusPollTimer=setInterval(function(){
+    fetch('/api/status').then(function(r){return r.json();}).then(function(s){
+      var wo=s.workorders;
+      var next=s.nextRefreshMin;
+      if(wo.fetchInProgress){
+        showBadge('LIVE · '+wo.count+' WOs · refreshing...','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+      } else if(_lastWOAge!==null && wo.ageMinutes!==null && wo.ageMinutes<_lastWOAge){
+        _lastWOAge=wo.ageMinutes;
+        loadFromServer();
+      } else {
+        _lastWOAge=wo.ageMinutes;
+        var age=wo.ageMinutes||0;
+        var nextTxt=(next!==undefined && next>0)?' · next refresh in '+next+'m':'';
+        showBadge('LIVE · '+wo.count+' WOs'+(age?' · cached '+age+'m ago':'')+nextTxt,'rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
+      }
+    }).catch(function(){});
+  },30000);
+}
+
+function loadDirectFromAPI(){
+  showBadge('LOADING (direct)','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+  Promise.all([
+    fetch(AX_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+      body:JSON.stringify({reference:AX_REPORT})
+    }).then(function(res){if(!res.ok)throw new Error('API '+res.status);return res.json();}),
+    fetch(AX_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+      body:JSON.stringify({reference:'IPG-REP-087'})
+    }).then(function(res){return res.json();}).catch(function(){return{data:[]};})
+  ]).then(function(results){
+    var woJson=results[0], reqJson=results[1];
+    if(woJson.errorMessage)throw new Error(woJson.errorMessage);
+    if(woJson.data && woJson.data.length){
+      var woRows=mapApiRows(woJson.data);
+      var reqRows=(reqJson.data && reqJson.data.length)?mapRequestRows(reqJson.data):[];
+      DATA_SOURCE='live';
+      combineData(woRows,reqRows);
+      console.log('Direct API: '+woRows.length+' WOs + '+reqRows.length+' requests');
+      try{localStorage.setItem(AX_CACHE_KEY,JSON.stringify({data:woRows,ts:Date.now()}));}catch(e){}
+      if(reqRows.length)try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+      initDashboard();
+      showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs','rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
+    }
+  }).catch(function(err){
+    console.warn('API unavailable:',err.message);
+    DATA_SOURCE='static';
+    showBadge('STATIC','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
+  });
+}
+
+function loadLiveData(){
+  // 1. Try server cache first (has accurate age + refreshing status)
+  initDashboard();
+  showBadge('LOADING','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+  loadFromServer().then(function(ok){
+    if(!ok){
+      // 2. Server has no data yet — try localStorage as fallback
+      try{
+        var cached=JSON.parse(localStorage.getItem(AX_CACHE_KEY));
+        var cachedReq=JSON.parse(localStorage.getItem(AX_CACHE_KEY_REQ));
+        if(cached && cached.data && cached.data.length && (Date.now()-cached.ts < AX_CACHE_TTL)){
+          var woRows=cached.data;
+          var reqRows=(cachedReq && cachedReq.data && cachedReq.data.length)?cachedReq.data:[];
+          DATA_SOURCE='live';
+          combineData(woRows,reqRows);
+          initDashboard();
+          showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs · server loading...','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+          startStatusPoller();
+          return;
+        }
+      }catch(e){}
+      // 3. No localStorage either — fall back to direct API call
+      loadDirectFromAPI();
+    }
+  }).catch(function(){
+    // Server unreachable — try localStorage then direct API
+    try{
+      var cached=JSON.parse(localStorage.getItem(AX_CACHE_KEY));
+      var cachedReq=JSON.parse(localStorage.getItem(AX_CACHE_KEY_REQ));
+      if(cached && cached.data && cached.data.length && (Date.now()-cached.ts < AX_CACHE_TTL)){
+        var woRows=cached.data;
+        var reqRows=(cachedReq && cachedReq.data && cachedReq.data.length)?cachedReq.data:[];
+        DATA_SOURCE='live';
+        combineData(woRows,reqRows);
+        var age=Math.round((Date.now()-cached.ts)/60000);
+        initDashboard();
+        showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs · cached '+age+'m ago','rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
+        return;
+      }
+    }catch(e){}
+    loadDirectFromAPI();
+  });
+}
+function showBadge(text,bg,color,border){
+  var old=document.getElementById('srcBadge');if(old)old.remove();
+  var badge=document.createElement('span');badge.id='srcBadge';
+  badge.style.cssText='font-size:9px;padding:2px 7px;border-radius:3px;margin-left:8px;font-family:DM Mono,monospace;letter-spacing:.05em;background:'+bg+';color:'+color+';border:1px solid '+border+';';
+  badge.textContent=text;
+  var logo=document.querySelector('.logo');
+  if(logo)logo.parentNode.insertBefore(badge,logo.nextSibling);
+}
+
+/* ── Init: dashboard is default view ── */
+if(window.location.hash==='#workflow'){
+  document.querySelector('.gtab.active').classList.remove('active');
+  document.querySelectorAll('.gtab')[1].classList.add('active');
+  document.getElementById('view-dashboard').classList.remove('active');
+  document.getElementById('view-workflow').classList.add('active');
+} else {
+  window._dbInit=true;
+  setTimeout(loadLiveData,100);
+}
+</script>
+</body>
+</html>
