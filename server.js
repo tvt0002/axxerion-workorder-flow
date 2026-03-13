@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const https = require("https");
@@ -6,8 +7,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Axxerion API config ──
-const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult";
-const AX_AUTH = "Basic " + Buffer.from("iapiuser:***REMOVED***").toString("base64");
+const AX_USER = process.env.AX_USER;
+const AX_PASS = process.env.AX_PASS;
+if (!AX_USER || !AX_PASS) {
+  console.error("Missing AX_USER or AX_PASS environment variables");
+  process.exit(1);
+}
+const AX_AUTH = "Basic " + Buffer.from(`${AX_USER}:${AX_PASS}`).toString("base64");
 const AX_REPORT_WO = "IPG-REP-085";
 const AX_REPORT_REQ = "IPG-REP-087";
 const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes

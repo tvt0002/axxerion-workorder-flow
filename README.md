@@ -37,7 +37,15 @@ Runs on `http://localhost:3000` by default.
 
 | Variable | Description |
 |----------|-------------|
+| `AX_USER` | Axxerion API username (required) |
+| `AX_PASS` | Axxerion API password (required) |
 | `PORT` | Server port (default: 3000) |
+
+Copy `.env.example` to `.env` and fill in your credentials:
+
+```bash
+cp .env.example .env
+```
 
 ## Project Structure
 
