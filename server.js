@@ -28,7 +28,18 @@ let cachedReq = null;
 let cacheReqTimestamp = 0;
 let fetchReqInProgress = false;
 
+// Auth error backoff — stop retrying if credentials are rejected
+let authDisabled = false;
+let authErrorCount = 0;
+const MAX_AUTH_ERRORS = 3;
+
 function fetchReport(reference, label, onSuccess) {
+  if (authDisabled) {
+    console.warn(`[Cache] Skipping ${label} — auth disabled after ${authErrorCount} consecutive failures. Restart to retry.`);
+    onSuccess(null);
+    return;
+  }
+
   const start = Date.now();
   console.log(`[Cache] Fetching ${label} (${reference})...`);
 
@@ -49,6 +60,22 @@ function fetchReport(reference, label, onSuccess) {
     res.on("data", (chunk) => (raw += chunk));
     res.on("end", () => {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+
+      // Stop immediately on auth errors (401/403)
+      if (res.statusCode === 401 || res.statusCode === 403) {
+        authErrorCount++;
+        console.error(`[Cache] ${label} auth error (${res.statusCode}) — attempt ${authErrorCount}/${MAX_AUTH_ERRORS}`);
+        if (authErrorCount >= MAX_AUTH_ERRORS) {
+          authDisabled = true;
+          console.error(`[Cache] AUTH DISABLED — ${MAX_AUTH_ERRORS} consecutive auth failures. Check AX_USER/AX_PASS. Restart to retry.`);
+        }
+        onSuccess(null);
+        return;
+      }
+
+      // Reset auth error count on any successful response
+      authErrorCount = 0;
+
       try {
         const json = JSON.parse(raw);
         if (json.data && json.data.length) {
@@ -140,6 +167,7 @@ app.get("/api/status", (req, res) => {
     workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress },
     requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress },
     nextRefreshMin: nextRefreshMin,
+    authDisabled: authDisabled,
   });
 });
 
