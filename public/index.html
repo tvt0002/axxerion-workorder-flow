@@ -960,10 +960,7 @@ function initDashboard(){
   applyFilters();
 }
 
-/* ── Live data loader (direct browser → Axxerion API) ── */
-var AX_API='https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult';
-var AX_AUTH='Basic '+btoa('iapiuser:***REMOVED***');
-var AX_REPORT='IPG-REP-085';
+/* ── Live data loader (via server proxy) ── */
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
 function mapApiRows(data){
@@ -1000,20 +997,8 @@ function fetchRequests(source){
       return [];
     }).catch(function(){return[];});
   }
-  // Direct API
-  return fetch(AX_API,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
-    body:JSON.stringify({reference:'IPG-REP-087'})
-  }).then(function(res){return res.json();}).then(function(json){
-    if(json.data && json.data.length){
-      var reqRows=mapRequestRows(json.data);
-      console.log('Direct API: '+reqRows.length+' requests');
-      try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
-      return reqRows;
-    }
-    return[];
-  }).catch(function(){return[];});
+  // Fallback: no direct API — return empty
+  return Promise.resolve([]);
 }
 
 function combineData(woRows,reqRows){
@@ -1074,37 +1059,23 @@ function startStatusPoller(){
 }
 
 function loadDirectFromAPI(){
-  showBadge('LOADING (direct)','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
-  Promise.all([
-    fetch(AX_API,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
-      body:JSON.stringify({reference:AX_REPORT})
-    }).then(function(res){if(!res.ok)throw new Error('API '+res.status);return res.json();}),
-    fetch(AX_API,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
-      body:JSON.stringify({reference:'IPG-REP-087'})
-    }).then(function(res){return res.json();}).catch(function(){return{data:[]};})
-  ]).then(function(results){
-    var woJson=results[0], reqJson=results[1];
-    if(woJson.errorMessage)throw new Error(woJson.errorMessage);
-    if(woJson.data && woJson.data.length){
-      var woRows=mapApiRows(woJson.data);
-      var reqRows=(reqJson.data && reqJson.data.length)?mapRequestRows(reqJson.data):[];
-      DATA_SOURCE='live';
-      combineData(woRows,reqRows);
-      console.log('Direct API: '+woRows.length+' WOs + '+reqRows.length+' requests');
-      try{localStorage.setItem(AX_CACHE_KEY,JSON.stringify({data:woRows,ts:Date.now()}));}catch(e){}
-      if(reqRows.length)try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
-      initDashboard();
-      showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs','rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
-    }
-  }).catch(function(err){
-    console.warn('API unavailable:',err.message);
-    DATA_SOURCE='static';
-    showBadge('STATIC','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
-  });
+  // Retry server cache — credentials are server-side only
+  showBadge('RETRYING','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+  setTimeout(function(){
+    loadFromServer().then(function(ok){
+      if(!ok){
+        DATA_SOURCE='static';
+        showBadge('STATIC — server cache loading','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
+        // Poll until server cache is ready
+        var retryTimer=setInterval(function(){
+          loadFromServer().then(function(ok){if(ok)clearInterval(retryTimer);});
+        },30000);
+      }
+    }).catch(function(){
+      DATA_SOURCE='static';
+      showBadge('STATIC','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
+    });
+  },5000);
 }
 
 function loadLiveData(){
