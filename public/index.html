@@ -187,6 +187,23 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .db-prop-row span:last-child{font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;}
 .db-section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:28px 0 14px;display:flex;align-items:center;gap:10px;}
 .db-section-title .phl{flex:1;height:1px;background:var(--border);}
+
+/* ── WO Search ── */
+.wo-search-wrap{position:relative;margin-left:auto;margin-right:16px;}
+.wo-search-input{font-family:'DM Mono',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 30px;width:220px;outline:none;transition:border-color .18s,width .25s;}
+.wo-search-input::placeholder{color:var(--muted);}
+.wo-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,142,247,.15);width:300px;}
+.wo-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
+.wo-results{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;max-height:360px;overflow-y:auto;z-index:400;box-shadow:0 12px 32px rgba(0,0,0,.6);min-width:380px;}
+.wo-results.open{display:block;}
+.wo-result{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:background .12s;border-bottom:1px solid rgba(37,42,53,.5);}
+.wo-result:last-child{border-bottom:none;}
+.wo-result:hover{background:rgba(79,142,247,.08);}
+.wo-result-ref{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);font-weight:500;min-width:90px;}
+.wo-result-prop{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wo-result-status{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;}
+.wo-result-type{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;}
+.wo-no-results{padding:14px;text-align:center;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
 </style>
 </head>
 <body>
@@ -198,6 +215,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="gtabs">
     <button class="gtab active" onclick="switchView('dashboard',this)">Dashboard</button>
     <button class="gtab" onclick="switchView('workflow',this)">Workflow</button>
+  </div>
+  <div class="wo-search-wrap">
+    <span class="wo-search-icon">&#128269;</span>
+    <input type="text" class="wo-search-input" id="woSearch" placeholder="Search work orders..." autocomplete="off">
+    <div class="wo-results" id="woResults"></div>
   </div>
   <span class="gright">Secure Space Self Storage</span>
 </div>
@@ -363,6 +385,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div class="db-kpi kpi-yellow"><div class="kpi-val" id="kpiUtil">--</div><div class="kpi-lbl">NTE Utilization</div></div>
     <div class="db-kpi kpi-orange"><div class="kpi-val" id="kpiAvg">--</div><div class="kpi-lbl">Avg Cost / WO</div></div>
     <div class="db-kpi kpi-green"><div class="kpi-val" id="kpiExceed">--</div><div class="kpi-lbl">NTE Exceeded</div></div>
+  </div>
+
+  <!-- Priority Tracked Orders -->
+  <div id="priorityTracked" style="display:none;margin-bottom:28px;">
+    <div class="db-section-title" style="margin:0 0 14px">Priority Tracked <div class="phl"></div> <span id="priorityCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);font-weight:400;letter-spacing:.04em;text-transform:none"></span></div>
+    <div class="db-card" style="padding:0;overflow:hidden;">
+      <table class="db-table" id="priorityTable">
+        <thead><tr>
+          <th></th><th>Type</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th class="r">NTE</th><th class="r">Spend</th><th>Vendor</th><th>Flagged</th><th>Last Change</th>
+        </tr></thead>
+        <tbody id="priorityBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Status + Priority -->
@@ -807,47 +842,149 @@ function renderDashboard(data){
   var regSpend=regGroups.map(function(g){return Math.round(g.spend/1000);});
   if(_chartRegion)_chartRegion.destroy();
   _chartRegion=new Chart($('chartRegion'),{type:'bar',data:{labels:regLabels,datasets:[{label:'WO Count',data:regCounts,backgroundColor:'rgba(79,142,247,.6)',borderRadius:4},{label:'NTE ($K)',data:regNTE,backgroundColor:'rgba(52,211,153,.5)',borderRadius:4},{label:'Spend ($K)',data:regSpend,backgroundColor:'rgba(251,146,60,.5)',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(37,42,53,.8)'},ticks:{font:{family:fontMono,size:9}}},y:{grid:{display:false},ticks:{font:{family:fontMono,size:9}}}},plugins:{legend:{labels:{boxWidth:10,padding:8,font:{family:fontMono,size:9}}}}}});
+
+  // ── Priority Tracked Orders ──
+  renderPriorityTracker();
+}
+
+function renderPriorityTracker(){
+  var flags=JSON.parse(localStorage.getItem('ax_priority_flags')||'{}');
+  var refs=Object.keys(flags);
+  var wrap=$('priorityTracked');
+  var body=$('priorityBody');
+  if(!refs.length){wrap.style.display='none';return;}
+
+  // Match flagged refs against live ALLDATA to get current state
+  var liveMap={};
+  ALLDATA.forEach(function(r){if(r[10])liveMap[r[10]]=r;});
+
+  var rows='';
+  refs.forEach(function(ref){
+    var f=flags[ref];
+    var live=liveMap[ref];
+    var cur=live||null;
+
+    var prop=cur?cur[0]:f.property;
+    var status=cur?cur[1]:f.status;
+    var priority=cur?cur[2]:f.priority;
+    var serviceType=cur?cur[3]:f.serviceType;
+    var nte=cur?cur[4]:f.nte;
+    var spend=cur?cur[5]:f.spend;
+    var vendor=cur?cur[6]:f.vendor;
+    var bookmark=cur?cur[14]:f.bookmark;
+    var recType=cur?cur[15]:f.type;
+    var isReq=(recType==='Request');
+    var typeColor=isReq?'color:#fb923c':'color:#4f8ef7';
+
+    // Detect changes since flagged
+    var changed=false;
+    var changeFields=[];
+    if(cur&&f.status&&cur[1]!==f.status){changed=true;changeFields.push('Status: '+f.status+' → '+cur[1]);}
+    if(cur&&f.spend!==undefined&&cur[5]!==f.spend){changed=true;changeFields.push('Spend: '+fmt$(f.spend)+' → '+fmt$(cur[5]));}
+
+    // Update stored snapshot if changed
+    if(changed){
+      f.status=cur[1];f.spend=cur[5];f.priority=cur[2];f.property=cur[0];f.serviceType=cur[3];f.vendor=cur[6];
+      f.lastChangeAt=new Date().toISOString();
+      f.lastChangeFields=changeFields.join('; ');
+    }
+
+    var flagDate=new Date(f.flaggedAt);
+    var flagStr=flagDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    var lastChange=f.lastChangeAt?new Date(f.lastChangeAt):null;
+    var lastChangeStr=lastChange?lastChange.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'No changes';
+    var lastChangeTip=f.lastChangeFields||'';
+
+    var refLink=bookmark?'<a href="'+bookmark+'" target="_blank" style="color:var(--accent);text-decoration:none">'+ref+'</a>':ref;
+
+    rows+='<tr>';
+    rows+='<td><button class="db-unflag-btn" data-ref="'+ref+'" title="Remove flag" style="background:none;border:none;font-size:14px;cursor:pointer;color:#fbbf24;padding:2px 4px;">&#9733;</button></td>';
+    rows+='<td><span style="'+typeColor+';font-size:9px;font-weight:600;font-family:\'DM Mono\',monospace">'+(isReq?'REQ':'WO')+'</span></td>';
+    rows+='<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+refLink+'</td>';
+    rows+='<td>'+prop+'</td>';
+    rows+='<td>'+status+'</td>';
+    rows+='<td>'+priority+'</td>';
+    rows+='<td>'+serviceType+'</td>';
+    rows+='<td class="r">'+fmt$(nte)+'</td>';
+    rows+='<td class="r">'+fmt$(spend)+'</td>';
+    rows+='<td>'+vendor+'</td>';
+    rows+='<td style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">'+flagStr+'</td>';
+    rows+='<td style="font-family:\'DM Mono\',monospace;font-size:10px;'+(changed?'color:var(--yellow)':'color:var(--muted)')+'" title="'+lastChangeTip+'">'+lastChangeStr+(changed?' *':'')+'</td>';
+    rows+='</tr>';
+  });
+
+  // Save updated snapshots
+  localStorage.setItem('ax_priority_flags',JSON.stringify(flags));
+
+  body.innerHTML=rows;
+  $('priorityCount').textContent=refs.length+' order'+(refs.length===1?'':'s');
+  wrap.style.display='block';
+
+  // Unflag buttons
+  body.querySelectorAll('.db-unflag-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var ref=btn.getAttribute('data-ref');
+      var fl=JSON.parse(localStorage.getItem('ax_priority_flags')||'{}');
+      delete fl[ref];
+      localStorage.setItem('ax_priority_flags',JSON.stringify(fl));
+      renderPriorityTracker();
+    });
+  });
 }
 
 function openRawData(extra){
   extra=extra||{};
-  var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
-      fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
-  var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
-  var data=ALLDATA.filter(function(r){
-    if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
-    if(fT && !fT.has(r[15]))return false;
-    if(fP && !fP.has(r[0]))return false;
-    if(fD && !fD.has(r[8]))return false;
-    if(fS && !fS.has(r[3]))return false;
-    if(fSt && !fSt.has(r[1]))return false;
-    if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
-    if(fFM && !fFM.has(r[17]||'(Unassigned)'))return false;
-    if(extra.priority && r[2]!==extra.priority)return false;
-    if(extra.serviceTypes && extra.serviceTypes.indexOf(r[3])===-1)return false;
-    return true;
-  });
-  var filters=[];
-  if(fT)filters.push('Type: '+Array.from(fT).join(', '));
-  if(extra.priority)filters.push('Priority: '+extra.priority);
-  if(extra.serviceTypes)filters.push('Service Type: '+extra.serviceTypes.join(', '));
-  if(fP)filters.push('Property: '+Array.from(fP).join(', '));
-  if(fD)filters.push('DM: '+Array.from(fD).join(', '));
-  if(fFM)filters.push('Facility Mgr: '+Array.from(fFM).join(', '));
-  if(fS)filters.push('Service Type: '+Array.from(fS).join(', '));
-  if(fSt)filters.push('Status: '+Array.from(fSt).join(', '));
-  if(fM)filters.push('Maint Sched: '+Array.from(fM).join(', '));
-  var filterText=filters.length?filters.join(' | '):'No filters applied (all records)';
+  var data, filterText;
 
+  if(extra.singleRecord){
+    data=[extra.singleRecord];
+    var ref=extra.singleRecord[10]||'';
+    filterText='Search result: '+ref;
+  } else {
+    var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
+        fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
+    var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
+    data=ALLDATA.filter(function(r){
+      if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
+      if(fT && !fT.has(r[15]))return false;
+      if(fP && !fP.has(r[0]))return false;
+      if(fD && !fD.has(r[8]))return false;
+      if(fS && !fS.has(r[3]))return false;
+      if(fSt && !fSt.has(r[1]))return false;
+      if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
+      if(fFM && !fFM.has(r[17]||'(Unassigned)'))return false;
+      if(extra.priority && r[2]!==extra.priority)return false;
+      if(extra.serviceTypes && extra.serviceTypes.indexOf(r[3])===-1)return false;
+      return true;
+    });
+    var filters=[];
+    if(fT)filters.push('Type: '+Array.from(fT).join(', '));
+    if(extra.priority)filters.push('Priority: '+extra.priority);
+    if(extra.serviceTypes)filters.push('Service Type: '+extra.serviceTypes.join(', '));
+    if(fP)filters.push('Property: '+Array.from(fP).join(', '));
+    if(fD)filters.push('DM: '+Array.from(fD).join(', '));
+    if(fFM)filters.push('Facility Mgr: '+Array.from(fFM).join(', '));
+    if(fS)filters.push('Service Type: '+Array.from(fS).join(', '));
+    if(fSt)filters.push('Status: '+Array.from(fSt).join(', '));
+    if(fM)filters.push('Maint Sched: '+Array.from(fM).join(', '));
+    filterText=filters.length?filters.join(' | '):'No filters applied (all records)';
+  }
+
+  var highlightRef=extra.highlightRef||'';
   var isLive=DATA_SOURCE==='live';
+  var flagged=JSON.parse(localStorage.getItem('ax_priority_flags')||'{}');
   var rows='';
   data.forEach(function(r){
     var nteExceeded=r[5]>r[4]&&r[4]>0;
     var isReq=(r[15]==='Request');
     var typeBadge=isReq?'<span style="color:#fb923c;font-size:9px;font-weight:600">REQ</span>':'<span style="color:#4f8ef7;font-size:9px;font-weight:600">WO</span>';
-    rows+='<tr>';
+    var ref=r[10]||'';
+    var isFlagged=ref&&flagged[ref];
+    var isHL=highlightRef&&ref===highlightRef;
+    rows+='<tr'+(isHL?' id="hl-row" class="hl-row"':'')+'>';
+    rows+='<td><button class="flag-btn'+(isFlagged?' flagged':'')+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" data-row="'+encodeURIComponent(JSON.stringify([r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[10],r[14],r[15]]))+'" title="'+(isFlagged?'Remove priority flag':'Flag as priority')+'">&#9733;</button></td>';
     rows+='<td>'+typeBadge+'</td>';
-    if(isLive && r[10])rows+='<td>'+(r[14]?'<a href="'+r[14]+'" target="_blank" style="color:var(--accent)">'+r[10]+'</a>':r[10])+'</td>';
+    if(isLive && ref)rows+='<td>'+(r[14]?'<a href="'+r[14]+'" target="_blank" style="color:var(--accent)">'+ref+'</a>':ref)+'</td>';
     rows+='<td>'+r[0]+'</td>'
       +'<td>'+r[1]+'</td>'
       +'<td>'+r[2]+'</td>'
@@ -879,17 +1016,44 @@ function openRawData(extra){
     +'.r{text-align:right;}'
     +'.exceeded{color:#f87171;font-weight:600;}'
     +'th.r{text-align:right;}'
+    +'.hl-row td{background:rgba(79,142,247,.12) !important;border-top:1px solid rgba(79,142,247,.35);border-bottom:1px solid rgba(79,142,247,.35) !important;}'
+    +'@keyframes hl-pulse{0%{background:rgba(79,142,247,.25)}100%{background:rgba(79,142,247,.08)}}'
+    +'.hl-row td{animation:hl-pulse 1.5s ease-out;}'
+    +'.flag-btn{background:none;border:none;font-size:16px;cursor:pointer;color:var(--border);transition:color .15s,transform .15s;padding:2px 4px;line-height:1;}'
+    +'.flag-btn:hover{color:#fbbf24;transform:scale(1.2);}'
+    +'.flag-btn.flagged{color:#fbbf24;}'
     +'</style></head><body>'
     +'<div class="header"><span class="logo">AXX</span><h1>Records — Raw Data</h1></div>'
     +'<div class="meta">'+filterText+' &nbsp;·&nbsp; '+data.length+' of '+ALLDATA.length+' records</div>'
     +'<table><thead><tr>'
-    +'<th>Type</th>'
+    +'<th></th><th>Type</th>'
     +(isLive?'<th>Reference</th>':'')
     +'<th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th>'
     +'<th class="r">NTE</th><th class="r">Spend</th>'
     +'<th>Vendor</th><th>Region</th><th>District Manager</th><th>Maint Sched</th>'
     +(isLive?'<th>Subject</th><th>Created</th>':'')
     +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<script>'
+    +'document.addEventListener("DOMContentLoaded",function(){'
+    +  (highlightRef?'var el=document.getElementById("hl-row");if(el){el.scrollIntoView({block:"center",behavior:"smooth"});}':'')
+    +  'document.querySelectorAll(".flag-btn").forEach(function(btn){'
+    +    'btn.addEventListener("click",function(){'
+    +      'var ref=btn.getAttribute("data-ref");if(!ref)return;'
+    +      'var flags=JSON.parse(localStorage.getItem("ax_priority_flags")||"{}");'
+    +      'if(flags[ref]){'
+    +        'delete flags[ref];'
+    +        'btn.classList.remove("flagged");'
+    +        'btn.title="Flag as priority";'
+    +      '}else{'
+    +        'var d=JSON.parse(decodeURIComponent(btn.getAttribute("data-row")));'
+    +        'flags[ref]={flaggedAt:new Date().toISOString(),property:d[0],status:d[1],priority:d[2],serviceType:d[3],nte:d[4],spend:d[5],vendor:d[6],reference:d[7],bookmark:d[8],type:d[9]};'
+    +        'btn.classList.add("flagged");'
+    +        'btn.title="Remove priority flag";'
+    +      '}'
+    +      'localStorage.setItem("ax_priority_flags",JSON.stringify(flags));'
+    +    '});'
+    +  '});'
+    +'});<\/script>'
     +'</body></html>';
 
   var w=window.open('','_blank');
@@ -960,7 +1124,10 @@ function initDashboard(){
   applyFilters();
 }
 
-/* ── Live data loader (via server proxy) ── */
+/* ── Live data loader (direct browser → Axxerion API) ── */
+var AX_API='https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult';
+var AX_AUTH=''; // credentials removed — use server proxy (/api/workorders, /api/requests)
+var AX_REPORT='IPG-REP-085';
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
 function mapApiRows(data){
@@ -997,8 +1164,20 @@ function fetchRequests(source){
       return [];
     }).catch(function(){return[];});
   }
-  // Fallback: no direct API — return empty
-  return Promise.resolve([]);
+  // Direct API
+  return fetch(AX_API,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+    body:JSON.stringify({reference:'IPG-REP-087'})
+  }).then(function(res){return res.json();}).then(function(json){
+    if(json.data && json.data.length){
+      var reqRows=mapRequestRows(json.data);
+      console.log('Direct API: '+reqRows.length+' requests');
+      try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+      return reqRows;
+    }
+    return[];
+  }).catch(function(){return[];});
 }
 
 function combineData(woRows,reqRows){
@@ -1059,23 +1238,37 @@ function startStatusPoller(){
 }
 
 function loadDirectFromAPI(){
-  // Retry server cache — credentials are server-side only
-  showBadge('RETRYING','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
-  setTimeout(function(){
-    loadFromServer().then(function(ok){
-      if(!ok){
-        DATA_SOURCE='static';
-        showBadge('STATIC — server cache loading','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
-        // Poll until server cache is ready
-        var retryTimer=setInterval(function(){
-          loadFromServer().then(function(ok){if(ok)clearInterval(retryTimer);});
-        },30000);
-      }
-    }).catch(function(){
-      DATA_SOURCE='static';
-      showBadge('STATIC','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
-    });
-  },5000);
+  showBadge('LOADING (direct)','rgba(251,191,36,.15)','#fbbf24','rgba(251,191,36,.3)');
+  Promise.all([
+    fetch(AX_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+      body:JSON.stringify({reference:AX_REPORT})
+    }).then(function(res){if(!res.ok)throw new Error('API '+res.status);return res.json();}),
+    fetch(AX_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
+      body:JSON.stringify({reference:'IPG-REP-087'})
+    }).then(function(res){return res.json();}).catch(function(){return{data:[]};})
+  ]).then(function(results){
+    var woJson=results[0], reqJson=results[1];
+    if(woJson.errorMessage)throw new Error(woJson.errorMessage);
+    if(woJson.data && woJson.data.length){
+      var woRows=mapApiRows(woJson.data);
+      var reqRows=(reqJson.data && reqJson.data.length)?mapRequestRows(reqJson.data):[];
+      DATA_SOURCE='live';
+      combineData(woRows,reqRows);
+      console.log('Direct API: '+woRows.length+' WOs + '+reqRows.length+' requests');
+      try{localStorage.setItem(AX_CACHE_KEY,JSON.stringify({data:woRows,ts:Date.now()}));}catch(e){}
+      if(reqRows.length)try{localStorage.setItem(AX_CACHE_KEY_REQ,JSON.stringify({data:reqRows,ts:Date.now()}));}catch(e){}
+      initDashboard();
+      showBadge('LIVE · '+woRows.length+' WOs + '+reqRows.length+' REQs','rgba(52,211,153,.15)','#34d399','rgba(52,211,153,.3)');
+    }
+  }).catch(function(err){
+    console.warn('API unavailable:',err.message);
+    DATA_SOURCE='static';
+    showBadge('STATIC','rgba(251,146,60,.15)','#fb923c','rgba(251,146,60,.3)');
+  });
 }
 
 function loadLiveData(){
@@ -1140,6 +1333,208 @@ if(window.location.hash==='#workflow'){
   window._dbInit=true;
   setTimeout(loadLiveData,100);
 }
+
+/* ── Work Order Detail Panel ── */
+function openWODetail(r){
+  if(!r)return;
+  var isReq=(r[15]==='Request');
+  var typeLabel=isReq?'Request':'Work Order';
+  var typeBadge=isReq?'bo':'bb';
+  var ref=r[10]||'—';
+  var prop=r[0]||'';
+  var status=r[1]||'';
+  var priority=r[2]||'';
+  var service=r[3]||'';
+  var nte=r[4];
+  var spend=r[5];
+  var vendor=r[6]||'';
+  var region=r[7]||'';
+  var dm=r[8]||'';
+  var maint=r[9]||'';
+  var subj=r[11]||'';
+  var created=r[12]||'';
+  var addr=r[13]||'';
+  var bookmark=r[14]||'';
+  var fm=r[17]||'';
+
+  // Status color
+  var statusClass='bb';
+  var sl=status.toLowerCase();
+  if(sl==='closed'||sl==='completed'||sl==='invoiced')statusClass='bg';
+  else if(sl==='cancelled')statusClass='br';
+  else if(sl==='in progress'||sl==='confirmed')statusClass='by';
+
+  // Priority color
+  var prioClass='bb';
+  var pl=priority.toLowerCase();
+  if(pl==='high'||pl==='urgent')prioClass='br';
+  else if(pl==='medium')prioClass='bo';
+  else if(pl==='low')prioClass='bg';
+
+  // NTE exceeded
+  var nteExceeded=spend>nte&&nte>0;
+
+  var h='';
+  h+='<div class="ps">'+typeLabel+'</div>';
+  h+='<div class="pti">'+ref+(subj?' — '+subj:'')+'</div>';
+
+  // Status + Priority badges
+  h+='<div class="psec" style="display:flex;gap:8px;flex-wrap:wrap">';
+  h+='<span class="badge '+statusClass+'" style="font-size:11px;padding:4px 11px">'+status+'</span>';
+  if(priority) h+='<span class="badge '+prioClass+'" style="font-size:11px;padding:4px 11px">'+priority+'</span>';
+  h+='</div>';
+
+  h+='<div class="pdiv"></div>';
+
+  // Property + Address
+  h+='<div class="psec"><div class="psl">Property</div><div style="font-size:13px;font-weight:600">'+prop+'</div>';
+  if(addr) h+='<div style="font-size:11px;color:var(--muted);margin-top:2px">'+addr+'</div>';
+  h+='</div>';
+
+  // Financials
+  if(!isReq){
+    h+='<div class="pdiv"></div>';
+    h+='<div class="psec"><div class="psl">Financials</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">';
+    h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px 12px">';
+    h+='<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">NTE</div>';
+    h+='<div style="font-family:\'DM Mono\',monospace;font-size:16px;font-weight:500">'+fmt$(nte)+'</div></div>';
+    h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px 12px">';
+    h+='<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">Spend</div>';
+    h+='<div style="font-family:\'DM Mono\',monospace;font-size:16px;font-weight:500;'+(nteExceeded?'color:var(--red)':'')+'">'+fmt$(spend)+'</div></div>';
+    h+='</div>';
+    if(nteExceeded) h+='<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--red);margin-top:6px">Spend exceeds NTE by '+fmt$(spend-nte)+'</div>';
+    h+='</div>';
+  }
+
+  h+='<div class="pdiv"></div>';
+
+  // Details grid
+  var fields=[];
+  if(service) fields.push(['Service Type',service]);
+  if(vendor) fields.push(['Vendor',vendor]);
+  if(dm) fields.push([isReq?'Requestor':'District Manager',dm]);
+  if(region) fields.push(['Region',region]);
+  if(fm) fields.push(['Facility Manager',fm]);
+  if(maint) fields.push(['Maint Schedule',maint]);
+  if(created) fields.push(['Created',created]);
+
+  if(fields.length){
+    h+='<div class="psec"><div class="psl">Details</div>';
+    h+='<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12px;margin-top:6px">';
+    fields.forEach(function(f){
+      h+='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:10px;padding:3px 0">'+f[0]+'</div>';
+      h+='<div style="padding:3px 0">'+f[1]+'</div>';
+    });
+    h+='</div></div>';
+  }
+
+  // Axxerion link
+  if(bookmark){
+    h+='<div class="pdiv"></div>';
+    h+='<div class="psec">';
+    h+='<a href="'+bookmark+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);padding:9px 16px;border-radius:7px;text-decoration:none;transition:all .18s"'
+      +' onmouseover="this.style.background=\'rgba(79,142,247,.15)\';this.style.borderColor=\'rgba(79,142,247,.4)\'"'
+      +' onmouseout="this.style.background=\'rgba(79,142,247,.08)\';this.style.borderColor=\'rgba(79,142,247,.2)\'">'
+      +'Open in Axxerion &#8599;</a>';
+    h+='</div>';
+  }
+
+  $('pc').innerHTML=h;
+  document.querySelectorAll('.ec').forEach(function(c){c.classList.remove('active');});
+  $('panel').classList.add('open');
+}
+
+/* ── Work Order Search ── */
+(function(){
+  var input=$('woSearch'), box=$('woResults');
+  var debounce=null;
+
+  input.addEventListener('input',function(){
+    clearTimeout(debounce);
+    debounce=setTimeout(doSearch,150);
+  });
+
+  input.addEventListener('focus',function(){
+    if(input.value.trim().length>=2) doSearch();
+  });
+
+  // Close on click outside
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('.wo-search-wrap')){box.classList.remove('open');}
+  });
+
+  // Keyboard navigation
+  input.addEventListener('keydown',function(e){
+    var items=box.querySelectorAll('.wo-result');
+    var active=box.querySelector('.wo-result:hover, .wo-result.kb-active');
+    var idx=-1;
+    items.forEach(function(el,i){if(el.classList.contains('kb-active'))idx=i;});
+    if(e.key==='ArrowDown'){e.preventDefault();items.forEach(function(el){el.classList.remove('kb-active');});idx=Math.min(idx+1,items.length-1);if(items[idx])items[idx].classList.add('kb-active');}
+    else if(e.key==='ArrowUp'){e.preventDefault();items.forEach(function(el){el.classList.remove('kb-active');});idx=Math.max(idx-1,0);if(items[idx])items[idx].classList.add('kb-active');}
+    else if(e.key==='Enter'){e.preventDefault();var sel=box.querySelector('.wo-result.kb-active')||items[0];if(sel)sel.click();}
+    else if(e.key==='Escape'){box.classList.remove('open');input.blur();}
+  });
+
+  function doSearch(){
+    var q=input.value.trim().toLowerCase();
+    if(q.length<2||!ALLDATA.length){box.classList.remove('open');box.innerHTML='';return;}
+
+    // Search across reference, property, subject, vendor, address, status
+    var matches=[];
+    for(var i=0;i<ALLDATA.length&&matches.length<15;i++){
+      var r=ALLDATA[i];
+      var ref=(r[10]||'').toLowerCase();
+      var prop=(r[0]||'').toLowerCase();
+      var subj=(r[11]||'').toLowerCase();
+      var vendor=(r[6]||'').toLowerCase();
+      var addr=(r[13]||'').toLowerCase();
+      var status=(r[1]||'').toLowerCase();
+      if(ref.indexOf(q)!==-1||prop.indexOf(q)!==-1||subj.indexOf(q)!==-1||vendor.indexOf(q)!==-1||addr.indexOf(q)!==-1||status.indexOf(q)!==-1){
+        matches.push({row:r,idx:i});
+      }
+    }
+
+    if(!matches.length){
+      box.innerHTML='<div class="wo-no-results">No results for "'+q.replace(/</g,'&lt;')+'"</div>';
+      box.classList.add('open');
+      return;
+    }
+
+    var html='';
+    matches.forEach(function(m){
+      var r=m.row, idx=m.idx;
+      var isReq=(r[15]==='Request');
+      var typeColor=isReq?'color:#fb923c':'color:#4f8ef7';
+      var typeLabel=isReq?'REQ':'WO';
+      var ref=r[10]||'—';
+      var prop=r[0]||'';
+      var status=r[1]||'';
+      var subj=r[11]||'';
+      var truncSubj=subj.length>40?subj.substring(0,40)+'…':subj;
+
+      html+='<div class="wo-result" data-idx="'+idx+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" title="'+subj.replace(/"/g,'&quot;')+'">'
+        +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
+        +'<span class="wo-result-ref">'+ref+'</span>'
+        +'<span class="wo-result-prop">'+prop+(truncSubj?' · '+truncSubj:'')+'</span>'
+        +'<span class="wo-result-status">'+status+'</span>'
+        +'</div>';
+    });
+
+    box.innerHTML=html;
+    box.classList.add('open');
+
+    // Click handler — open raw data page for just this one record
+    box.querySelectorAll('.wo-result').forEach(function(el){
+      el.addEventListener('click',function(){
+        var idx=parseInt(el.getAttribute('data-idx'),10);
+        if(!isNaN(idx)) openRawData({singleRecord:ALLDATA[idx]});
+        box.classList.remove('open');
+        input.value='';
+      });
+    });
+  }
+})();
 </script>
 </body>
 </html>
