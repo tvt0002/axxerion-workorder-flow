@@ -2,8 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const https = require("https");
+const fs = require("fs");
 
 const app = express();
+app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ── Axxerion API config ──
@@ -169,6 +171,86 @@ app.get("/api/status", (req, res) => {
     nextRefreshMin: nextRefreshMin,
     authDisabled: authDisabled,
   });
+});
+
+// ── Ops Queue Persistence ──
+const OPS_FILE = path.join(__dirname, "data", "ops.json");
+
+function loadOps() {
+  try {
+    if (fs.existsSync(OPS_FILE)) return JSON.parse(fs.readFileSync(OPS_FILE, "utf8"));
+  } catch (e) { console.error("[Ops] Error loading ops.json:", e.message); }
+  return { logs: {}, appointments: {}, emails: {}, vendors: {}, notes: {} };
+}
+
+function saveOps(data) {
+  try {
+    const dir = path.dirname(OPS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(OPS_FILE, JSON.stringify(data, null, 2), "utf8");
+  } catch (e) { console.error("[Ops] Error saving ops.json:", e.message); }
+}
+
+app.get("/api/ops", (req, res) => { res.json(loadOps()); });
+
+app.post("/api/ops/log", (req, res) => {
+  const { ref, action, note, user } = req.body;
+  if (!ref || !action) return res.status(400).json({ error: "ref and action required" });
+  const ops = loadOps();
+  if (!ops.logs[ref]) ops.logs[ref] = [];
+  ops.logs[ref].unshift({ date: new Date().toISOString(), action, note: note || "", user: user || "ops" });
+  saveOps(ops);
+  res.json({ ok: true, logs: ops.logs[ref] });
+});
+
+app.post("/api/ops/appointment", (req, res) => {
+  const { ref, date, confirmed, time } = req.body;
+  if (!ref) return res.status(400).json({ error: "ref required" });
+  const ops = loadOps();
+  ops.appointments[ref] = { date: date || null, confirmed: !!confirmed, time: time || "", updatedAt: new Date().toISOString() };
+  saveOps(ops);
+  res.json({ ok: true, appointment: ops.appointments[ref] });
+});
+
+app.post("/api/ops/email", (req, res) => {
+  const { ref, to, type, subject } = req.body;
+  if (!ref) return res.status(400).json({ error: "ref required" });
+  const ops = loadOps();
+  if (!ops.emails[ref]) ops.emails[ref] = [];
+  ops.emails[ref].unshift({ sentAt: new Date().toISOString(), to: to || "", type: type || "invoice", subject: subject || "" });
+  saveOps(ops);
+  res.json({ ok: true, emails: ops.emails[ref] });
+});
+
+app.post("/api/ops/vendor", (req, res) => {
+  const { name, email, phone, contact } = req.body;
+  if (!name) return res.status(400).json({ error: "vendor name required" });
+  const ops = loadOps();
+  ops.vendors[name] = { email: email || "", phone: phone || "", contact: contact || "", updatedAt: new Date().toISOString() };
+  saveOps(ops);
+  res.json({ ok: true, vendor: ops.vendors[name] });
+});
+
+app.get("/api/ops/vendors", (req, res) => { res.json(loadOps().vendors || {}); });
+
+app.post("/api/ops/note", (req, res) => {
+  const { ref, note } = req.body;
+  if (!ref) return res.status(400).json({ error: "ref required" });
+  const ops = loadOps();
+  ops.notes[ref] = { text: note || "", updatedAt: new Date().toISOString() };
+  saveOps(ops);
+  res.json({ ok: true });
+});
+
+app.post("/api/ops/dismiss", (req, res) => {
+  const { ref, queue } = req.body;
+  if (!ref) return res.status(400).json({ error: "ref required" });
+  const ops = loadOps();
+  if (!ops.dismissed) ops.dismissed = {};
+  if (!ops.dismissed[ref]) ops.dismissed[ref] = {};
+  ops.dismissed[ref][queue] = new Date().toISOString();
+  saveOps(ops);
+  res.json({ ok: true });
 });
 
 app.use(express.static(path.join(__dirname, "public")));

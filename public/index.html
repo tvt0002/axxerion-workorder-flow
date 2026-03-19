@@ -6,6 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="data.js"></script>
 <script src="requests.js"></script>
+<script src="opsqueue.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
 :root{--bg:#0a0c10;--surface:#111318;--card:#161a22;--border:#252a35;--accent:#4f8ef7;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--yellow:#fbbf24;--text:#e8eaf0;--muted:#6b7280;}
@@ -188,6 +189,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .db-section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:28px 0 14px;display:flex;align-items:center;gap:10px;}
 .db-section-title .phl{flex:1;height:1px;background:var(--border);}
 
+/* ── Ops Queue Buttons ── */
+.oq-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--accent);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.oq-btn:hover{background:rgba(79,142,247,.12);border-color:var(--accent);}
+.oq-btn-g{color:var(--green);border-color:rgba(52,211,153,.3);}
+.oq-btn-g:hover{background:rgba(52,211,153,.12);border-color:var(--green);}
+.oq-btn-r{color:var(--red);border-color:rgba(248,113,113,.3);}
+.oq-btn-r:hover{background:rgba(248,113,113,.12);border-color:var(--red);}
+.oq-btn-dim{color:var(--muted);}
+.oq-btn-dim:hover{color:var(--text);}
+
 /* ── WO Search ── */
 .wo-search-wrap{position:relative;margin-left:auto;margin-right:16px;}
 .wo-search-input{font-family:'DM Mono',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 30px;width:220px;outline:none;transition:border-color .18s,width .25s;}
@@ -214,6 +225,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <h1>Axxerion Operations Hub</h1>
   <div class="gtabs">
     <button class="gtab active" onclick="switchView('dashboard',this)">Dashboard</button>
+    <button class="gtab" onclick="switchView('opsqueue',this)">Ops Queue</button>
     <button class="gtab" onclick="switchView('workflow',this)">Workflow</button>
   </div>
   <div class="wo-search-wrap">
@@ -400,6 +412,23 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
+  <!-- Property Breakdown by Priority -->
+  <div class="db-section-title">Property Breakdown <div class="phl"></div></div>
+  <div class="db-grid">
+    <div class="db-card" style="padding:0;overflow:hidden;">
+      <table class="db-table" id="tblPropLeft">
+        <thead id="tblPropHeadL"></thead>
+        <tbody id="tblPropBodyL"></tbody>
+      </table>
+    </div>
+    <div class="db-card" style="padding:0;overflow:hidden;">
+      <table class="db-table" id="tblPropRight">
+        <thead id="tblPropHeadR"></thead>
+        <tbody id="tblPropBodyR"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Status + Priority -->
   <div class="db-grid">
     <div class="db-card">
@@ -437,10 +466,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
-  <!-- Property Breakdown -->
-  <div class="db-section-title">Property Breakdown <div class="phl"></div></div>
-  <div class="db-card" style="margin-bottom:18px;"><div id="tblProperty" class="db-prop-grid"></div></div>
-
   <!-- Elevator Breakdown -->
   <div class="db-section-title">Elevator Operations <div class="phl"></div></div>
   <div class="elev-kpis" id="elevKpis">
@@ -474,6 +499,45 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 </div>
 </div><!-- /view-dashboard -->
 
+<!-- ══════════ VIEW 3: OPS QUEUE ══════════ -->
+<div id="view-opsqueue" class="view">
+<div class="db" style="padding-top:20px">
+
+  <!-- Queue KPIs -->
+  <div class="db-kpis" style="grid-template-columns:repeat(4,1fr);">
+    <div class="db-kpi kpi-purple oq-kpi" data-queue="q1" style="cursor:pointer"><div class="kpi-val" id="oqK1">--</div><div class="kpi-lbl">Requests Pending</div></div>
+    <div class="db-kpi kpi-orange oq-kpi" data-queue="q2" style="cursor:pointer"><div class="kpi-val" id="oqK2">--</div><div class="kpi-lbl">Need Scheduling</div></div>
+    <div class="db-kpi kpi-blue oq-kpi" data-queue="q3" style="cursor:pointer"><div class="kpi-val" id="oqK3">--</div><div class="kpi-lbl">Today's Appts</div></div>
+    <div class="db-kpi kpi-green oq-kpi" data-queue="q4" style="cursor:pointer"><div class="kpi-val" id="oqK4">--</div><div class="kpi-lbl">Awaiting Invoice</div></div>
+  </div>
+
+  <!-- Queue Tabs -->
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:18px;">
+    <button class="gtab oq-tab active" data-queue="q1" onclick="switchQueue('q1',this)">Q1 · Requests</button>
+    <button class="gtab oq-tab" data-queue="q2" onclick="switchQueue('q2',this)">Q2 · Vendor Scheduling</button>
+    <button class="gtab oq-tab" data-queue="q3" onclick="switchQueue('q3',this)">Q3 · Day-of Appts</button>
+    <button class="gtab oq-tab" data-queue="q4" onclick="switchQueue('q4',this)">Q4 · Invoice Follow-Up</button>
+  </div>
+
+  <!-- Queue Content -->
+  <div class="db-card" style="padding:0;overflow:hidden;">
+    <table class="db-table" id="oqTable">
+      <thead id="oqHead"></thead>
+      <tbody id="oqBody"></tbody>
+    </table>
+    <div id="oqEmpty" style="display:none;padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);">No items in this queue</div>
+  </div>
+</div>
+</div><!-- /view-opsqueue -->
+
+<!-- ══════════ OPS ACTION MODAL ══════════ -->
+<div id="oqModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:480px;max-height:80vh;overflow-y:auto;position:relative;">
+    <button onclick="closeOqModal()" style="position:absolute;top:10px;right:10px;background:var(--border);border:none;color:var(--muted);width:25px;height:25px;border-radius:5px;cursor:pointer;font-size:12px;">✕</button>
+    <div id="oqModalContent"></div>
+  </div>
+</div>
+
 <!-- ══════════ DETAIL PANEL ══════════ -->
 <div class="panel" id="panel">
   <button class="pc" onclick="cp()">✕</button>
@@ -487,7 +551,9 @@ function switchView(view, btn) {
   document.querySelectorAll('.gtab').forEach(function(b){b.classList.remove('active');});
   document.getElementById('view-'+view).classList.add('active');
   btn.classList.add('active');
+  localStorage.setItem('ax_active_view', view);
   if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
+  if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
 }
 
 /* ── Workflow: Email Panel ── */
@@ -690,14 +756,64 @@ function buildGroupTable(id,data,colIdx,headers){
 }
 
 function buildPropertyGrid(data){
-  var groups=groupBy(data,0);
-  var third=Math.ceil(groups.length/3);
-  var cols=['','',''];
-  groups.forEach(function(g,i){
-    var ci=i<third?0:(i<third*2?1:2);
-    cols[ci]+='<div class="db-prop-row"><span>'+g.label+'</span><span>'+g.count+'</span></div>';
+  // Collect all priorities and group by property
+  var prioSet=new Set();
+  var propMap={};
+  data.forEach(function(r){
+    var prop=r[0]||'(Unknown)';
+    var prio=r[2]||'(None)';
+    prioSet.add(prio);
+    if(!propMap[prop])propMap[prop]={total:0,prios:{}};
+    propMap[prop].total++;
+    propMap[prop].prios[prio]=(propMap[prop].prios[prio]||0)+1;
   });
-  $('tblProperty').innerHTML='<div>'+cols[0]+'</div><div>'+cols[1]+'</div><div>'+cols[2]+'</div>';
+
+  // Only show Critical and High
+  var priorities=['Critical','High'].filter(function(p){return prioSet.has(p);});
+
+  // Priority colors
+  var prioColors={Critical:'var(--red)',High:'var(--orange)',Medium:'var(--yellow)',Low:'var(--green)','Very low':'var(--muted)',Capex:'var(--accent2)','Info Needed':'var(--accent)',Pending:'var(--muted)',Hold:'var(--muted)'};
+
+  // Sort properties by total Critical+High desc, hide properties with none
+  var props=Object.keys(propMap).filter(function(p){
+    var d=propMap[p];return(d.prios['Critical']||0)+(d.prios['High']||0)>0;
+  }).sort(function(a,b){
+    var ac=(propMap[a].prios['Critical']||0)+(propMap[a].prios['High']||0);
+    var bc=(propMap[b].prios['Critical']||0)+(propMap[b].prios['High']||0);
+    return bc-ac;
+  });
+
+  // Build header row
+  var headHTML='<tr><th>Property</th><th class="r">Total</th>';
+  priorities.forEach(function(p){headHTML+='<th class="r" style="color:'+(prioColors[p]||'var(--text)')+'">'+p+'</th>';});
+  headHTML+='</tr>';
+
+  // Build all rows
+  var allRows=props.map(function(prop){
+    var d=propMap[prop];
+    var eProp=prop.replace(/'/g,"\\'");
+    var row='<tr><td style="font-weight:500">'+prop+'</td>';
+    row+='<td class="r" style="font-family:\'DM Mono\',monospace;font-weight:600;cursor:pointer;color:var(--accent)" onclick="openPropertyRaw(\''+eProp+'\')">'+d.total+'</td>';
+    priorities.forEach(function(p){
+      var c=d.prios[p]||0;
+      var style='font-family:\'DM Mono\',monospace;';
+      if(c>0){style+='color:'+(prioColors[p]||'var(--text)')+';font-weight:500;cursor:pointer;';
+        row+='<td class="r" style="'+style+'" onclick="openPropertyRaw(\''+eProp+'\',\''+p+'\')">'+c+'</td>';
+      } else {
+        style+='color:var(--border);';
+        row+='<td class="r" style="'+style+'">·</td>';
+      }
+    });
+    row+='</tr>';
+    return row;
+  });
+
+  // Split into two halves
+  var half=Math.ceil(allRows.length/2);
+  $('tblPropHeadL').innerHTML=headHTML;
+  $('tblPropHeadR').innerHTML=headHTML;
+  $('tblPropBodyL').innerHTML=allRows.slice(0,half).join('');
+  $('tblPropBodyR').innerHTML=allRows.slice(half).join('');
 }
 
 var CLOSED_STATUSES=new Set(['Closed','Invoiced','Cancelled','Completed']);
@@ -932,6 +1048,20 @@ function renderPriorityTracker(){
   });
 }
 
+function openPropertyRaw(prop, priority) {
+  var filtered = ALLDATA.filter(function(r) {
+    if (r[0] !== prop) return false;
+    if (priority && r[2] !== priority) return false;
+    return true;
+  });
+  if (!filtered.length) return;
+  // Reuse openRawData with a custom dataset
+  var bak = ALLDATA;
+  ALLDATA = filtered;
+  openRawData({ _propFilter: prop + (priority ? ' · ' + priority : '') });
+  ALLDATA = bak;
+}
+
 function openRawData(extra){
   extra=extra||{};
   var data, filterText;
@@ -940,6 +1070,9 @@ function openRawData(extra){
     data=[extra.singleRecord];
     var ref=extra.singleRecord[10]||'';
     filterText='Search result: '+ref;
+  } else if(extra._propFilter){
+    data=ALLDATA.slice();
+    filterText=extra._propFilter;
   } else {
     var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
         fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
@@ -1509,15 +1642,25 @@ function showBadge(text,bg,color,border){
   if(logo)logo.parentNode.insertBefore(badge,logo.nextSibling);
 }
 
-/* ── Init: dashboard is default view ── */
-if(window.location.hash==='#workflow'){
-  document.querySelector('.gtab.active').classList.remove('active');
-  document.querySelectorAll('.gtab')[1].classList.add('active');
-  document.getElementById('view-dashboard').classList.remove('active');
-  document.getElementById('view-workflow').classList.add('active');
-} else {
-  window._dbInit=true;
-  setTimeout(loadLiveData,100);
+/* ── Init: restore last active view ── */
+var _savedView = localStorage.getItem('ax_active_view') || 'dashboard';
+if(window.location.hash==='#workflow') _savedView='workflow';
+if(_savedView!=='dashboard'){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.gtab').forEach(function(b){b.classList.remove('active');});
+  var targetView=document.getElementById('view-'+_savedView);
+  if(targetView){
+    targetView.classList.add('active');
+    var tabs=document.querySelectorAll('.gtab');
+    tabs.forEach(function(t){if(t.textContent.toLowerCase().indexOf(_savedView==='opsqueue'?'ops':_savedView)!==-1)t.classList.add('active');});
+  }
+}
+// Always load live data (needed by all views)
+window._dbInit=true;
+setTimeout(loadLiveData,100);
+// If ops queue was last view, init it after data loads
+if(_savedView==='opsqueue'){
+  var _oqWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_oqWait);window._oqInit=true;initOpsQueue();}},500);
 }
 
 /* ── Work Order Detail Panel ── */
