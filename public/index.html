@@ -1024,6 +1024,8 @@ function openRawData(extra){
     +".filters{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}"
     +".filters label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}"
     +".filters .count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;}"
+    +".reset-btn{font-family:'DM Mono',monospace;font-size:10px;padding:6px 12px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}"
+    +".reset-btn:hover{border-color:var(--accent);color:var(--accent);}"
     +".ms-w{position:relative;min-width:160px;}"
     +".ms-b{font-family:'DM Mono',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;cursor:pointer;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}"
     +".ms-b:hover{border-color:rgba(79,142,247,.4);}"
@@ -1048,6 +1050,7 @@ function openRawData(extra){
     +".status-chip{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}"
     +".status-chip:hover{border-color:rgba(79,142,247,.4);}"
     +".status-chip .sc-count{color:var(--accent);font-weight:600;}"
+    +".status-chip.sc-active{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.5);color:var(--accent);}"
     +'table{width:100%;border-collapse:collapse;font-size:11px;}'
     +'thead{position:sticky;top:0;z-index:10;}'
     +"th{background:var(--surface);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:10px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;}"
@@ -1072,6 +1075,7 @@ function openRawData(extra){
     +'<div class="filters">'
     +'<label>Status</label><div class="ms-w" id="fStatus"></div>'
     +'<label>Priority</label><div class="ms-w" id="fPriority"></div>'
+    +'<button id="resetBtn" class="reset-btn">Reset All</button>'
     +'<span class="count" id="visCount"></span>'
     +'</div>'
     +'<div class="status-bar" id="statusBar"></div>'
@@ -1181,12 +1185,12 @@ function openRawData(extra){
     +  'document.getElementById("visCount").textContent=filtered.length+" of "+DATA.length+" shown";'
     +  'var sc={};filtered.forEach(function(r){var s=r[1]||"(blank)";sc[s]=(sc[s]||0)+1;});'
     +  'var sKeys=Object.keys(sc).sort(function(a,b){return sc[b]-sc[a];});'
-    +  'var sb="";sKeys.forEach(function(s){sb+="<div class=\\"status-chip\\" data-status=\\""+s+"\\"><span class=\\"sc-count\\">"+sc[s]+"</span> "+s+"</div>";});'
+    +  'var sb="";sKeys.forEach(function(s){var active=selStatus.size===1&&selStatus.has(s);sb+="<div class=\\"status-chip"+(active?" sc-active":"")+"\\" data-status=\\""+s+"\\"><span class=\\"sc-count\\">"+sc[s]+"</span> "+s+"</div>";});'
     +  'document.getElementById("statusBar").innerHTML=sb;'
     +  'document.querySelectorAll(".status-chip").forEach(function(chip){'
     +    'chip.addEventListener("click",function(){'
     +      'var s=chip.getAttribute("data-status");'
-    +      'selStatus.clear();selStatus.add(s);'
+    +      'if(selStatus.size===1&&selStatus.has(s)){selStatus.clear();}else{selStatus.clear();selStatus.add(s);}'
     +      'buildMS("fStatus",U_STATUS,selStatus,renderTable);'
     +      'renderTable();'
     +    '});'
@@ -1217,6 +1221,13 @@ function openRawData(extra){
     +'document.addEventListener("DOMContentLoaded",function(){'
     +  'buildMS("fStatus",U_STATUS,selStatus,renderTable);'
     +  'buildMS("fPriority",U_PRIORITY,selPriority,renderTable);'
+    +  'document.getElementById("resetBtn").addEventListener("click",function(){'
+    +    'selStatus.clear();selPriority.clear();sortCol=null;sortDir=1;'
+    +    'document.querySelectorAll("th.sortable").forEach(function(h){h.classList.remove("sort-active");h.querySelector(".sort-arrow").textContent="";});'
+    +    'buildMS("fStatus",U_STATUS,selStatus,renderTable);'
+    +    'buildMS("fPriority",U_PRIORITY,selPriority,renderTable);'
+    +    'renderTable();'
+    +  '});'
     +  'document.querySelectorAll("th.sortable").forEach(function(th){'
     +    'th.addEventListener("click",function(){'
     +      'var col=th.getAttribute("data-col");'
