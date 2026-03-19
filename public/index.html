@@ -997,6 +997,19 @@ function openRawData(extra){
     rows+='</tr>';
   });
 
+  // Collect unique Priority and Status values for filters
+  var uniquePriority=[], uniqueStatus=[];
+  var _pSet=new Set(), _sSet=new Set();
+  data.forEach(function(r){
+    if(r[2]&&!_pSet.has(r[2])){_pSet.add(r[2]);uniquePriority.push(r[2]);}
+    if(r[1]&&!_sSet.has(r[1])){_sSet.add(r[1]);uniqueStatus.push(r[1]);}
+  });
+  uniquePriority.sort(); uniqueStatus.sort();
+
+  // Serialize data as JSON for client-side sort/filter
+  var dataJSON=JSON.stringify(data).replace(/<\/script>/gi,'<\\/script>');
+  var flaggedJSON=JSON.stringify(flagged).replace(/<\/script>/gi,'<\\/script>');
+
   var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
     +'<title>Records — Raw Data ('+data.length+' records)</title>'
     +'<style>'
@@ -1007,10 +1020,41 @@ function openRawData(extra){
     +".header{display:flex;align-items:center;gap:14px;margin-bottom:8px;}"
     +".logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);padding:3px 9px;border-radius:4px;}"
     +"h1{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}"
-    +".meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:20px;}"
+    +".meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:6px;}"
+    +".filters{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}"
+    +".filters label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}"
+    +".filters .count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;}"
+    +".ms-w{position:relative;min-width:160px;}"
+    +".ms-b{font-family:'DM Mono',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;cursor:pointer;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}"
+    +".ms-b:hover{border-color:rgba(79,142,247,.4);}"
+    +".ms-b.open,.ms-b.has-sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,142,247,.15);}"
+    +".ms-b .ms-c{font-size:8px;background:var(--accent);color:#fff;border-radius:3px;padding:1px 5px;margin-left:auto;flex-shrink:0;}"
+    +".ms-p{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;min-width:220px;max-height:300px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.6);}"
+    +".ms-p.open{display:block;}"
+    +".ms-s{width:100%;padding:7px 10px;border:none;border-bottom:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;box-sizing:border-box;border-radius:8px 8px 0 0;}"
+    +".ms-s::placeholder{color:var(--muted);}"
+    +".ms-a{display:flex;gap:0;border-bottom:1px solid var(--border);}"
+    +".ms-a button{flex:1;padding:5px;border:none;background:transparent;color:var(--accent);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:background .15s;}"
+    +".ms-a button:hover{background:rgba(79,142,247,.12);}"
+    +".ms-a button:first-child{border-right:1px solid var(--border);}"
+    +".ms-l{max-height:220px;overflow-y:auto;padding:4px 0;}"
+    +".ms-o{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;transition:background .12s;}"
+    +".ms-o:hover{background:rgba(79,142,247,.08);}"
+    +".ms-o.hid{display:none;}"
+    +".ms-x{width:13px;height:13px;border:1.5px solid var(--border);border-radius:3px;background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}"
+    +".ms-o.sel .ms-x{background:var(--accent);border-color:var(--accent);}"
+    +".ms-o.sel .ms-x::after{content:'\\2713';font-size:9px;color:#fff;line-height:1;}"
+    +".status-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}"
+    +".status-chip{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}"
+    +".status-chip:hover{border-color:rgba(79,142,247,.4);}"
+    +".status-chip .sc-count{color:var(--accent);font-weight:600;}"
     +'table{width:100%;border-collapse:collapse;font-size:11px;}'
     +'thead{position:sticky;top:0;z-index:10;}'
     +"th{background:var(--surface);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:10px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;}"
+    +"th.sortable{cursor:pointer;user-select:none;transition:color .15s;}"
+    +"th.sortable:hover{color:var(--text);}"
+    +"th .sort-arrow{font-size:10px;margin-left:3px;opacity:.4;}"
+    +"th.sort-active .sort-arrow{opacity:1;color:#fbbf24;}"
     +'td{padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}'
     +'tr:hover td{background:rgba(79,142,247,.04);}'
     +'.r{text-align:right;}'
@@ -1024,35 +1068,166 @@ function openRawData(extra){
     +'.flag-btn.flagged{color:#fbbf24;}'
     +'</style></head><body>'
     +'<div class="header"><span class="logo">AXX</span><h1>Records — Raw Data</h1></div>'
-    +'<div class="meta">'+filterText+' &nbsp;·&nbsp; '+data.length+' of '+ALLDATA.length+' records</div>'
-    +'<table><thead><tr>'
-    +'<th></th><th>Type</th>'
-    +(isLive?'<th>Reference</th>':'')
-    +'<th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th>'
-    +'<th class="r">NTE</th><th class="r">Spend</th>'
-    +'<th>Vendor</th><th>Region</th><th>District Manager</th><th>Maint Sched</th>'
-    +(isLive?'<th>Subject</th><th>Created</th>':'')
-    +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<div class="meta" id="metaText">'+filterText+' &nbsp;·&nbsp; '+data.length+' of '+ALLDATA.length+' records</div>'
+    +'<div class="filters">'
+    +'<label>Status</label><div class="ms-w" id="fStatus"></div>'
+    +'<label>Priority</label><div class="ms-w" id="fPriority"></div>'
+    +'<span class="count" id="visCount"></span>'
+    +'</div>'
+    +'<div class="status-bar" id="statusBar"></div>'
+    +'<table id="rawTable"><thead><tr>'
+    +'<th></th><th class="sortable" data-col="type">Type<span class="sort-arrow"></span></th>'
+    +(isLive?'<th class="sortable" data-col="ref">Reference<span class="sort-arrow"></span></th>':'')
+    +'<th class="sortable" data-col="prop">Property<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="status">Status<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="priority">Priority<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="service">Service Type<span class="sort-arrow"></span></th>'
+    +'<th class="sortable r" data-col="nte">NTE<span class="sort-arrow"></span></th>'
+    +'<th class="sortable r" data-col="spend">Spend<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="vendor">Vendor<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="region">Region<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="dm">District Manager<span class="sort-arrow"></span></th>'
+    +'<th class="sortable" data-col="maint">Maint Sched<span class="sort-arrow"></span></th>'
+    +(isLive?'<th class="sortable" data-col="subject">Subject<span class="sort-arrow"></span></th><th class="sortable" data-col="created">Created<span class="sort-arrow"></span></th>':'')
+    +'</tr></thead><tbody id="rawBody"></tbody></table>'
     +'<script>'
-    +'document.addEventListener("DOMContentLoaded",function(){'
-    +  (highlightRef?'var el=document.getElementById("hl-row");if(el){el.scrollIntoView({block:"center",behavior:"smooth"});}':'')
+    +'var DATA='+dataJSON+';'
+    +'var FLAGGED='+flaggedJSON+';'
+    +'var IS_LIVE='+(isLive?'true':'false')+';'
+    +'var TOTAL='+ALLDATA.length+';'
+    +'var HIGHLIGHT_REF="'+highlightRef+'";'
+    +'var sortCol=null,sortDir=1;'
+    +'var U_STATUS='+JSON.stringify(uniqueStatus)+';'
+    +'var U_PRIORITY='+JSON.stringify(uniquePriority)+';'
+    +'var selStatus=new Set(),selPriority=new Set();'
+
+    +'function fmt$(n){return n>=1000?"$"+Math.round(n).toLocaleString():"$"+n.toFixed(2);}'
+
+    +'function buildMS(id,values,selSet,onChange){'
+    +  'var wrap=document.getElementById(id);'
+    +  'var btn=document.createElement("button");btn.className="ms-b";btn.type="button";btn.textContent="All";'
+    +  'var panel=document.createElement("div");panel.className="ms-p";'
+    +  'var search=document.createElement("input");search.className="ms-s";search.placeholder="Search...";'
+    +  'var acts=document.createElement("div");acts.className="ms-a";'
+    +  'var sa=document.createElement("button");sa.type="button";sa.textContent="Select All";'
+    +  'var ca=document.createElement("button");ca.type="button";ca.textContent="Clear All";'
+    +  'acts.appendChild(sa);acts.appendChild(ca);'
+    +  'panel.appendChild(search);panel.appendChild(acts);'
+    +  'var list=document.createElement("div");list.className="ms-l";'
+    +  'var opts=[];'
+    +  'values.forEach(function(v){'
+    +    'var row=document.createElement("div");row.className="ms-o"+(selSet.has(v)?" sel":"");row.dataset.val=v;'
+    +    'row.innerHTML="<span class=\\"ms-x\\"></span><span>"+v+"</span>";'
+    +    'row.addEventListener("click",function(e){e.stopPropagation();row.classList.toggle("sel");sync();});'
+    +    'list.appendChild(row);opts.push(row);'
+    +  '});'
+    +  'panel.appendChild(list);wrap.innerHTML="";wrap.appendChild(btn);wrap.appendChild(panel);'
+    +  'function sync(){'
+    +    'selSet.clear();opts.forEach(function(o){if(o.classList.contains("sel"))selSet.add(o.dataset.val);});'
+    +    'if(selSet.size===0){btn.innerHTML="All";btn.classList.remove("has-sel");}'
+    +    'else{btn.innerHTML=(selSet.size===1?Array.from(selSet)[0]:selSet.size+" selected")+"<span class=\\"ms-c\\">"+selSet.size+"</span>";btn.classList.add("has-sel");}'
+    +    'if(onChange)onChange();'
+    +  '}'
+    +  'btn.addEventListener("click",function(e){e.stopPropagation();panel.classList.toggle("open");btn.classList.toggle("open");if(panel.classList.contains("open"))search.focus();});'
+    +  'search.addEventListener("input",function(){var q=search.value.toLowerCase();opts.forEach(function(o){o.classList.toggle("hid",o.dataset.val.toLowerCase().indexOf(q)===-1);});});'
+    +  'sa.addEventListener("click",function(){opts.forEach(function(o){o.classList.add("sel");});sync();});'
+    +  'ca.addEventListener("click",function(){opts.forEach(function(o){o.classList.remove("sel");});sync();});'
+    +  'document.addEventListener("click",function(e){if(!wrap.contains(e.target)){panel.classList.remove("open");btn.classList.remove("open");}});'
+    +'}'
+
+    +'function colVal(r,col){'
+    +  'var m={type:r[15],ref:r[10],prop:r[0],status:r[1],priority:r[2],service:r[3],nte:r[4],spend:r[5],vendor:r[6],region:r[7],dm:r[8],maint:r[9],subject:r[11],created:r[12]};'
+    +  'return m[col]!=null?m[col]:"";'
+    +'}'
+
+    +'function renderTable(){'
+    +  'var filtered=DATA.filter(function(r){'
+    +    'if(selStatus.size&&!selStatus.has(r[1]))return false;'
+    +    'if(selPriority.size&&!selPriority.has(r[2]))return false;'
+    +    'return true;'
+    +  '});'
+    +  'if(sortCol){'
+    +    'filtered.sort(function(a,b){'
+    +      'var va=colVal(a,sortCol),vb=colVal(b,sortCol);'
+    +      'if(typeof va==="number"&&typeof vb==="number")return(va-vb)*sortDir;'
+    +      'va=String(va).toLowerCase();vb=String(vb).toLowerCase();'
+    +      'return va<vb?-sortDir:va>vb?sortDir:0;'
+    +    '});'
+    +  '}'
+    +  'var rows="";'
+    +  'filtered.forEach(function(r){'
+    +    'var nteEx=r[5]>r[4]&&r[4]>0;'
+    +    'var isReq=(r[15]==="Request");'
+    +    'var tb=isReq?"<span style=\\"color:#fb923c;font-size:9px;font-weight:600\\">REQ</span>":"<span style=\\"color:#4f8ef7;font-size:9px;font-weight:600\\">WO</span>";'
+    +    'var ref=r[10]||"";'
+    +    'var isFl=ref&&FLAGGED[ref];'
+    +    'var isHL=HIGHLIGHT_REF&&ref===HIGHLIGHT_REF;'
+    +    'rows+="<tr"+(isHL?" id=\\"hl-row\\" class=\\"hl-row\\"":"")+">";'
+    +    'rows+="<td><button class=\\"flag-btn"+(isFl?" flagged":"")+"\\" data-ref=\\""+ref+"\\" data-row=\\""+encodeURIComponent(JSON.stringify([r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[10],r[14],r[15]]))+"\\" title=\\""+(isFl?"Remove priority flag":"Flag as priority")+"\\">&#9733;</button></td>";'
+    +    'rows+="<td>"+tb+"</td>";'
+    +    'if(IS_LIVE&&ref)rows+="<td>"+(r[14]?"<a href=\\""+r[14]+"\\" target=\\"_blank\\" style=\\"color:var(--accent)\\">"+ref+"</a>":ref)+"</td>";'
+    +    'rows+="<td>"+r[0]+"</td>"'
+    +      '+"<td>"+r[1]+"</td>"'
+    +      '+"<td>"+r[2]+"</td>"'
+    +      '+"<td>"+r[3]+"</td>"'
+    +      '+"<td class=\\"r\\">"+fmt$(r[4])+"</td>"'
+    +      '+"<td class=\\"r"+(nteEx?" exceeded":"")+"\\">"+fmt$(r[5])+"</td>";'
+    +    'if(IS_LIVE){rows+="<td>"+r[6]+"</td><td>"+r[7]+"</td><td>"+r[8]+"</td><td>"+(r[9]||"")+"</td>"'
+    +      '+"<td>"+r[11]+"</td><td>"+r[12]+"</td>";}'
+    +    'else{rows+="<td>"+r[6]+"</td><td>"+r[7]+"</td><td>"+r[8]+"</td><td>"+r[9]+"</td>";}'
+    +    'rows+="</tr>";'
+    +  '});'
+    +  'document.getElementById("rawBody").innerHTML=rows;'
+    +  'document.getElementById("visCount").textContent=filtered.length+" of "+DATA.length+" shown";'
+    +  'var sc={};filtered.forEach(function(r){var s=r[1]||"(blank)";sc[s]=(sc[s]||0)+1;});'
+    +  'var sKeys=Object.keys(sc).sort(function(a,b){return sc[b]-sc[a];});'
+    +  'var sb="";sKeys.forEach(function(s){sb+="<div class=\\"status-chip\\" data-status=\\""+s+"\\"><span class=\\"sc-count\\">"+sc[s]+"</span> "+s+"</div>";});'
+    +  'document.getElementById("statusBar").innerHTML=sb;'
+    +  'document.querySelectorAll(".status-chip").forEach(function(chip){'
+    +    'chip.addEventListener("click",function(){'
+    +      'var s=chip.getAttribute("data-status");'
+    +      'selStatus.clear();selStatus.add(s);'
+    +      'buildMS("fStatus",U_STATUS,selStatus,renderTable);'
+    +      'renderTable();'
+    +    '});'
+    +  '});'
+    +  'bindFlags();'
+    +  'if(HIGHLIGHT_REF){var el=document.getElementById("hl-row");if(el)el.scrollIntoView({block:"center",behavior:"smooth"});}'
+    +'}'
+
+    +'function bindFlags(){'
     +  'document.querySelectorAll(".flag-btn").forEach(function(btn){'
     +    'btn.addEventListener("click",function(){'
     +      'var ref=btn.getAttribute("data-ref");if(!ref)return;'
     +      'var flags=JSON.parse(localStorage.getItem("ax_priority_flags")||"{}");'
     +      'if(flags[ref]){'
-    +        'delete flags[ref];'
-    +        'btn.classList.remove("flagged");'
-    +        'btn.title="Flag as priority";'
+    +        'delete flags[ref];delete FLAGGED[ref];'
+    +        'btn.classList.remove("flagged");btn.title="Flag as priority";'
     +      '}else{'
     +        'var d=JSON.parse(decodeURIComponent(btn.getAttribute("data-row")));'
     +        'flags[ref]={flaggedAt:new Date().toISOString(),property:d[0],status:d[1],priority:d[2],serviceType:d[3],nte:d[4],spend:d[5],vendor:d[6],reference:d[7],bookmark:d[8],type:d[9]};'
-    +        'btn.classList.add("flagged");'
-    +        'btn.title="Remove priority flag";'
+    +        'FLAGGED[ref]=flags[ref];'
+    +        'btn.classList.add("flagged");btn.title="Remove priority flag";'
     +      '}'
     +      'localStorage.setItem("ax_priority_flags",JSON.stringify(flags));'
     +    '});'
     +  '});'
+    +'}'
+
+    +'document.addEventListener("DOMContentLoaded",function(){'
+    +  'buildMS("fStatus",U_STATUS,selStatus,renderTable);'
+    +  'buildMS("fPriority",U_PRIORITY,selPriority,renderTable);'
+    +  'document.querySelectorAll("th.sortable").forEach(function(th){'
+    +    'th.addEventListener("click",function(){'
+    +      'var col=th.getAttribute("data-col");'
+    +      'if(sortCol===col){sortDir*=-1;}else{sortCol=col;sortDir=1;}'
+    +      'document.querySelectorAll("th.sortable").forEach(function(h){h.classList.remove("sort-active");h.querySelector(".sort-arrow").textContent="";});'
+    +      'th.classList.add("sort-active");'
+    +      'th.querySelector(".sort-arrow").textContent=sortDir===1?" \\u25B2":" \\u25BC";'
+    +      'renderTable();'
+    +    '});'
+    +  '});'
+    +  'renderTable();'
     +'});<\/script>'
     +'</body></html>';
 
