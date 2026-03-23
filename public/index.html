@@ -7,6 +7,7 @@
 <script src="data.js"></script>
 <script src="requests.js"></script>
 <script src="opsqueue.js"></script>
+<script src="snow.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
 :root{--bg:#0a0c10;--surface:#111318;--card:#161a22;--border:#252a35;--accent:#4f8ef7;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--yellow:#fbbf24;--text:#e8eaf0;--muted:#6b7280;}
@@ -215,6 +216,26 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .wo-result-status{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;}
 .wo-result-type{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;}
 .wo-no-results{padding:14px;text-align:center;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+/* ── Status Guide ── */
+.sg-row td{vertical-align:top;line-height:1.6;font-size:12px;}
+.sg-row td:first-child{font-weight:600;white-space:nowrap;}
+.sg-row:hover td{background:rgba(79,142,247,.04);}
+.sg-status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;white-space:nowrap;}
+.sg-meaning{color:var(--text);max-width:340px;}
+.sg-action{color:var(--muted);max-width:380px;font-size:11px;}
+.sg-party{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);white-space:nowrap;}
+.sg-phase-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:12px 8px 6px;border-bottom:1px solid var(--border);background:var(--surface);}
+
+/* ── Status Tooltip ── */
+.status-tip{position:relative;cursor:help;border-bottom:1px dotted var(--muted);}
+.status-tip .tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;width:320px;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;text-align:left;}
+.status-tip:hover .tip-box{display:block;pointer-events:auto;}
+.tip-box .tip-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.tip-box .tip-meaning{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.tip-box .tip-action{font-size:10px;color:var(--accent);line-height:1.4;font-family:'DM Mono',monospace;}
+.tip-box .tip-party{font-size:10px;color:var(--accent2);font-family:'DM Mono',monospace;margin-top:4px;}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--border);}
 </style>
 </head>
 <body>
@@ -226,7 +247,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="gtabs">
     <button class="gtab active" onclick="switchView('dashboard',this)">Dashboard</button>
     <button class="gtab" onclick="switchView('opsqueue',this)">Ops Queue</button>
+    <button class="gtab" onclick="switchView('snow',this)">Snow Accruals</button>
     <button class="gtab" onclick="switchView('workflow',this)">Workflow</button>
+    <button class="gtab" onclick="switchView('statusguide',this)">Status Guide</button>
   </div>
   <div class="wo-search-wrap">
     <span class="wo-search-icon">&#128269;</span>
@@ -344,6 +367,43 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 </div>
 
 </div><!-- /view-workflow -->
+
+<!-- ══════════ VIEW 5: STATUS GUIDE ══════════ -->
+<div id="view-statusguide" class="view">
+<div class="db" style="padding-top:20px">
+
+  <div class="db-section-title">Work Request Statuses <div class="phl"></div></div>
+  <div class="db-card" style="padding:0;overflow:hidden;">
+    <table class="db-table" id="sgWRTable">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Meaning</th>
+          <th>Next Action Required</th>
+          <th>Responsible Party</th>
+        </tr>
+      </thead>
+      <tbody id="sgWRBody"></tbody>
+    </table>
+  </div>
+
+  <div class="db-section-title" style="margin-top:28px">Work Order Statuses <div class="phl"></div></div>
+  <div class="db-card" style="padding:0;overflow:hidden;">
+    <table class="db-table" id="sgWOTable">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Meaning</th>
+          <th>Next Action Required</th>
+          <th>Responsible Party</th>
+        </tr>
+      </thead>
+      <tbody id="sgWOBody"></tbody>
+    </table>
+  </div>
+
+</div>
+</div><!-- /view-statusguide -->
 
 <!-- ══════════ VIEW 2: DASHBOARD ══════════ -->
 <div id="view-dashboard" class="view active">
@@ -530,6 +590,57 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 </div>
 </div><!-- /view-opsqueue -->
 
+<!-- ══════════ VIEW 4: SNOW ACCRUALS ══════════ -->
+<div id="view-snow" class="view">
+<div class="db" style="padding-top:20px">
+
+  <!-- Snow KPIs -->
+  <div class="db-kpis" style="grid-template-columns:repeat(4,1fr);">
+    <div class="db-kpi kpi-blue"><div class="kpi-val" id="snowK1">--</div><div class="kpi-lbl">Properties w/ Contract</div></div>
+    <div class="db-kpi kpi-orange"><div class="kpi-val" id="snowK2">--</div><div class="kpi-lbl">No Contract</div></div>
+    <div class="db-kpi kpi-green"><div class="kpi-val" id="snowK3">--</div><div class="kpi-lbl">Snow Events (Season)</div></div>
+    <div class="db-kpi kpi-purple"><div class="kpi-val" id="snowK4">--</div><div class="kpi-lbl">Est. Accrued</div></div>
+  </div>
+
+  <!-- Contract Management -->
+  <div class="db-section-title">Snow Removal Contracts <div class="phl"></div> <button class="oq-btn oq-btn-g" onclick="openSnowContractForm()">+ Add Contract</button></div>
+  <div class="db-card" style="padding:0;overflow:hidden;">
+    <table class="db-table" id="snowContractTable">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Vendor</th>
+          <th>Season</th>
+          <th>Tier 1 (2"+)</th>
+          <th>Tier 2 (4"+)</th>
+          <th>Tier 3 (6"+)</th>
+          <th class="r">Salt Only</th>
+          <th>Buffer</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="snowContractBody"></tbody>
+    </table>
+    <div id="snowContractEmpty" style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);">No contracts yet — click "+ Add Contract" to get started</div>
+  </div>
+
+  <!-- Properties Without Contracts -->
+  <div class="db-section-title" style="margin-top:28px">Properties Without Snow Contracts <div class="phl"></div></div>
+  <div class="db-card" style="padding:0;overflow:hidden;">
+    <div id="snowMissing" class="db-prop-grid" style="padding:12px 18px;"></div>
+  </div>
+
+</div>
+</div><!-- /view-snow -->
+
+<!-- ══════════ SNOW CONTRACT MODAL ══════════ -->
+<div id="snowModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:560px;max-height:85vh;overflow-y:auto;position:relative;">
+    <button onclick="closeSnowModal()" style="position:absolute;top:10px;right:10px;background:var(--border);border:none;color:var(--muted);width:25px;height:25px;border-radius:5px;cursor:pointer;font-size:12px;">✕</button>
+    <div id="snowModalContent"></div>
+  </div>
+</div>
+
 <!-- ══════════ OPS ACTION MODAL ══════════ -->
 <div id="oqModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:480px;max-height:80vh;overflow-y:auto;position:relative;">
@@ -554,6 +665,89 @@ function switchView(view, btn) {
   localStorage.setItem('ax_active_view', view);
   if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
+  if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
+  if(view==='snow'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else{loadSnowContracts(renderSnow);} }
+}
+
+/* ── Status Definitions (from Axxerion WR-WO Statuses) ── */
+var STATUS_GUIDE = {
+  wr: [
+    {status:'Draft', meaning:'Started creating but not completed', action:'Submit', party:'Creator - Any employee with access can create a request', color:'var(--muted)'},
+    {status:'AM / DM Review', meaning:'DM has to review the work request to ensure the correct priority, scope of work is clear, work is needed', action:'GENERATE WORKORDER (Pest Control, Landscaping, Snow Removal, Junk Removal, Rekey Locks, Golf Cart Minor Repairs) or APPROVE if related to REPAIR', party:'District Manager', color:'var(--orange)'},
+    {status:'Security Related', meaning:'Security FM will review request', action:'APPROVE if related to CCTV or Security Guard Service — Work Order Generated', party:'Security FM', color:'var(--accent2)'},
+    {status:'FM Review', meaning:'FM to review and classify correct Priority', action:'GENERATE WORKORDER to complete repair', party:'Facility Manager', color:'var(--accent)'},
+    {status:'OLD WORK FLOW - IN PROCESS', meaning:'Pending payment of final invoice (old workflow)', action:'Work order is still open for work or invoice processing', party:'Vendor', color:'var(--muted)'},
+    {status:'CLOSED (no closed date)', meaning:'Old workflow — Work order has been generated', action:'Pending WO completion / invoice paid - Link to the work order from the work request', party:'Vendor', color:'var(--muted)'}
+  ],
+  wo: [
+    {status:'Draft', meaning:'Started creating but not completed', action:'Submit', party:'Assigner (DM, FM or Security FM)', color:'var(--muted)', phase:'Creation'},
+    {status:'Assigned', meaning:'WO has been assigned to Vendor', action:'Accept or reject work', party:'Vendor', color:'var(--accent)', phase:'Assignment'},
+    {status:'Approver Review', meaning:'Over Assigner\'s threshold limit - Needs approval before being assigned to vendor', action:'Next approver - APPROVE', party:'FM, Randy, Chris Runckle (based on NTE value)', color:'var(--yellow)', phase:'Assignment'},
+    {status:'Accepted', meaning:'Vendor has accepted the work', action:'Set Scheduled Start - START WORK', party:'Vendor', color:'var(--green)', phase:'Assignment'},
+    {status:'Need Reassignment', meaning:'Vendor has rejected the work', action:'Sent back to FM to assign to new vendor', party:'Vendor reject → FM reassigns', color:'var(--red)', phase:'Assignment'},
+    {status:'Work In Progress', meaning:'Work is started - All invoice fields are open to enter invoice information', action:'CHANGE ORDER submission OR END WORK to finish work', party:'Vendor', color:'var(--green)', phase:'Execution'},
+    {status:'Change Order Submitted', meaning:'Vendor costs are going to exceed NTE - Change order required before they complete work or attach ESTIMATE for change of Scope of Work', action:'SUBMIT CHANGE ORDER - FM to review change order', party:'Vendor', color:'var(--orange)', phase:'Change Orders'},
+    {status:'Change Order Approver Review', meaning:'FM Reviews Change order', action:'APPROVE & REJECT - if approved, moves to next approver or vendor', party:'Assigner (DM, FM or Security FM)', color:'var(--orange)', phase:'Change Orders'},
+    {status:'Change Order Approved', meaning:'If cost exceed Assigner\'s Approval Limit - routes to next approver', action:'APPROVE - moves to next approver or vendor if within threshold', party:'FM, Randy, Chris Runckle (based on NTE value)', color:'var(--green)', phase:'Change Orders'},
+    {status:'Change Order Rejected', meaning:'Change order has been rejected', action:'REJECT — Vendor will need to submit invoice for original NTE amount - END WORK', party:'DM, FM, Randy, Chris Runckle', color:'var(--red)', phase:'Change Orders'},
+    {status:'Work Finished', meaning:'Work has been completed', action:'Goes to AM to confirm work completion - APPROVED or VENDOR NOT FINISHED or REJECT WORK', party:'Area Manager', color:'var(--accent2)', phase:'Completion'},
+    {status:'Unsatisfactory', meaning:'Work has not been completed to satisfaction or as per Scope of Work', action:'Sent back to Vendor to FINISH WORK', party:'Vendor', color:'var(--red)', phase:'Completion'},
+    {status:'Prepare Financials', meaning:'Work has been completed and confirmed, but vendor has not submitted their invoice', action:'Vendor to submit invoice information - SUBMIT FINANCIALS', party:'Vendor', color:'var(--yellow)', phase:'Financials'},
+    {status:'Financials Submitted', meaning:'Invoice costs to be reviewed by Assigner', action:'APPROVE - marks WO as COMPLETED - Invoice created and submitted for audit review', party:'Assigner (DM, FM or Security FM)', color:'var(--accent)', phase:'Financials'},
+    {status:'Financials Rejected', meaning:'Invoice costs have been rejected and sent back to vendor', action:'Vendor to correct and resubmit financials', party:'Assigner (DM, FM or Security FM)', color:'var(--red)', phase:'Financials'},
+    {status:'Invoiced', meaning:'All work has been completed, invoice submitted for payment', action:'Audit Process - Review Invoice submitted - Approve and send to Accounting for processing', party:'Axxerion Support', color:'var(--green)', phase:'Audit & Close'},
+    {status:'Completed', meaning:'All work has been completed, invoice submitted for payment', action:'Audit Process - Review Invoice submitted - Approve and send to Accounting for processing', party:'Axxerion Support', color:'var(--green)', phase:'Audit & Close'}
+  ]
+};
+
+/* Build lookup map for tooltips */
+var STATUS_TOOLTIP_MAP = {};
+STATUS_GUIDE.wr.forEach(function(s){ STATUS_TOOLTIP_MAP[s.status] = s; });
+STATUS_GUIDE.wo.forEach(function(s){ STATUS_TOOLTIP_MAP[s.status] = s; });
+// Additional aliases for statuses as they appear in live data
+STATUS_TOOLTIP_MAP['Needs Reassignment'] = STATUS_TOOLTIP_MAP['Need Reassignment'];
+STATUS_TOOLTIP_MAP['Work in progress'] = STATUS_TOOLTIP_MAP['Work In Progress'];
+STATUS_TOOLTIP_MAP['Work finished'] = STATUS_TOOLTIP_MAP['Work Finished'];
+STATUS_TOOLTIP_MAP['Work approved'] = {status:'Work Approved', meaning:'Area Manager has approved the completed work', action:'Moves to Prepare Financials or Invoiced depending on workflow', party:'Area Manager', color:'var(--green)'};
+STATUS_TOOLTIP_MAP['Additional Change Order Review'] = STATUS_TOOLTIP_MAP['Change Order Approver Review'];
+STATUS_TOOLTIP_MAP['No Invoice/Warranty/Internal'] = {status:'No Invoice/Warranty/Internal', meaning:'Work completed under warranty, internal work, or no invoice expected', action:'Review and close — no financial processing needed', party:'FM / Axxerion Support', color:'var(--muted)'};
+
+function statusTooltipHTML(statusText) {
+  var info = STATUS_TOOLTIP_MAP[statusText];
+  if (!info) return statusText;
+  return '<span class="status-tip">' + statusText
+    + '<span class="tip-box">'
+    + '<div class="tip-title">' + info.status + '</div>'
+    + '<div class="tip-meaning">' + info.meaning + '</div>'
+    + '<div class="tip-action">' + info.action + '</div>'
+    + '<div class="tip-party">' + info.party + '</div>'
+    + '</span></span>';
+}
+
+function renderStatusGuide() {
+  var wrBody = document.getElementById('sgWRBody');
+  var woBody = document.getElementById('sgWOBody');
+  var lastPhase = '';
+
+  wrBody.innerHTML = STATUS_GUIDE.wr.map(function(s) {
+    return '<tr class="sg-row"><td><span class="sg-status-badge" style="background:' + s.color + '22;color:' + s.color + ';border:1px solid ' + s.color + '44">' + s.status + '</span></td>'
+      + '<td class="sg-meaning">' + s.meaning + '</td>'
+      + '<td class="sg-action">' + s.action + '</td>'
+      + '<td class="sg-party">' + s.party + '</td></tr>';
+  }).join('');
+
+  var woHTML = '';
+  STATUS_GUIDE.wo.forEach(function(s) {
+    if (s.phase && s.phase !== lastPhase) {
+      woHTML += '<tr><td colspan="4" class="sg-phase-label">' + s.phase + '</td></tr>';
+      lastPhase = s.phase;
+    }
+    woHTML += '<tr class="sg-row"><td><span class="sg-status-badge" style="background:' + s.color + '22;color:' + s.color + ';border:1px solid ' + s.color + '44">' + s.status + '</span></td>'
+      + '<td class="sg-meaning">' + s.meaning + '</td>'
+      + '<td class="sg-action">' + s.action + '</td>'
+      + '<td class="sg-party">' + s.party + '</td></tr>';
+  });
+  woBody.innerHTML = woHTML;
 }
 
 /* ── Workflow: Email Panel ── */
@@ -734,7 +928,7 @@ function buildStatusTable(data,total){
     if(g.count===0)return;
     var p=total?(g.count/total*100):0;
     var c=colors[g.label]||'var(--muted)';
-    h+='<tr><td>'+g.label+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
+    h+='<tr><td>'+statusTooltipHTML(g.label)+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
   });
   h+='</table>';
   $('tblStatus').innerHTML=h;
@@ -1018,7 +1212,7 @@ function renderPriorityTracker(){
     rows+='<td><span style="'+typeColor+';font-size:9px;font-weight:600;font-family:\'DM Mono\',monospace">'+(isReq?'REQ':'WO')+'</span></td>';
     rows+='<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+refLink+'</td>';
     rows+='<td>'+prop+'</td>';
-    rows+='<td>'+status+'</td>';
+    rows+='<td>'+statusTooltipHTML(status)+'</td>';
     rows+='<td>'+priority+'</td>';
     rows+='<td>'+serviceType+'</td>';
     rows+='<td class="r">'+fmt$(nte)+'</td>';
@@ -1445,17 +1639,26 @@ function initDashboard(){
 
 /* ── Live data loader (direct browser → Axxerion API) ── */
 var AX_API='https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult';
-var AX_AUTH=''; // credentials removed — use server proxy (/api/workorders, /api/requests)
+var AX_AUTH=''; // Auth handled server-side
 var AX_REPORT='IPG-REP-085';
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
+// Array indices:
+// [0]Property [1]Status [2]Priority [3]ProblemType [4]NTE [5]Spend [6]Vendor [7]Region
+// [8]AreaMgr [9]MaintSched [10]Reference [11]Subject [12]Created [13]Address [14]Bookmark
+// [15]RecordType [16]Requestor [17]FacilityMgr
+// [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
+// [23]Closed [24]Assignee [25]NTEExceeded
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
     parseNum(r['Not To Exceed']),parseNum(r['Total']),
     r['Vendor']||'',r['Region']||'',r['Area Manager']||'',r['Maintenance schedule']||'',
     r['Reference']||'',r['Subject']||'',r['Created']||'',r['Address']||'',r['Bookmark']||'',
-    'Work Order','',r['Facility Manager']||''];});
+    'Work Order','',r['Facility Manager']||'',
+    r['Executor']||'',r['Scheduled from']||'',r['Scheduled until']||'',
+    r['Actual start date']||'',r['Actual end date']||'',
+    r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
@@ -1463,11 +1666,12 @@ function mapRequestRows(data){
     0,0,
     '','',r['Requestor']||'','',
     r['Reference']||'',r['Subject']||'',r['Request date']||'','',r['Bookmark']||'',
-    'Request',r['Requestor']||'',r['Facility Manager']||''];});
+    'Request',r['Requestor']||'',r['Facility Manager']||'',
+    '','','','','','','',''];});
 }
 
-var AX_CACHE_KEY='ax_workorders_v2';
-var AX_CACHE_KEY_REQ='ax_requests_v1';
+var AX_CACHE_KEY='ax_workorders_v3';
+var AX_CACHE_KEY_REQ='ax_requests_v2';
 var AX_CACHE_TTL=60*60*1000; // 1 hour
 
 function fetchRequests(source){
@@ -1652,7 +1856,8 @@ if(_savedView!=='dashboard'){
   if(targetView){
     targetView.classList.add('active');
     var tabs=document.querySelectorAll('.gtab');
-    tabs.forEach(function(t){if(t.textContent.toLowerCase().indexOf(_savedView==='opsqueue'?'ops':_savedView)!==-1)t.classList.add('active');});
+    var _tabMatch=_savedView==='opsqueue'?'ops':_savedView==='statusguide'?'status guide':_savedView;
+    tabs.forEach(function(t){if(t.textContent.toLowerCase().indexOf(_tabMatch)!==-1)t.classList.add('active');});
   }
 }
 // Always load live data (needed by all views)
@@ -1661,6 +1866,13 @@ setTimeout(loadLiveData,100);
 // If ops queue was last view, init it after data loads
 if(_savedView==='opsqueue'){
   var _oqWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_oqWait);window._oqInit=true;initOpsQueue();}},500);
+}
+if(_savedView==='statusguide'){
+  window._sgInit=true;
+  setTimeout(renderStatusGuide,200);
+}
+if(_savedView==='snow'){
+  var _snowWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_snowWait);window._snowInit=true;initSnow();}},500);
 }
 
 /* ── Work Order Detail Panel ── */
@@ -1709,7 +1921,7 @@ function openWODetail(r){
 
   // Status + Priority badges
   h+='<div class="psec" style="display:flex;gap:8px;flex-wrap:wrap">';
-  h+='<span class="badge '+statusClass+'" style="font-size:11px;padding:4px 11px">'+status+'</span>';
+  h+='<span class="badge '+statusClass+'" style="font-size:11px;padding:4px 11px">'+statusTooltipHTML(status)+'</span>';
   if(priority) h+='<span class="badge '+prioClass+'" style="font-size:11px;padding:4px 11px">'+priority+'</span>';
   h+='</div>';
 

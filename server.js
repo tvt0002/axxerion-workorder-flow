@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const https = require("https");
@@ -9,13 +8,8 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ── Axxerion API config ──
-const AX_USER = process.env.AX_USER;
-const AX_PASS = process.env.AX_PASS;
-if (!AX_USER || !AX_PASS) {
-  console.error("Missing AX_USER or AX_PASS environment variables");
-  process.exit(1);
-}
-const AX_AUTH = "Basic " + Buffer.from(`${AX_USER}:${AX_PASS}`).toString("base64");
+const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult";
+const AX_AUTH = "Basic " + Buffer.from((process.env.AX_USER || "iapiuser") + ":" + (process.env.AX_PASS || "")).toString("base64");
 const AX_REPORT_WO = "IPG-REP-085";
 const AX_REPORT_REQ = "IPG-REP-087";
 const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
@@ -30,18 +24,10 @@ let cachedReq = null;
 let cacheReqTimestamp = 0;
 let fetchReqInProgress = false;
 
-// Auth error backoff — stop retrying if credentials are rejected
-let authDisabled = false;
-let authErrorCount = 0;
-const MAX_AUTH_ERRORS = 3;
+let authFailed = false; // stop all fetches if API returns unauthorized
+let refreshTimer = null;
 
 function fetchReport(reference, label, onSuccess) {
-  if (authDisabled) {
-    console.warn(`[Cache] Skipping ${label} — auth disabled after ${authErrorCount} consecutive failures. Restart to retry.`);
-    onSuccess(null);
-    return;
-  }
-
   const start = Date.now();
   console.log(`[Cache] Fetching ${label} (${reference})...`);
 
@@ -63,20 +49,14 @@ function fetchReport(reference, label, onSuccess) {
     res.on("end", () => {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
-      // Stop immediately on auth errors (401/403)
-      if (res.statusCode === 401 || res.statusCode === 403) {
-        authErrorCount++;
-        console.error(`[Cache] ${label} auth error (${res.statusCode}) — attempt ${authErrorCount}/${MAX_AUTH_ERRORS}`);
-        if (authErrorCount >= MAX_AUTH_ERRORS) {
-          authDisabled = true;
-          console.error(`[Cache] AUTH DISABLED — ${MAX_AUTH_ERRORS} consecutive auth failures. Check AX_USER/AX_PASS. Restart to retry.`);
-        }
+      // ── Unauthorized: stop all future fetches immediately ──
+      if (res.statusCode === 401 || raw.trim().toLowerCase() === "unauthorized") {
+        console.error(`[Cache] ⛔ ${label}: UNAUTHORIZED (HTTP ${res.statusCode}) — halting all API fetches. Update credentials and restart.`);
+        authFailed = true;
+        if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
         onSuccess(null);
         return;
       }
-
-      // Reset auth error count on any successful response
-      authErrorCount = 0;
 
       try {
         const json = JSON.parse(raw);
@@ -96,8 +76,8 @@ function fetchReport(reference, label, onSuccess) {
     });
   });
 
-  req.setTimeout(5 * 60 * 1000, () => {
-    console.error(`[Cache] ${label} timed out after 5 minutes`);
+  req.setTimeout(10 * 60 * 1000, () => {
+    console.error(`[Cache] ${label} timed out after 10 minutes`);
     req.destroy();
     onSuccess(null);
   });
@@ -112,6 +92,10 @@ function fetchReport(reference, label, onSuccess) {
 }
 
 function fetchFromAxxerion() {
+  if (authFailed) {
+    console.log("[Cache] Skipping fetch — credentials are invalid. Restart server after updating credentials.");
+    return;
+  }
   let skipped = false;
 
   if (!fetchWOInProgress) {
@@ -169,7 +153,7 @@ app.get("/api/status", (req, res) => {
     workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress },
     requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress },
     nextRefreshMin: nextRefreshMin,
-    authDisabled: authDisabled,
+    authFailed: authFailed,
   });
 });
 
@@ -191,8 +175,12 @@ function saveOps(data) {
   } catch (e) { console.error("[Ops] Error saving ops.json:", e.message); }
 }
 
-app.get("/api/ops", (req, res) => { res.json(loadOps()); });
+// Get all ops data
+app.get("/api/ops", (req, res) => {
+  res.json(loadOps());
+});
 
+// Log an action (call, email, note) for a WO
 app.post("/api/ops/log", (req, res) => {
   const { ref, action, note, user } = req.body;
   if (!ref || !action) return res.status(400).json({ error: "ref and action required" });
@@ -203,6 +191,7 @@ app.post("/api/ops/log", (req, res) => {
   res.json({ ok: true, logs: ops.logs[ref] });
 });
 
+// Set/update appointment date for a WO
 app.post("/api/ops/appointment", (req, res) => {
   const { ref, date, confirmed, time } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
@@ -212,6 +201,7 @@ app.post("/api/ops/appointment", (req, res) => {
   res.json({ ok: true, appointment: ops.appointments[ref] });
 });
 
+// Track email sent to vendor
 app.post("/api/ops/email", (req, res) => {
   const { ref, to, type, subject } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
@@ -222,6 +212,7 @@ app.post("/api/ops/email", (req, res) => {
   res.json({ ok: true, emails: ops.emails[ref] });
 });
 
+// Store/update vendor contact info
 app.post("/api/ops/vendor", (req, res) => {
   const { name, email, phone, contact } = req.body;
   if (!name) return res.status(400).json({ error: "vendor name required" });
@@ -231,8 +222,13 @@ app.post("/api/ops/vendor", (req, res) => {
   res.json({ ok: true, vendor: ops.vendors[name] });
 });
 
-app.get("/api/ops/vendors", (req, res) => { res.json(loadOps().vendors || {}); });
+// Get vendor contact info
+app.get("/api/ops/vendors", (req, res) => {
+  const ops = loadOps();
+  res.json(ops.vendors || {});
+});
 
+// Save/update notes for a WO
 app.post("/api/ops/note", (req, res) => {
   const { ref, note } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
@@ -242,6 +238,7 @@ app.post("/api/ops/note", (req, res) => {
   res.json({ ok: true });
 });
 
+// Delete a specific log entry or clear queue action
 app.post("/api/ops/dismiss", (req, res) => {
   const { ref, queue } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
@@ -253,6 +250,58 @@ app.post("/api/ops/dismiss", (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Snow Contract Persistence ──
+const SNOW_FILE = path.join(__dirname, "data", "snow-contracts.json");
+
+function loadSnowContracts() {
+  try {
+    if (fs.existsSync(SNOW_FILE)) return JSON.parse(fs.readFileSync(SNOW_FILE, "utf8"));
+  } catch (e) { console.error("[Snow] Error loading snow-contracts.json:", e.message); }
+  return {};
+}
+
+function saveSnowContracts(data) {
+  try {
+    const dir = path.dirname(SNOW_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(SNOW_FILE, JSON.stringify(data, null, 2), "utf8");
+  } catch (e) { console.error("[Snow] Error saving snow-contracts.json:", e.message); }
+}
+
+// Get all snow contracts
+app.get("/api/snow/contracts", (req, res) => {
+  res.json(loadSnowContracts());
+});
+
+// Save/update a snow contract for a property
+app.post("/api/snow/contract", (req, res) => {
+  const { property, vendor, tiers, saltOnly, seasonStart, seasonEnd, accrualBuffer, notes } = req.body;
+  if (!property) return res.status(400).json({ error: "property required" });
+  const contracts = loadSnowContracts();
+  contracts[property] = {
+    vendor: vendor || "",
+    tiers: tiers || [],
+    saltOnly: saltOnly || 0,
+    seasonStart: seasonStart || "11-01",
+    seasonEnd: seasonEnd || "04-15",
+    accrualBuffer: accrualBuffer || 1.20,
+    notes: notes || "",
+    updatedAt: new Date().toISOString()
+  };
+  saveSnowContracts(contracts);
+  res.json({ ok: true, contract: contracts[property] });
+});
+
+// Delete a snow contract
+app.post("/api/snow/contract/delete", (req, res) => {
+  const { property } = req.body;
+  if (!property) return res.status(400).json({ error: "property required" });
+  const contracts = loadSnowContracts();
+  delete contracts[property];
+  saveSnowContracts(contracts);
+  res.json({ ok: true });
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -261,7 +310,7 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  // Fetch immediately on startup, then every 30 min
+  // Fetch immediately on startup, then every 10 min (stops automatically on auth failure)
   fetchFromAxxerion();
-  setInterval(fetchFromAxxerion, REFRESH_INTERVAL);
+  refreshTimer = setInterval(fetchFromAxxerion, REFRESH_INTERVAL);
 });

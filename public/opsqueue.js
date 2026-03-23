@@ -3,10 +3,10 @@ var OPS_DATA = { logs: {}, appointments: {}, emails: {}, vendors: {}, notes: {},
 var OPS_QUEUE = 'q1';
 var OPS_LOADED = false;
 
-// Queue status definitions
+// Queue status definitions (aligned with Axxerion WR-WO Statuses guide)
 var Q1_PRIORITIES = new Set(['Info Needed']);
-var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
-var Q4_STATUSES = new Set(['Work finished', 'Work approved', 'Completed', 'No Invoice/Warranty/Internal']);
+var Q2_STATUSES = new Set(['Assigned', 'Accepted', 'Need Reassignment', 'Needs Reassignment']);
+var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
 
 function loadOpsData(cb) {
   fetch('/api/ops').then(function(r) { return r.json(); }).then(function(d) {
@@ -71,7 +71,7 @@ function getQ1Data() {
     var ref = r[10] || '';
     var logs = OPS_DATA.logs[ref] || [];
     var note = OPS_DATA.notes[ref] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], subject: r[3], created: r[12], requestor: r[16] || r[8], bookmark: r[14], logs: logs, note: note.text || '', age: daysAgo(r[12]), lastAction: logs.length ? logs[0] : null };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', subject: r[3], created: r[12], requestor: r[16] || r[8], bookmark: r[14], logs: logs, note: note.text || '', age: daysAgo(r[12]), lastAction: logs.length ? logs[0] : null };
   }).sort(function(a, b) { return b.age - a.age; });
 }
 
@@ -83,7 +83,8 @@ function getQ2Data() {
     if (!Q2_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q2) return false;
-    // Has appointment already?
+    // Has appointment already? Check Axxerion Scheduled from first, then manual ops tracking
+    if (r[19]) return false;
     if (OPS_DATA.appointments[ref] && OPS_DATA.appointments[ref].date) return false;
     var hrs = hoursAgo(r[12]);
     return hrs >= 24;
@@ -92,26 +93,41 @@ function getQ2Data() {
     var logs = OPS_DATA.logs[ref] || [];
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], service: r[3], vendor: vendor, vendorPhone: vendorInfo.phone || '', vendorEmail: vendorInfo.email || '', created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vendorInfo.phone || '', vendorEmail: vendorInfo.email || '', created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null };
   }).sort(function(a, b) { return b.hours - a.hours; });
 }
 
 function getQ3Data() {
-  // WOs with appointment today
+  // WOs with appointment today — check both Axxerion Scheduled from and manual ops tracking
   if (!ALLDATA || !ALLDATA.length) return [];
   var today = todayStr();
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
     var ref = r[10] || '';
-    var appt = OPS_DATA.appointments[ref];
-    if (!appt || appt.date !== today) return false;
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q3) return false;
-    return true;
+    // Check Axxerion Scheduled from date
+    if (r[19]) {
+      var sf = new Date(r[19]);
+      if (!isNaN(sf.getTime())) {
+        var sfDate = sf.getFullYear() + '-' + String(sf.getMonth() + 1).padStart(2, '0') + '-' + String(sf.getDate()).padStart(2, '0');
+        if (sfDate === today) return true;
+      }
+    }
+    // Fall back to manual ops appointment
+    var appt = OPS_DATA.appointments[ref];
+    if (appt && appt.date === today) return true;
+    return false;
   }).map(function(r) {
     var ref = r[10] || '';
     var appt = OPS_DATA.appointments[ref] || {};
     var logs = OPS_DATA.logs[ref] || [];
-    return { row: r, ref: ref, property: r[0], status: r[1], service: r[3], vendor: r[6] || '', time: appt.time || '', confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null };
+    // Derive time from Axxerion Scheduled from if available
+    var time = appt.time || '';
+    if (!time && r[19]) {
+      var sf = new Date(r[19]);
+      if (!isNaN(sf.getTime())) time = sf.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null };
   }).sort(function(a, b) { return (a.time || 'ZZ').localeCompare(b.time || 'ZZ'); });
 }
 
@@ -119,9 +135,12 @@ function getQ4Data() {
   // WOs with work done, awaiting invoice
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
-    if (r[15] === 'Request') return false;
+    if (r[15] !== 'Work Order') return false;
     if (!Q4_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
+    if (!ref) return false;
+    // Skip rows missing key data (property, vendor, or service type)
+    if (!r[0] && !r[6] && !r[3]) return false;
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q4) return false;
     return true;
   }).map(function(r) {
@@ -130,13 +149,25 @@ function getQ4Data() {
     var logs = OPS_DATA.logs[ref] || [];
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null };
+    var finishedDate = r[22] || r[23] || r[12]; // Actual end, Closed, or Created as fallback
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
   }).sort(function(a, b) {
-    // Sort by: no emails first, then oldest email
+    // Sort by: no emails first, then oldest finished date
     if (a.emailCount === 0 && b.emailCount > 0) return -1;
     if (b.emailCount === 0 && a.emailCount > 0) return 1;
-    return 0;
+    return b.daysSinceFinished - a.daysSinceFinished;
   });
+}
+
+// Priority color helper
+function priColor(p) {
+  if (!p) return 'color:var(--muted)';
+  var l = p.toLowerCase();
+  if (l === 'critical') return 'color:var(--red);font-weight:600';
+  if (l === 'high') return 'color:var(--orange);font-weight:600';
+  if (l === 'medium') return 'color:var(--yellow)';
+  if (l === 'low') return 'color:var(--green)';
+  return 'color:var(--muted)';
 }
 
 // ── Queue Rendering ──
@@ -176,7 +207,7 @@ function renderQueue() {
 
   if (OPS_QUEUE === 'q1') {
     items = getQ1Data();
-    headHTML = '<tr><th>Age</th><th>Reference</th><th>Property</th><th>Status</th><th>Subject</th><th>Requestor</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Age</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Subject</th><th>Requestor</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var ageClass = d.age >= 3 ? 'color:var(--red)' : d.age >= 1 ? 'color:var(--orange)' : 'color:var(--green)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -185,7 +216,8 @@ function renderQueue() {
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + ageClass + '">' + d.age + 'd</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
-        + '<td>' + d.status + '</td>'
+        + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.subject + '</td>'
         + '<td>' + d.requestor + '</td>'
         + '<td>' + lastAct + '</td>'
@@ -196,7 +228,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q2') {
     items = getQ2Data();
-    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -206,6 +238,8 @@ function renderQueue() {
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + hrsClass + '">' + d.hours + 'h</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
+        + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + phone + '</td>'
@@ -218,7 +252,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr><th>Time</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Confirmed</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Time</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Vendor</th><th>Service Type</th><th>Confirmed</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var confBadge = d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -227,6 +261,8 @@ function renderQueue() {
         + '<td style="font-family:\'DM Mono\',monospace;font-size:12px;font-weight:600">' + (d.time || 'TBD') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
+        + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + confBadge + '</td>'
@@ -238,17 +274,20 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q4') {
     items = getQ4Data();
-    headHTML = '<tr><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Status</th><th>Emails Sent</th><th>Last Email</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Days</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Status</th><th>Priority</th><th>Emails Sent</th><th>Last Email</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
       var emailBtn = d.vendorEmail ? '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Send Invoice Link</button>' : '<button class="oq-btn" onclick="openVendorEdit(\'' + d.vendor.replace(/'/g, "\\'") + '\')">Add Email</button>';
+      var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
       return '<tr>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
-        + '<td>' + d.status + '</td>'
+        + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.emailCount + '</td>'
         + '<td>' + lastEmail + '</td>'
         + '<td>' + emailBtn + ' <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
