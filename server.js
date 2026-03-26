@@ -60,7 +60,8 @@ const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completer
 const AX_AUTH = "Basic " + Buffer.from((process.env.AX_USER || "iapiuser") + ":" + (process.env.AX_PASS || "")).toString("base64");
 const AX_REPORT_WO = "IPG-REP-085";
 const AX_REPORT_REQ = "IPG-REP-087";
-const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const REFRESH_INTERVAL_WO = 4 * 60 * 60 * 1000; // 4 hours for full WO pull (11K+ records)
+const REFRESH_INTERVAL_REQ = 10 * 60 * 1000; // 10 minutes for requests (small dataset)
 const RETRY_DELAY = 60 * 1000; // 1 minute retry when a fetch was skipped
 
 let cachedWO = null;
@@ -139,40 +140,33 @@ function fetchReport(reference, label, onSuccess) {
   req.end();
 }
 
-function fetchFromAxxerion() {
-  if (authFailed) {
-    console.log("[Cache] Skipping fetch — credentials are invalid. Restart server after updating credentials.");
+function fetchWorkOrders() {
+  if (authFailed) { console.log("[Cache] Skipping WO fetch — credentials invalid."); return; }
+  if (fetchWOInProgress) {
+    console.log("[Cache] Skipping Work Orders — previous fetch still in progress");
+    setTimeout(fetchWorkOrders, RETRY_DELAY);
     return;
   }
-  let skipped = false;
+  fetchWOInProgress = true;
+  lastFetchStartTime = Date.now();
+  fetchReport(AX_REPORT_WO, "Work Orders", (data) => {
+    fetchWOInProgress = false;
+    if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); saveToDB("workorders", data); }
+  });
+}
 
-  if (!fetchWOInProgress) {
-    fetchWOInProgress = true;
-    lastFetchStartTime = Date.now();
-    fetchReport(AX_REPORT_WO, "Work Orders", (data) => {
-      fetchWOInProgress = false;
-      if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); saveToDB("workorders", data); }
-    });
-  } else {
-    console.log("[Cache] Skipping Work Orders — previous fetch still in progress");
-    skipped = true;
-  }
-
-  if (!fetchReqInProgress) {
-    fetchReqInProgress = true;
-    fetchReport(AX_REPORT_REQ, "Requests", (data) => {
-      fetchReqInProgress = false;
-      if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); saveToDB("requests", data); }
-    });
-  } else {
+function fetchRequests() {
+  if (authFailed) { console.log("[Cache] Skipping Request fetch — credentials invalid."); return; }
+  if (fetchReqInProgress) {
     console.log("[Cache] Skipping Requests — previous fetch still in progress");
-    skipped = true;
+    setTimeout(fetchRequests, RETRY_DELAY);
+    return;
   }
-
-  if (skipped) {
-    console.log("[Cache] Will retry skipped reports in 1 minute");
-    setTimeout(fetchFromAxxerion, RETRY_DELAY);
-  }
+  fetchReqInProgress = true;
+  fetchReport(AX_REPORT_REQ, "Requests", (data) => {
+    fetchReqInProgress = false;
+    if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); saveToDB("requests", data); }
+  });
 }
 
 // ── API endpoints for browser ──
@@ -195,12 +189,12 @@ app.get("/api/requests", (req, res) => {
 });
 
 app.get("/api/status", (req, res) => {
-  const nextRefreshMs = lastFetchStartTime ? (lastFetchStartTime + REFRESH_INTERVAL) - Date.now() : 0;
-  const nextRefreshMin = Math.max(0, Math.round(nextRefreshMs / 60000));
+  const nextWORefreshMs = lastFetchStartTime ? (lastFetchStartTime + REFRESH_INTERVAL_WO) - Date.now() : 0;
+  const nextWORefreshMin = Math.max(0, Math.round(nextWORefreshMs / 60000));
   res.json({
-    workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress },
-    requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress },
-    nextRefreshMin: nextRefreshMin,
+    workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress, refreshIntervalHrs: 4 },
+    requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress, refreshIntervalMin: 10 },
+    nextWORefreshMin: nextWORefreshMin,
     authFailed: authFailed,
     dbConnected: !!pool,
   });
@@ -363,7 +357,10 @@ app.listen(PORT, async () => {
   await initDB();
   await loadFromDB();
   if (cachedWO) console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
-  // 2. Fetch fresh data from Axxerion API, then every 10 min
-  fetchFromAxxerion();
-  refreshTimer = setInterval(fetchFromAxxerion, REFRESH_INTERVAL);
+  // 2. Fetch fresh data — Requests every 10 min, full WO pull every 4 hours
+  fetchWorkOrders();
+  fetchRequests();
+  setInterval(fetchWorkOrders, REFRESH_INTERVAL_WO);
+  setInterval(fetchRequests, REFRESH_INTERVAL_REQ);
+  console.log("[Startup] Timers: WOs every 4h, Requests every 10m");
 });
