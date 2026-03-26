@@ -2,10 +2,58 @@ const express = require("express");
 const path = require("path");
 const https = require("https");
 const fs = require("fs");
+const { Pool } = require("pg");
 
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
+
+// ── Postgres Cache (Railway provides DATABASE_URL) ──
+const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL.includes("localhost") ? false : { rejectUnauthorized: false } })
+  : null;
+
+async function initDB() {
+  if (!pool) { console.log("[DB] No DATABASE_URL — running without Postgres cache"); return; }
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS api_cache (
+      report_key TEXT PRIMARY KEY,
+      data JSONB NOT NULL,
+      fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    console.log("[DB] Cache table ready");
+  } catch (e) { console.error("[DB] Init error:", e.message); }
+}
+
+async function loadFromDB() {
+  if (!pool) return;
+  try {
+    const woRes = await pool.query("SELECT data, fetched_at FROM api_cache WHERE report_key = 'workorders'");
+    if (woRes.rows.length) {
+      cachedWO = woRes.rows[0].data;
+      cacheWOTimestamp = new Date(woRes.rows[0].fetched_at).getTime();
+      console.log("[DB] Loaded " + cachedWO.length + " WOs from Postgres (cached " + Math.round((Date.now() - cacheWOTimestamp) / 60000) + "m ago)");
+    }
+    const reqRes = await pool.query("SELECT data, fetched_at FROM api_cache WHERE report_key = 'requests'");
+    if (reqRes.rows.length) {
+      cachedReq = reqRes.rows[0].data;
+      cacheReqTimestamp = new Date(reqRes.rows[0].fetched_at).getTime();
+      console.log("[DB] Loaded " + cachedReq.length + " Requests from Postgres (cached " + Math.round((Date.now() - cacheReqTimestamp) / 60000) + "m ago)");
+    }
+  } catch (e) { console.error("[DB] Load error:", e.message); }
+}
+
+async function saveToDB(key, data) {
+  if (!pool) return;
+  try {
+    await pool.query(
+      `INSERT INTO api_cache (report_key, data, fetched_at) VALUES ($1, $2, NOW())
+       ON CONFLICT (report_key) DO UPDATE SET data = $2, fetched_at = NOW()`,
+      [key, JSON.stringify(data)]
+    );
+    console.log("[DB] Saved " + data.length + " records to Postgres (" + key + ")");
+  } catch (e) { console.error("[DB] Save error:", e.message); }
+}
 
 // ── Axxerion API config ──
 const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult";
@@ -103,7 +151,7 @@ function fetchFromAxxerion() {
     lastFetchStartTime = Date.now();
     fetchReport(AX_REPORT_WO, "Work Orders", (data) => {
       fetchWOInProgress = false;
-      if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); }
+      if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); saveToDB("workorders", data); }
     });
   } else {
     console.log("[Cache] Skipping Work Orders — previous fetch still in progress");
@@ -114,7 +162,7 @@ function fetchFromAxxerion() {
     fetchReqInProgress = true;
     fetchReport(AX_REPORT_REQ, "Requests", (data) => {
       fetchReqInProgress = false;
-      if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); }
+      if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); saveToDB("requests", data); }
     });
   } else {
     console.log("[Cache] Skipping Requests — previous fetch still in progress");
@@ -154,6 +202,7 @@ app.get("/api/status", (req, res) => {
     requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress },
     nextRefreshMin: nextRefreshMin,
     authFailed: authFailed,
+    dbConnected: !!pool,
   });
 });
 
@@ -308,9 +357,13 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
-  // Fetch immediately on startup, then every 10 min (stops automatically on auth failure)
+  // 1. Init DB and load cached data (instant LIVE on deploy)
+  await initDB();
+  await loadFromDB();
+  if (cachedWO) console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
+  // 2. Fetch fresh data from Axxerion API, then every 10 min
   fetchFromAxxerion();
   refreshTimer = setInterval(fetchFromAxxerion, REFRESH_INTERVAL);
 });

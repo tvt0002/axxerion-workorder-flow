@@ -398,26 +398,58 @@ function submitVendor(name) {
 function sendInvoiceEmail(ref, vendorName) {
   var info = OPS_DATA.vendors[vendorName] || {};
   if (!info.email) { openVendorEdit(vendorName); return; }
-  // Find the WO data for bookmark
   var wo = ALLDATA.find(function(r) { return r[10] === ref; });
   var bookmark = wo ? wo[14] : '';
   var property = wo ? wo[0] : '';
+  var service = wo ? wo[3] : '';
+  var contactName = info.contact || vendorName;
 
-  var html = '<div class="psl" style="margin-bottom:12px">SEND INVOICE REQUEST — ' + ref + '</div>'
-    + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;line-height:1.7">'
-    + '<div style="margin-bottom:4px"><span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:9px">TO:</span> ' + info.email + '</div>'
-    + '<div style="margin-bottom:8px;font-weight:600">Invoice Required — ' + ref + ' at ' + property + '</div>'
-    + '<div style="color:var(--muted)">Please submit your invoice for work order ' + ref + ' at ' + property + '.</div>'
-    + (bookmark ? '<div style="margin-top:6px">Submit here: <a href="' + bookmark + '" style="color:var(--accent)">' + bookmark + '</a></div>' : '')
+  var defaultSubject = 'Invoice Required — ' + ref + ' at ' + property;
+  var defaultBody = 'Hi ' + contactName + ',\n\n'
+    + 'This is a follow-up regarding work order ' + ref + ' at ' + property + '.'
+    + (service ? ' Service: ' + service + '.' : '') + '\n\n'
+    + 'Work has been completed and we are awaiting your invoice submission. '
+    + 'Please submit your invoice at your earliest convenience.\n\n'
+    + (bookmark ? 'You can submit your invoice directly using the link below:\n' + bookmark + '\n\n' : '')
+    + 'If you have any questions, please don\'t hesitate to reach out.\n\n'
+    + 'Thank you,\nSecure Space Operations';
+
+  var html = '<div class="psl" style="margin-bottom:12px">DRAFT EMAIL — ' + ref + '</div>'
+    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO</label>'
+    + '<input type="email" id="oqEmailTo" value="' + info.email.replace(/"/g, '&quot;') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">SUBJECT</label>'
+    + '<input type="text" id="oqEmailSubject" value="' + defaultSubject.replace(/"/g, '&quot;') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">BODY</label>'
+    + '<textarea id="oqEmailBody" rows="12" style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:8px 10px;width:100%;resize:vertical;line-height:1.6">' + defaultBody.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea></div>'
+    + (bookmark ? '<div style="margin-bottom:12px;padding:8px 12px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Invoice Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:8px 12px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:6px;font-size:11px;color:var(--orange)">No invoice link available — bookmark not set on this WO</div>')
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="confirmSendEmail(\'' + ref + '\',\'' + vendorName.replace(/'/g, "\\'") + '\')">Open in Email Client</button>'
+    + '<button class="oq-btn" style="flex:1;padding:10px" onclick="logEmailOnly(\'' + ref + '\',\'' + vendorName.replace(/'/g, "\\'") + '\')">Log as Sent</button>'
     + '</div>'
-    + '<button class="oq-btn oq-btn-g" style="width:100%;padding:10px" onclick="confirmSendEmail(\'' + ref + '\',\'' + vendorName.replace(/'/g, "\\'") + '\')">Send Email</button>';
+    + '<div style="margin-top:6px;font-size:10px;color:var(--muted);text-align:center">"Open in Email Client" launches your default email app · "Log as Sent" just records it</div>';
   openOqModal(html);
 }
 
 function confirmSendEmail(ref, vendorName) {
-  var info = OPS_DATA.vendors[vendorName] || {};
-  opsApi('email', { ref: ref, to: info.email, type: 'invoice', subject: 'Invoice Required — ' + ref });
-  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice request sent to ' + info.email });
+  var to = document.getElementById('oqEmailTo').value;
+  var subject = document.getElementById('oqEmailSubject').value;
+  var body = document.getElementById('oqEmailBody').value;
+  // Open mailto link
+  var mailto = 'mailto:' + encodeURIComponent(to)
+    + '?subject=' + encodeURIComponent(subject)
+    + '&body=' + encodeURIComponent(body);
+  window.open(mailto, '_blank');
+  // Log it
+  opsApi('email', { ref: ref, to: to, type: 'invoice', subject: subject });
+  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice request sent to ' + to });
+  closeOqModal();
+}
+
+function logEmailOnly(ref, vendorName) {
+  var to = document.getElementById('oqEmailTo').value;
+  var subject = document.getElementById('oqEmailSubject').value;
+  opsApi('email', { ref: ref, to: to, type: 'invoice', subject: subject });
+  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice request sent to ' + to + ' (logged manually)' });
   closeOqModal();
 }
 
