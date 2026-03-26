@@ -76,8 +76,8 @@ function fetchReport(reference, label, onSuccess) {
     });
   });
 
-  req.setTimeout(10 * 60 * 1000, () => {
-    console.error(`[Cache] ${label} timed out after 10 minutes`);
+  req.setTimeout(20 * 60 * 1000, () => {
+    console.error(`[Cache] ${label} timed out after 20 minutes`);
     req.destroy();
     onSuccess(null);
   });
