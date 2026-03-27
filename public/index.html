@@ -429,6 +429,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div class="ms-wrap" id="fDM"></div>
   </div>
   <div class="db-filter-group">
+    <label class="db-filter-label">Priority</label>
+    <div class="ms-wrap" id="fPriority"></div>
+  </div>
+  <div class="db-filter-group">
     <label class="db-filter-label">Service Type</label>
     <div class="ms-wrap" id="fServiceType"></div>
   </div>
@@ -497,7 +501,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
     <div class="db-card" style="display:flex;flex-direction:column;">
       <div class="db-card-title">Priority Breakdown</div>
-      <div class="chart-wrap chart-wrap-priority"><canvas id="chartPriority" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;"></canvas></div>
+      <div id="tblPriority"></div>
     </div>
   </div>
 
@@ -821,7 +825,7 @@ document.addEventListener('click',function(e){
 // ALLDATA = combined WO + Request rows; RAW = just WOs for fallback compat
 var DATA_SOURCE='static';
 var ALLDATA=[];
-var _chartPriority,_chartDM,_chartRegion,_chartElevType,_chartElevVendor,_chartElevProperty,_chartElevStatus;
+var _chartDM,_chartRegion,_chartElevType,_chartElevVendor,_chartElevProperty,_chartElevStatus;
 var fontMono="'DM Mono',monospace";
 
 function $(id){return document.getElementById(id);}
@@ -934,6 +938,25 @@ function buildStatusTable(data,total){
   $('tblStatus').innerHTML=h;
 }
 
+function buildPriorityTable(data,total){
+  var priOrder=['Critical','High','Medium','Low','Very low'];
+  var priColors={'Critical':'#f87171','High':'#fb923c','Medium':'#fbbf24','Low':'#4f8ef7','Very low':'#6b7280'};
+  var counts={};
+  data.forEach(function(r){var p=r[2]||'(None)';counts[p]=(counts[p]||0)+1;});
+  // Build rows: ordered priorities first, then any extras
+  var rows=[];
+  priOrder.forEach(function(p){if(counts[p])rows.push({label:p,count:counts[p]});});
+  Object.keys(counts).sort().forEach(function(p){if(priOrder.indexOf(p)===-1)rows.push({label:p,count:counts[p]});});
+  var h='<table class="db-table"><tr><th>Priority</th><th class="r">Count</th><th style="width:45%"></th><th class="r">%</th></tr>';
+  rows.forEach(function(g){
+    var p=total?(g.count/total*100):0;
+    var c=priColors[g.label]||'var(--muted)';
+    h+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:6px;vertical-align:middle;"></span>'+g.label+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
+  });
+  h+='</table>';
+  $('tblPriority').innerHTML=h;
+}
+
 function buildGroupTable(id,data,colIdx,headers){
   var groups=groupBy(data,colIdx).slice(0,10);
   var h='<table class="db-table"><tr>';
@@ -1013,13 +1036,14 @@ function buildPropertyGrid(data){
 var CLOSED_STATUSES=new Set(['Closed','Invoiced','Cancelled','Completed']);
 function applyFilters(){
   var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
-      fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
+      fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM'), fPri=getSelected('fPriority');
   var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
   var filtered=ALLDATA.filter(function(r){
     if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
     if(fT && !fT.has(r[15]))return false;
     if(fP && !fP.has(r[0]))return false;
     if(fD && !fD.has(r[8]))return false;
+    if(fPri && !fPri.has(r[2]))return false;
     if(fS && !fS.has(r[3]))return false;
     if(fSt && !fSt.has(r[1]))return false;
     if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
@@ -1060,24 +1084,11 @@ function renderDashboard(data){
   $('dbFilterCount').textContent='Showing '+total+' of '+ALLDATA.length+' '+typeLabel;
 
   buildStatusTable(data,total);
+  buildPriorityTable(data,total);
   buildGroupTable('tblDM',data,8,[{t:'District Manager'},{t:'WO Count',r:1},{t:'Total NTE',r:1}]);
   buildGroupTable('tblService',data,3,[{t:'Service Type'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
   buildGroupTable('tblVendor',data,6,[{t:'Vendor'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
   buildPropertyGrid(data);
-
-  // Charts
-  var priGroups=groupBy(data,2);
-  var priOrder=['Critical','High','Medium','Low','Very low'];
-  var priColors=['#f87171','#fb923c','#fbbf24','#4f8ef7','#6b7280'];
-  var priData=priOrder.map(function(p){var f=priGroups.find(function(g){return g.label===p;});return f?f.count:0;});
-
-  // Filter out priorities with zero count so chart and legend scale correctly
-  var priLabelsFiltered=[],priDataFiltered=[],priColorsFiltered=[];
-  priOrder.forEach(function(p,i){if(priData[i]>0){priLabelsFiltered.push(p);priDataFiltered.push(priData[i]);priColorsFiltered.push(priColors[i]);}});
-  if(priLabelsFiltered.length===0){priLabelsFiltered=['No Data'];priDataFiltered=[1];priColorsFiltered=['#252a35'];}
-
-  if(_chartPriority)_chartPriority.destroy();
-  _chartPriority=new Chart($('chartPriority'),{type:'doughnut',data:{labels:priLabelsFiltered,datasets:[{data:priDataFiltered,backgroundColor:priColorsFiltered,borderColor:'#161a22',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:8},onClick:function(evt,elements){if(elements.length>0){var idx=elements[0].index;var label=priLabelsFiltered[idx];if(label&&label!=='No Data')openRawData({priority:label});}},plugins:{legend:{position:'right',align:'center',labels:{color:'#e8eaf0',boxWidth:12,padding:10,font:{family:fontMono,size:10},generateLabels:function(chart){return chart.data.labels.map(function(label,i){var val=chart.data.datasets[0].data[i];var total=chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);var pctVal=total?((val/total)*100).toFixed(1):'0';return{text:label+' ('+val+', '+pctVal+'%)',fontColor:'#e8eaf0',fillStyle:chart.data.datasets[0].backgroundColor[i],strokeStyle:'#161a22',lineWidth:2,index:i};});}}}}}});
 
   // ── Elevator Breakdown ──
   var elevData=data.filter(function(r){return(r[3]||'').toLowerCase().indexOf('elevator')!==-1;});
@@ -1589,7 +1600,6 @@ window.addEventListener('resize',function(){
   clearTimeout(_resizeTimer);
   _resizeTimer=setTimeout(function(){
     sizeKPIs();
-    if(_chartPriority){_chartPriority.resize();}
     if(_chartElevType){_chartElevType.resize();}
     if(_chartElevVendor){_chartElevVendor.resize();}
     if(_chartElevProperty){_chartElevProperty.resize();}
@@ -1605,6 +1615,7 @@ function rebuildDependentFilters(){
   var unique=function(idx){var s=new Set();subset.forEach(function(r){if(r[idx])s.add(r[idx]);});return Array.from(s).sort();};
   buildMultiSelect('fProperty',unique(0));
   buildMultiSelect('fDM',unique(8));
+  buildMultiSelect('fPriority',unique(2));
   buildMultiSelect('fServiceType',unique(3));
   buildMultiSelect('fStatus',unique(1));
   var fmVals=new Set();subset.forEach(function(r){var v=r[17];fmVals.add(v?v:'(Unassigned)');});
