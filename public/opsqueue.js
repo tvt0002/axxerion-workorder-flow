@@ -159,6 +159,36 @@ function getQ4Data() {
   });
 }
 
+function getQ5Data() {
+  // All sent emails from OPS_DATA.emails, joined with WO data
+  var results = [];
+  var refs = Object.keys(OPS_DATA.emails || {});
+  refs.forEach(function(ref) {
+    var emails = OPS_DATA.emails[ref] || [];
+    var wo = ALLDATA ? ALLDATA.find(function(r) { return r[10] === ref; }) : null;
+    emails.forEach(function(em) {
+      results.push({
+        ref: ref,
+        property: wo ? wo[0] : '',
+        vendor: wo ? (wo[6] || '') : '',
+        service: wo ? (wo[3] || '') : '',
+        status: wo ? (wo[1] || '') : '',
+        bookmark: wo ? (wo[14] || '') : '',
+        to: em.to || '',
+        subject: em.subject || '',
+        type: em.type || 'invoice',
+        sentAt: em.sentAt || '',
+        sentAtFmt: fmtDate(em.sentAt)
+      });
+    });
+  });
+  // Sort newest first
+  results.sort(function(a, b) {
+    return new Date(b.sentAt) - new Date(a.sentAt);
+  });
+  return results;
+}
+
 // Priority color helper
 function priColor(p) {
   if (!p) return 'color:var(--muted)';
@@ -184,15 +214,16 @@ function switchQueue(q, btn) {
 }
 
 function renderQueueKPIs() {
-  var q1 = getQ1Data(), q2 = getQ2Data(), q3 = getQ3Data(), q4 = getQ4Data();
+  var q1 = getQ1Data(), q2 = getQ2Data(), q3 = getQ3Data(), q4 = getQ4Data(), q5 = getQ5Data();
   document.getElementById('oqK1').textContent = q1.length;
   document.getElementById('oqK2').textContent = q2.length;
   document.getElementById('oqK3').textContent = q3.length;
   document.getElementById('oqK4').textContent = q4.length;
+  document.getElementById('oqK5').textContent = q5.length;
   // Update tab counts
   document.querySelectorAll('.oq-tab').forEach(function(t) {
     var q = t.getAttribute('data-queue');
-    var c = q === 'q1' ? q1.length : q === 'q2' ? q2.length : q === 'q3' ? q3.length : q4.length;
+    var c = q === 'q1' ? q1.length : q === 'q2' ? q2.length : q === 'q3' ? q3.length : q === 'q4' ? q4.length : q5.length;
     var lbl = t.textContent.replace(/\s*\(\d+\)$/, '');
     t.textContent = lbl + ' (' + c + ')';
   });
@@ -278,7 +309,7 @@ function renderQueue() {
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
-      var emailBtn = d.vendorEmail ? '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Send Invoice Link</button>' : '<button class="oq-btn" onclick="openVendorEdit(\'' + d.vendor.replace(/'/g, "\\'") + '\')">Add Email</button>';
+      var emailBtn = '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Draft Email</button>';
       var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
@@ -291,6 +322,24 @@ function renderQueue() {
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.emailCount + '</td>'
         + '<td>' + lastEmail + '</td>'
         + '<td>' + emailBtn + ' <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  else if (OPS_QUEUE === 'q5') {
+    items = getQ5Data();
+    headHTML = '<tr><th>Sent</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>To</th><th>Subject</th><th>Actions</th></tr>';
+    rowsHTML = items.map(function(d) {
+      var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
+      return '<tr>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + d.sentAtFmt + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
+        + '<td>' + d.property + '</td>'
+        + '<td>' + d.vendor + '</td>'
+        + '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + d.to + '</td>'
+        + '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">' + d.subject + '</td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Resend</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -397,31 +446,32 @@ function submitVendor(name) {
 
 function sendInvoiceEmail(ref, vendorName) {
   var info = OPS_DATA.vendors[vendorName] || {};
-  if (!info.email) { openVendorEdit(vendorName); return; }
   var wo = ALLDATA.find(function(r) { return r[10] === ref; });
   var bookmark = wo ? wo[14] : '';
   var property = wo ? wo[0] : '';
   var service = wo ? wo[3] : '';
   var contactName = info.contact || vendorName;
 
-  var defaultSubject = 'Invoice Required — ' + ref + ' at ' + property;
+  var defaultSubject = 'Action Required: Upload Invoice & Paperwork — WO ' + ref + ' (' + property + ')';
   var defaultBody = 'Hi ' + contactName + ',\n\n'
-    + 'This is a follow-up regarding work order ' + ref + ' at ' + property + '.'
-    + (service ? ' Service: ' + service + '.' : '') + '\n\n'
-    + 'Work has been completed and we are awaiting your invoice submission. '
-    + 'Please submit your invoice at your earliest convenience.\n\n'
-    + (bookmark ? 'You can submit your invoice directly using the link below:\n' + bookmark + '\n\n' : '')
-    + 'If you have any questions, please don\'t hesitate to reach out.\n\n'
+    + 'This is a follow-up regarding the completed work order below:\n\n'
+    + '  Work Order: ' + ref + '\n'
+    + '  Property: ' + property + '\n'
+    + (service ? '  Service: ' + service + '\n' : '')
+    + '\nPlease upload your invoice and any supporting paperwork (lien waivers, completion photos, etc.) directly into Axxerion using the link below:\n\n'
+    + (bookmark ? bookmark + '\n\n' : '[Axxerion link not available — please contact us for upload instructions]\n\n')
+    + 'If you are unable to access the link, you may reply to this email with your documents attached and we will upload them on your behalf.\n\n'
+    + 'Please submit within 7 business days to avoid payment delays.\n\n'
     + 'Thank you,\nSecure Space Operations';
 
   var html = '<div class="psl" style="margin-bottom:12px">DRAFT EMAIL — ' + ref + '</div>'
-    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO</label>'
-    + '<input type="email" id="oqEmailTo" value="' + info.email.replace(/"/g, '&quot;') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Axxerion Upload Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
+    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO' + (!info.email ? ' <span style="color:var(--orange)">(no vendor email on file)</span>' : '') + '</label>'
+    + '<input type="email" id="oqEmailTo" value="' + (info.email || '').replace(/"/g, '&quot;') + '" placeholder="vendor@example.com" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">SUBJECT</label>'
     + '<input type="text" id="oqEmailSubject" value="' + defaultSubject.replace(/"/g, '&quot;') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">BODY</label>'
-    + '<textarea id="oqEmailBody" rows="12" style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:8px 10px;width:100%;resize:vertical;line-height:1.6">' + defaultBody.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea></div>'
-    + (bookmark ? '<div style="margin-bottom:12px;padding:8px 12px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Invoice Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:8px 12px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:6px;font-size:11px;color:var(--orange)">No invoice link available — bookmark not set on this WO</div>')
+    + '<textarea id="oqEmailBody" rows="14" style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:8px 10px;width:100%;resize:vertical;line-height:1.6">' + defaultBody.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea></div>'
     + '<div style="display:flex;gap:8px">'
     + '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="confirmSendEmail(\'' + ref + '\',\'' + vendorName.replace(/'/g, "\\'") + '\')">Open in Email Client</button>'
     + '<button class="oq-btn" style="flex:1;padding:10px" onclick="logEmailOnly(\'' + ref + '\',\'' + vendorName.replace(/'/g, "\\'") + '\')">Log as Sent</button>'
@@ -432,8 +482,14 @@ function sendInvoiceEmail(ref, vendorName) {
 
 function confirmSendEmail(ref, vendorName) {
   var to = document.getElementById('oqEmailTo').value;
+  if (!to) { alert('Please enter a recipient email address'); return; }
   var subject = document.getElementById('oqEmailSubject').value;
   var body = document.getElementById('oqEmailBody').value;
+  // Save vendor email if not already stored
+  var info = OPS_DATA.vendors[vendorName] || {};
+  if (!info.email && to) {
+    opsApi('vendor', { name: vendorName, email: to, phone: info.phone || '', contact: info.contact || '' });
+  }
   // Open mailto link
   var mailto = 'mailto:' + encodeURIComponent(to)
     + '?subject=' + encodeURIComponent(subject)
@@ -441,15 +497,21 @@ function confirmSendEmail(ref, vendorName) {
   window.open(mailto, '_blank');
   // Log it
   opsApi('email', { ref: ref, to: to, type: 'invoice', subject: subject });
-  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice request sent to ' + to });
+  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice/paperwork request sent to ' + to });
   closeOqModal();
 }
 
 function logEmailOnly(ref, vendorName) {
   var to = document.getElementById('oqEmailTo').value;
+  if (!to) { alert('Please enter a recipient email address'); return; }
   var subject = document.getElementById('oqEmailSubject').value;
+  // Save vendor email if not already stored
+  var info = OPS_DATA.vendors[vendorName] || {};
+  if (!info.email && to) {
+    opsApi('vendor', { name: vendorName, email: to, phone: info.phone || '', contact: info.contact || '' });
+  }
   opsApi('email', { ref: ref, to: to, type: 'invoice', subject: subject });
-  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice request sent to ' + to + ' (logged manually)' });
+  opsApi('log', { ref: ref, action: 'email_sent', note: 'Invoice/paperwork request sent to ' + to + ' (logged manually)' });
   closeOqModal();
 }
 
