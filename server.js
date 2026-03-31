@@ -200,6 +200,13 @@ app.get("/api/status", (req, res) => {
   });
 });
 
+// ── Manual refresh trigger ──
+app.post("/api/refresh", (req, res) => {
+  fetchWorkOrders();
+  fetchRequests();
+  res.json({ ok: true, message: "Refresh triggered" });
+});
+
 // ── Ops Queue Persistence ──
 const OPS_FILE = path.join(__dirname, "data", "ops.json");
 
