@@ -256,6 +256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <input type="text" class="wo-search-input" id="woSearch" placeholder="Search work orders..." autocomplete="off">
     <div class="wo-results" id="woResults"></div>
   </div>
+  <a href="https://axpr19.axxerion.us/axxerion/ui" target="_blank" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);padding:5px 10px;border-radius:5px;text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='rgba(79,142,247,.15)';this.style.borderColor='rgba(79,142,247,.4)'" onmouseout="this.style.background='rgba(79,142,247,.08)';this.style.borderColor='rgba(79,142,247,.2)'">Axxerion Login &#8599;</a>
   <span class="gright">Secure Space Self Storage</span>
 </div>
 
@@ -1656,7 +1657,7 @@ var AX_AUTH=''; // Auth handled server-side
 var AX_REPORT='IPG-REP-085';
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
-function fixBookmark(url){if(!url)return '';return url.replace('/axxerion/bookmark/','/axxerion/ui/bookmark/');}
+function fixBookmark(url){return url||'';}
 // Array indices:
 // [0]Property [1]Status [2]Priority [3]ProblemType [4]NTE [5]Spend [6]Vendor [7]Region
 // [8]AreaMgr [9]MaintSched [10]Reference [11]Subject [12]Created [13]Address [14]Bookmark
