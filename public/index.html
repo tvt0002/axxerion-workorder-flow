@@ -1656,29 +1656,31 @@ var AX_AUTH=''; // Auth handled server-side
 var AX_REPORT='IPG-REP-085';
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
+function fixBookmark(url){if(!url)return '';return url.replace('axpr21.axxerion.us/axxerion/','axpr19.axxerion.us/axxerion/ui/');}
 // Array indices:
 // [0]Property [1]Status [2]Priority [3]ProblemType [4]NTE [5]Spend [6]Vendor [7]Region
 // [8]AreaMgr [9]MaintSched [10]Reference [11]Subject [12]Created [13]Address [14]Bookmark
 // [15]RecordType [16]Requestor [17]FacilityMgr
 // [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
-// [23]Closed [24]Assignee [25]NTEExceeded
+// [23]Closed [24]Assignee [25]NTEExceeded [26]VendorInvoiceNumber
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
     parseNum(r['Not To Exceed']),parseNum(r['Total']),
     r['Vendor']||'',r['Region']||'',r['Area Manager']||'',r['Maintenance schedule']||'',
-    r['Reference']||'',r['Subject']||'',r['Created']||'',r['Address']||'',r['Bookmark']||'',
+    r['Reference']||'',r['Subject']||'',r['Created']||'',r['Address']||'',fixBookmark(r['Bookmark']),
     'Work Order','',r['Facility Manager']||'',
     r['Executor']||'',r['Scheduled from']||'',r['Scheduled until']||'',
     r['Actual start date']||'',r['Actual end date']||'',
-    r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||''];});
+    r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||'',
+    r['Vendor Invoice Number']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
     r['Concerns']||'',r['Status']||'',r['Priority']||'',r['Subject']||'',
     0,0,
     '','',r['Requestor']||'','',
-    r['Reference']||'',r['Subject']||'',r['Request date']||'','',r['Bookmark']||'',
+    r['Reference']||'',r['Subject']||'',r['Request date']||'','',fixBookmark(r['Bookmark']),
     'Request',r['Requestor']||'',r['Facility Manager']||'',
     '','','','','','','',''];});
 }
