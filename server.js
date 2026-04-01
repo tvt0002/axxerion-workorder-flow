@@ -59,15 +59,19 @@ async function saveToDB(key, data) {
 const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completereportresult";
 const AX_AUTH = "Basic " + Buffer.from((process.env.AX_USER || "iapiuser") + ":" + (process.env.AX_PASS || "")).toString("base64");
 const AX_REPORT_WO = "IPG-REP-085";
+const AX_REPORT_WO_INCR = "IPG-REP-101"; // incremental: updateTime >= -2 days
 const AX_REPORT_REQ = "IPG-REP-087";
-const REFRESH_INTERVAL_WO = 4 * 60 * 60 * 1000; // 4 hours for full WO pull (11K+ records)
+const REFRESH_INTERVAL_WO_FULL = 4 * 60 * 60 * 1000; // 4 hours for full WO pull (11K+ records)
+const REFRESH_INTERVAL_WO_INCR = 10 * 60 * 1000; // 10 minutes for incremental WO pull
 const REFRESH_INTERVAL_REQ = 10 * 60 * 1000; // 10 minutes for requests (small dataset)
 const RETRY_DELAY = 60 * 1000; // 1 minute retry when a fetch was skipped
 
 let cachedWO = null;
 let cacheWOTimestamp = 0;
 let fetchWOInProgress = false;
+let fetchWOIncrInProgress = false;
 let lastFetchStartTime = 0;
+let lastIncrUpdate = 0; // track last incremental merge time
 
 let cachedReq = null;
 let cacheReqTimestamp = 0;
@@ -155,6 +159,43 @@ function fetchWorkOrders() {
   });
 }
 
+function fetchWorkOrdersIncremental() {
+  if (authFailed) { console.log("[Cache] Skipping incremental WO fetch — credentials invalid."); return; }
+  if (!cachedWO) { console.log("[Cache] Skipping incremental — no full dataset yet, waiting for full fetch"); return; }
+  if (fetchWOIncrInProgress) {
+    console.log("[Cache] Skipping incremental WOs — previous fetch still in progress");
+    setTimeout(fetchWorkOrdersIncremental, RETRY_DELAY);
+    return;
+  }
+  fetchWOIncrInProgress = true;
+  fetchReport(AX_REPORT_WO_INCR, "Work Orders (incremental)", (data) => {
+    fetchWOIncrInProgress = false;
+    if (data && data.length) {
+      // Build a map of existing WOs by ID for fast lookup
+      const woMap = new Map();
+      cachedWO.forEach((wo, idx) => woMap.set(wo.ID, idx));
+
+      let updated = 0, added = 0;
+      data.forEach((wo) => {
+        const existingIdx = woMap.get(wo.ID);
+        if (existingIdx !== undefined) {
+          cachedWO[existingIdx] = wo; // replace with updated record
+          updated++;
+        } else {
+          cachedWO.push(wo); // new WO not in full dataset yet
+          woMap.set(wo.ID, cachedWO.length - 1);
+          added++;
+        }
+      });
+
+      lastIncrUpdate = Date.now();
+      cacheWOTimestamp = Date.now(); // mark data as fresh
+      console.log(`[Cache] Incremental merge: ${data.length} records — ${updated} updated, ${added} new (total: ${cachedWO.length})`);
+      saveToDB("workorders", cachedWO);
+    }
+  });
+}
+
 function fetchRequests() {
   if (authFailed) { console.log("[Cache] Skipping Request fetch — credentials invalid."); return; }
   if (fetchReqInProgress) {
@@ -189,12 +230,12 @@ app.get("/api/requests", (req, res) => {
 });
 
 app.get("/api/status", (req, res) => {
-  const nextWORefreshMs = lastFetchStartTime ? (lastFetchStartTime + REFRESH_INTERVAL_WO) - Date.now() : 0;
-  const nextWORefreshMin = Math.max(0, Math.round(nextWORefreshMs / 60000));
+  const nextWOFullMs = lastFetchStartTime ? (lastFetchStartTime + REFRESH_INTERVAL_WO_FULL) - Date.now() : 0;
+  const nextWOFullMin = Math.max(0, Math.round(nextWOFullMs / 60000));
   res.json({
-    workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress, refreshIntervalHrs: 4 },
+    workorders: { cached: !!cachedWO, count: cachedWO ? cachedWO.length : 0, ageMinutes: cachedWO ? Math.round((Date.now() - cacheWOTimestamp) / 60000) : null, fetchInProgress: fetchWOInProgress || fetchWOIncrInProgress, refreshIntervalHrs: 4, incrementalIntervalMin: 10, lastIncrUpdateMin: lastIncrUpdate ? Math.round((Date.now() - lastIncrUpdate) / 60000) : null },
     requests: { cached: !!cachedReq, count: cachedReq ? cachedReq.length : 0, ageMinutes: cachedReq ? Math.round((Date.now() - cacheReqTimestamp) / 60000) : null, fetchInProgress: fetchReqInProgress, refreshIntervalMin: 10 },
-    nextWORefreshMin: nextWORefreshMin,
+    nextWORefreshMin: nextWOFullMin,
     authFailed: authFailed,
     dbConnected: !!pool,
   });
@@ -202,9 +243,14 @@ app.get("/api/status", (req, res) => {
 
 // ── Manual refresh trigger ──
 app.post("/api/refresh", (req, res) => {
-  fetchWorkOrders();
+  const full = req.body && req.body.full;
+  if (full) {
+    fetchWorkOrders(); // full 11K+ pull
+  } else {
+    fetchWorkOrdersIncremental(); // quick incremental
+  }
   fetchRequests();
-  res.json({ ok: true, message: "Refresh triggered" });
+  res.json({ ok: true, message: full ? "Full refresh triggered" : "Incremental refresh triggered" });
 });
 
 // ── Ops Queue Persistence ──
@@ -364,10 +410,11 @@ app.listen(PORT, async () => {
   await initDB();
   await loadFromDB();
   if (cachedWO) console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
-  // 2. Fetch fresh data — Requests every 10 min, full WO pull every 4 hours
+  // 2. Fetch fresh data — full WO pull on startup + every 4h, incremental every 10m, requests every 10m
   fetchWorkOrders();
   fetchRequests();
-  setInterval(fetchWorkOrders, REFRESH_INTERVAL_WO);
+  setInterval(fetchWorkOrders, REFRESH_INTERVAL_WO_FULL);
+  setInterval(fetchWorkOrdersIncremental, REFRESH_INTERVAL_WO_INCR);
   setInterval(fetchRequests, REFRESH_INTERVAL_REQ);
-  console.log("[Startup] Timers: WOs every 4h, Requests every 10m");
+  console.log("[Startup] Timers: Full WOs every 4h, Incremental WOs every 10m, Requests every 10m");
 });
