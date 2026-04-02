@@ -64,7 +64,7 @@ app.get("/auth/callback", async (req, res) => {
       name: tokenResponse.account.name,
       email: tokenResponse.account.username,
     };
-    res.redirect("/");
+    req.session.save(() => res.redirect("/"));
   } catch (err) {
     console.error("[Auth] Callback error:", err.message);
     res.redirect("/auth/login");
