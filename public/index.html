@@ -1291,13 +1291,14 @@ function openRawData(extra){
     filterText=extra._propFilter;
   } else {
     var fT=getSelected('fRecordType'), fP=getSelected('fProperty'), fD=getSelected('fDM'), fS=getSelected('fServiceType'),
-        fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM');
+        fSt=getSelected('fStatus'), fM=getSelected('fMaint'), fFM=getSelected('fFM'), fPri=getSelected('fPriority');
     var hideClosed=$('hideClosedToggle')&&$('hideClosedToggle').checked;
     data=ALLDATA.filter(function(r){
       if(hideClosed && CLOSED_STATUSES.has(r[1]))return false;
       if(fT && !fT.has(r[15]))return false;
       if(fP && !fP.has(r[0]))return false;
       if(fD && !fD.has(r[8]))return false;
+      if(fPri && !fPri.has(r[2]))return false;
       if(fS && !fS.has(r[3]))return false;
       if(fSt && !fSt.has(r[1]))return false;
       if(fM && !fM.has(r[9]||'(No Schedule)'))return false;
@@ -1308,6 +1309,7 @@ function openRawData(extra){
     });
     var filters=[];
     if(fT)filters.push('Type: '+Array.from(fT).join(', '));
+    if(fPri)filters.push('Priority: '+Array.from(fPri).join(', '));
     if(extra.priority)filters.push('Priority: '+extra.priority);
     if(extra.serviceTypes)filters.push('Service Type: '+extra.serviceTypes.join(', '));
     if(fP)filters.push('Property: '+Array.from(fP).join(', '));
