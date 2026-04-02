@@ -5,7 +5,7 @@ var OPS_LOADED = false;
 
 // Queue status definitions (aligned with Axxerion WR-WO Statuses guide)
 var Q1_PRIORITIES = new Set(['Info Needed']);
-var Q2_STATUSES = new Set(['Assigned', 'Accepted', 'Need Reassignment', 'Needs Reassignment']);
+var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
 var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
 
 function loadOpsData(cb) {
