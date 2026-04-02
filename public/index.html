@@ -222,6 +222,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .sg-row td:first-child{font-weight:600;white-space:nowrap;}
 .sg-row:hover td{background:rgba(79,142,247,.04);}
 .sg-status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;white-space:nowrap;}
+
+/* ── Status Tooltip ── */
+.status-tip-wrap{position:relative;display:inline-flex;align-items:center;margin-left:6px;cursor:default;}
+.status-tip-icon{width:16px;height:16px;border-radius:50%;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.35);color:var(--accent);font-family:'DM Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .18s;line-height:1;}
+.status-tip-wrap:hover .status-tip-icon{background:rgba(79,142,247,.25);border-color:var(--accent);}
+.status-tip-popup{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;white-space:nowrap;font-family:'DM Mono',monospace;font-size:11px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:400;pointer-events:none;}
+.status-tip-popup::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:var(--card);border-left:1px solid var(--border);border-top:1px solid var(--border);}
+.status-tip-wrap:hover .status-tip-popup{display:block;}
 .sg-meaning{color:var(--text);max-width:340px;}
 .sg-action{color:var(--muted);max-width:380px;font-size:11px;}
 .sg-party{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);white-space:nowrap;}
@@ -243,7 +251,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 <!-- ══════════ GLOBAL NAV ══════════ -->
 <div class="gnav">
   <div class="logo">IPG</div>
-  <h1>Axxerion Operations Hub</h1>
+  <h1 style="display:flex;align-items:center;">Axxerion Operations Hub<span class="status-tip-wrap" id="statusTipWrap"><span class="status-tip-icon">i</span><span class="status-tip-popup" id="statusTipPopup">Loading...</span></span></h1>
   <div class="gtabs">
     <button class="gtab active" onclick="switchView('dashboard',this)">Dashboard</button>
     <button class="gtab" onclick="switchView('opsqueue',this)">Ops Queue</button>
@@ -1855,11 +1863,10 @@ function loadLiveData(){
 }
 function showBadge(text,bg,color,border){
   var old=document.getElementById('srcBadge');if(old)old.remove();
-  var badge=document.createElement('span');badge.id='srcBadge';
-  badge.style.cssText='font-size:9px;padding:2px 7px;border-radius:3px;margin-left:8px;font-family:DM Mono,monospace;letter-spacing:.05em;background:'+bg+';color:'+color+';border:1px solid '+border+';';
-  badge.textContent=text;
-  var logo=document.querySelector('.logo');
-  if(logo)logo.parentNode.insertBefore(badge,logo.nextSibling);
+  var popup=document.getElementById('statusTipPopup');
+  var icon=document.querySelector('.status-tip-icon');
+  if(popup){popup.textContent=text;popup.style.background=bg;popup.style.color=color;popup.style.border='1px solid '+border;}
+  if(icon){icon.style.background=bg;icon.style.borderColor=border;icon.style.color=color;}
 }
 
 /* ── Init: restore last active view ── */
