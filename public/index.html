@@ -1674,6 +1674,7 @@ function fixBookmark(url){return url?url.replace('axpr21.','axpr19.'):'';}
 // [15]RecordType [16]Requestor [17]FacilityMgr
 // [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
 // [23]Closed [24]Assignee [25]NTEExceeded [26]VendorInvoiceNumber
+// [27]VendorPhone [28]VendorMobile [29]VendorEmail
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
@@ -1684,7 +1685,8 @@ function mapApiRows(data){
     r['Executor']||'',r['Scheduled from']||'',r['Scheduled until']||'',
     r['Actual start date']||'',r['Actual end date']||'',
     r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||'',
-    r['Vendor Invoice #']||''];});
+    r['Vendor Invoice #']||'',
+    r['Phone']||'',r['Mobile']||'',r['Email']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
@@ -1693,10 +1695,11 @@ function mapRequestRows(data){
     '','',r['Requestor']||'','',
     r['Reference']||'',r['Subject']||'',r['Request date']||'','',fixBookmark(r['Bookmark']),
     'Request',r['Requestor']||'',r['Facility Manager']||'',
-    '','','','','','','',''];});
+    '','','','','','','','',
+    '','',''];});
 }
 
-var AX_CACHE_KEY='ax_workorders_v3';
+var AX_CACHE_KEY='ax_workorders_v4';
 var AX_CACHE_KEY_REQ='ax_requests_v2';
 var AX_CACHE_TTL=60*60*1000; // 1 hour
 

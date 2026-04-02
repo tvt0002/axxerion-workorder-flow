@@ -94,7 +94,9 @@ function getQ2Data() {
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
     var appt = OPS_DATA.appointments[ref] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vendorInfo.phone || '', vendorEmail: vendorInfo.email || '', created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null, schedFrom: r[19] || '', schedUntil: r[20] || '', actualStart: r[21] || '', actualEnd: r[22] || '', apptDate: appt.date || '', apptTime: appt.time || '' };
+    var vPhone = r[27] || r[28] || vendorInfo.phone || '';
+    var vEmail = r[29] || vendorInfo.email || '';
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vPhone, vendorEmail: vEmail, created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null, schedFrom: r[19] || '', schedUntil: r[20] || '', actualStart: r[21] || '', actualEnd: r[22] || '', apptDate: appt.date || '', apptTime: appt.time || '' };
   }).sort(function(a, b) { return b.hours - a.hours; });
 }
 
