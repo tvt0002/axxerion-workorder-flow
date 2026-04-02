@@ -1,12 +1,89 @@
 const express = require("express");
+const session = require("express-session");
+const msal = require("@azure/msal-node");
 const path = require("path");
 const https = require("https");
 const fs = require("fs");
 const { Pool } = require("pg");
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
+
+// ── Azure AD SSO config ──
+const msalConfig = {
+  auth: {
+    clientId: process.env.AZURE_CLIENT_ID,
+    authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
+    clientSecret: process.env.AZURE_CLIENT_SECRET,
+  },
+};
+const msalClient = new msal.ConfidentialClientApplication(msalConfig);
+const REDIRECT_URI = process.env.REDIRECT_URI || "http://localhost:3000/auth/callback";
+
+// Trust Railway's reverse proxy so secure cookies work behind HTTPS
+app.set("trust proxy", 1);
+
+// Session
+if (!process.env.SESSION_SECRET) {
+  console.error("[FATAL] SESSION_SECRET environment variable is required");
+  process.exit(1);
+}
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === "production", maxAge: 8 * 60 * 60 * 1000 },
+}));
+
+// ── Azure AD SSO routes ──
+app.get("/auth/login", async (req, res) => {
+  try {
+    const authUrl = await msalClient.getAuthCodeUrl({
+      scopes: ["user.read"],
+      redirectUri: REDIRECT_URI,
+    });
+    res.redirect(authUrl);
+  } catch (err) {
+    console.error("[Auth] Login redirect error:", err.message);
+    res.status(500).send("Authentication unavailable");
+  }
+});
+
+app.get("/auth/callback", async (req, res) => {
+  if (req.session && req.session.user) return res.redirect("/");
+  if (!req.query.code) return res.redirect("/auth/login");
+  try {
+    const tokenResponse = await msalClient.acquireTokenByCode({
+      code: req.query.code,
+      scopes: ["user.read"],
+      redirectUri: REDIRECT_URI,
+    });
+    req.session.user = {
+      name: tokenResponse.account.name,
+      email: tokenResponse.account.username,
+    };
+    res.redirect("/");
+  } catch (err) {
+    console.error("[Auth] Callback error:", err.message);
+    res.redirect("/auth/login");
+  }
+});
+
+app.get("/auth/logout", (req, res) => {
+  req.session.destroy();
+  const postLogoutUri = REDIRECT_URI.replace("/auth/callback", "/");
+  res.redirect(`https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(postLogoutUri)}`);
+});
+
+// Auth guard — block everything except /auth/* and /api/health
+app.use((req, res, next) => {
+  if (req.path.startsWith("/auth/")) return next();
+  if (req.path === "/api/health") return next();
+  if (req.session && req.session.user) return next();
+  res.redirect("/auth/login");
+});
 
 // ── Postgres Cache (Railway provides DATABASE_URL) ──
 const pool = process.env.DATABASE_URL
@@ -396,6 +473,16 @@ app.post("/api/snow/contract/delete", (req, res) => {
   delete contracts[property];
   saveSnowContracts(contracts);
   res.json({ ok: true });
+});
+
+// Health check (bypasses auth guard above)
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Current user info for frontend
+app.get("/api/me", (req, res) => {
+  res.json(req.session.user || null);
 });
 
 app.use(express.static(path.join(__dirname, "public")));
