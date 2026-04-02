@@ -93,7 +93,8 @@ function getQ2Data() {
     var logs = OPS_DATA.logs[ref] || [];
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vendorInfo.phone || '', vendorEmail: vendorInfo.email || '', created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null };
+    var appt = OPS_DATA.appointments[ref] || {};
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vendorInfo.phone || '', vendorEmail: vendorInfo.email || '', created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null, schedFrom: r[19] || '', schedUntil: r[20] || '', actualStart: r[21] || '', actualEnd: r[22] || '', apptDate: appt.date || '', apptTime: appt.time || '' };
   }).sort(function(a, b) { return b.hours - a.hours; });
 }
 
@@ -259,12 +260,14 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q2') {
     items = getQ2Data();
-    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Sched Start</th><th>Sched End</th><th>Actual Start</th><th>Actual End</th><th>Appointment</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var phone = d.vendorPhone ? '<a href="tel:' + d.vendorPhone + '" style="color:var(--accent)">' + d.vendorPhone + '</a>' : '<span style="color:var(--red);font-size:10px">No phone</span>';
       var lastAct = d.lastAction ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastAction.date) + ' · ' + d.lastAction.action + '</span>' : '<span style="font-size:10px;color:var(--red)">No calls</span>';
+      var dateSty = 'font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap';
+      var apptTxt = d.apptDate ? d.apptDate + (d.apptTime ? ' ' + d.apptTime : '') : '';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + hrsClass + '">' + d.hours + 'h</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
@@ -274,6 +277,11 @@ function renderQueue() {
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + phone + '</td>'
+        + '<td style="' + dateSty + '">' + (d.schedFrom || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="' + dateSty + '">' + (d.schedUntil || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="' + dateSty + '">' + (d.actualStart || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="' + dateSty + '">' + (d.actualEnd || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="' + dateSty + '">' + (apptTxt || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.callCount + '</td>'
         + '<td>' + lastAct + '</td>'
         + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button></td>'
