@@ -1732,6 +1732,7 @@ function fetchRequests(source){
 function combineData(woRows,reqRows){
   RAW=woRows;
   ALLDATA=woRows.concat(reqRows);
+  if(window._oqInit && typeof renderQueue==='function')renderQueue();
 }
 
 function loadFromServer(){
