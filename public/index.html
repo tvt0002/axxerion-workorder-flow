@@ -1667,7 +1667,7 @@ var AX_AUTH=''; // Auth handled server-side
 var AX_REPORT='IPG-REP-085';
 
 function parseNum(s){if(!s)return 0;var n=parseFloat(String(s).replace(/,/g,''));return isNaN(n)?0:n;}
-function fixBookmark(url){return url||'';}
+function fixBookmark(url){return url?url.replace('axpr21.','axpr19.'):'';}
 // Array indices:
 // [0]Property [1]Status [2]Priority [3]ProblemType [4]NTE [5]Spend [6]Vendor [7]Region
 // [8]AreaMgr [9]MaintSched [10]Reference [11]Subject [12]Created [13]Address [14]Bookmark
