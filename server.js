@@ -47,7 +47,7 @@ app.get("/auth/login", async (req, res) => {
     res.redirect(authUrl);
   } catch (err) {
     console.error("[Auth] Login redirect error:", err.message);
-    res.status(500).send("Authentication unavailable");
+    res.status(500).send("Authentication unavailable — " + err.message);
   }
 });
 
@@ -67,8 +67,24 @@ app.get("/auth/callback", async (req, res) => {
     req.session.save(() => res.redirect("/"));
   } catch (err) {
     console.error("[Auth] Callback error:", err.message);
-    res.redirect("/auth/login");
+    // Show the error instead of redirecting to prevent infinite loops
+    res.status(500).send("Authentication failed — " + err.message);
   }
+});
+
+// Debug route to check config (remove after SSO is working)
+app.get("/auth/debug", (req, res) => {
+  res.json({
+    hasClientId: !!process.env.AZURE_CLIENT_ID,
+    hasTenantId: !!process.env.AZURE_TENANT_ID,
+    hasClientSecret: !!process.env.AZURE_CLIENT_SECRET,
+    redirectUri: REDIRECT_URI,
+    nodeEnv: process.env.NODE_ENV,
+    trustProxy: app.get("trust proxy"),
+    sessionUser: req.session ? req.session.user : null,
+    protocol: req.protocol,
+    secure: req.secure,
+  });
 });
 
 app.get("/auth/logout", (req, res) => {
