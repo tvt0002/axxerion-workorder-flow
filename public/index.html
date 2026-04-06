@@ -1343,7 +1343,7 @@ function openRawData(extra){
       +'<td class="r">'+fmt$(r[4])+'</td>'
       +'<td class="r'+(nteExceeded?' exceeded':'')+'">'+fmt$(r[5])+'</td>';
     if(isLive){rows+='<td>'+r[6]+'</td><td>'+r[7]+'</td><td>'+r[8]+'</td><td>'+(r[9]||'')+'</td>'
-      +'<td>'+r[11]+'</td><td>'+r[12]+'</td>';}
+      +'<td>'+r[11]+'</td><td>'+r[12]+'</td><td>'+(r[30]||'')+'</td>';}
     else{rows+='<td>'+r[6]+'</td><td>'+r[7]+'</td><td>'+r[8]+'</td><td>'+r[9]+'</td>';}
     rows+='</tr>';
   });
@@ -1443,7 +1443,7 @@ function openRawData(extra){
     +'<th class="sortable" data-col="region">Region<span class="sort-arrow"></span></th>'
     +'<th class="sortable" data-col="dm">District Manager<span class="sort-arrow"></span></th>'
     +'<th class="sortable" data-col="maint">Maint Sched<span class="sort-arrow"></span></th>'
-    +(isLive?'<th class="sortable" data-col="subject">Subject<span class="sort-arrow"></span></th><th class="sortable" data-col="created">Created<span class="sort-arrow"></span></th>':'')
+    +(isLive?'<th class="sortable" data-col="subject">Subject<span class="sort-arrow"></span></th><th class="sortable" data-col="created">Created<span class="sort-arrow"></span></th><th class="sortable" data-col="floor">Floor/Unit<span class="sort-arrow"></span></th>':'')
     +'</tr></thead><tbody id="rawBody"></tbody></table>'
     +'<script>'
     +'var DATA='+dataJSON+';'
@@ -1491,7 +1491,7 @@ function openRawData(extra){
     +'}'
 
     +'function colVal(r,col){'
-    +  'var m={type:r[15],ref:r[10],prop:r[0],status:r[1],priority:r[2],service:r[3],nte:r[4],spend:r[5],vendor:r[6],region:r[7],dm:r[8],maint:r[9],subject:r[11],created:r[12]};'
+    +  'var m={type:r[15],ref:r[10],prop:r[0],status:r[1],priority:r[2],service:r[3],nte:r[4],spend:r[5],vendor:r[6],region:r[7],dm:r[8],maint:r[9],subject:r[11],created:r[12],floor:r[30]};'
     +  'return m[col]!=null?m[col]:"";'
     +'}'
 
@@ -1528,7 +1528,7 @@ function openRawData(extra){
     +      '+"<td class=\\"r\\">"+fmt$(r[4])+"</td>"'
     +      '+"<td class=\\"r"+(nteEx?" exceeded":"")+"\\">"+fmt$(r[5])+"</td>";'
     +    'if(IS_LIVE){rows+="<td>"+r[6]+"</td><td>"+r[7]+"</td><td>"+r[8]+"</td><td>"+(r[9]||"")+"</td>"'
-    +      '+"<td>"+r[11]+"</td><td>"+r[12]+"</td>";}'
+    +      '+"<td>"+r[11]+"</td><td>"+r[12]+"</td><td>"+(r[30]||"")+"</td>";}'
     +    'else{rows+="<td>"+r[6]+"</td><td>"+r[7]+"</td><td>"+r[8]+"</td><td>"+r[9]+"</td>";}'
     +    'rows+="</tr>";'
     +  '});'
@@ -1674,7 +1674,7 @@ function fixBookmark(url){return url?url.replace('axpr21.','axpr19.'):'';}
 // [15]RecordType [16]Requestor [17]FacilityMgr
 // [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
 // [23]Closed [24]Assignee [25]NTEExceeded [26]VendorInvoiceNumber
-// [27]VendorPhone [28]VendorMobile [29]VendorEmail
+// [27]VendorPhone [28]VendorMobile [29]VendorEmail [30]Floor
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
@@ -1686,7 +1686,8 @@ function mapApiRows(data){
     r['Actual start date']||'',r['Actual end date']||'',
     r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||'',
     r['Vendor Invoice #']||'',
-    r['Phone']||'',r['Mobile']||'',r['Email']||''];});
+    r['Phone']||'',r['Mobile']||'',r['Email']||'',
+    r['Floor']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
@@ -1696,7 +1697,8 @@ function mapRequestRows(data){
     r['Reference']||'',r['Subject']||'',r['Request date']||'','',fixBookmark(r['Bookmark']),
     'Request',r['Requestor']||'',r['Facility Manager']||'',
     '','','','','','','','',
-    '','',''];});
+    '','','',
+    ''];});
 }
 
 var AX_CACHE_KEY='ax_workorders_v4';
