@@ -212,7 +212,7 @@ function switchQueue(q, btn) {
   document.querySelectorAll('.oq-kpi').forEach(function(k) { k.style.boxShadow = ''; });
   if (btn) btn.classList.add('active');
   var kpi = document.querySelector('.oq-kpi[data-queue="' + q + '"]');
-  if (kpi) kpi.style.boxShadow = '0 0 0 2px rgba(79,142,247,.4)';
+  if (kpi) kpi.style.boxShadow = '0 0 0 2px rgba(var(--accent-rgb),.4)';
   renderQueue();
 }
 
@@ -475,7 +475,7 @@ function sendInvoiceEmail(ref, vendorName) {
     + 'Thank you,\nSecure Space Operations';
 
   var html = '<div class="psl" style="margin-bottom:12px">DRAFT EMAIL — ' + ref + '</div>'
-    + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Axxerion Upload Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
+    + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Axxerion Upload Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO' + (!info.email ? ' <span style="color:var(--orange)">(no vendor email on file)</span>' : '') + '</label>'
     + '<input type="email" id="oqEmailTo" value="' + (info.email || '').replace(/"/g, '&quot;') + '" placeholder="vendor@example.com" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">SUBJECT</label>'
