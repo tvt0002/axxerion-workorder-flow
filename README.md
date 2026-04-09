@@ -1,4 +1,4 @@
-# Axxerion Operations Hub
+# Axxerion Operations Dashboard
 
 Work Order Flow & Facilities Management dashboard for InSite Property Group. Pulls live work order and service request data from the Axxerion CAFM platform and displays it in an interactive web dashboard.
 

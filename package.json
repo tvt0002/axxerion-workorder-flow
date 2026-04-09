@@ -1,7 +1,7 @@
 {
   "name": "axxerion-workorder-flow",
   "version": "1.0.0",
-  "description": "Axxerion Operations Hub — Work Order Flow & FM Dashboard",
+  "description": "Axxerion Operations Dashboard — Work Order Flow & FM Dashboard",
   "scripts": {
     "start": "node server.js"
   },
