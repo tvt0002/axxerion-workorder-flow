@@ -102,6 +102,16 @@ app.get("/auth/signed-out", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "signed-out.html"));
 });
 
+// Serve favicon before auth guard
+app.get("/favicon.svg", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "favicon.svg"));
+});
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "favicon.svg"), {
+    headers: { "Content-Type": "image/svg+xml" },
+  });
+});
+
 // Auth guard — block everything except /auth/* and /api/health
 app.use((req, res, next) => {
   if (req.path.startsWith("/auth/")) return next();
