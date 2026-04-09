@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signed Out — Axxerion Operations Hub</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+:root,
+[data-theme="dark"]{--bg:#0c1120;--surface:#111827;--card:#1a2235;--border:#283044;--accent:#1f4a9a;--accent-rgb:31,74,154;--accent2:#4182c3;--text:#e8eaf0;--muted:#8893a7;}
+[data-theme="light"]{--bg:#f5f6fa;--surface:#ffffff;--card:#ffffff;--border:#d5dae3;--accent:#1f4a9a;--accent-rgb:31,74,154;--accent2:#4182c3;--text:#1a1e2a;--muted:#5c6478;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.card{max-width:420px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:40px 36px;text-align:center;}
+.logo{display:inline-flex;align-items:center;color:var(--accent);margin-bottom:28px;}
+.logo svg{width:32px;height:46px;}
+h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px;}
+.subtitle{font-size:14px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.message{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;text-decoration:none;min-height:44px;}
+.btn:hover{background:#163d80;box-shadow:0 4px 16px rgba(var(--accent-rgb),.35);}
+.btn svg{width:20px;height:20px;flex-shrink:0;}
+.divider{height:1px;background:var(--border);margin:24px 0;}
+.footer{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.05em;}
+.check{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.3);color:var(--accent);font-size:24px;margin-bottom:20px;}
+.theme-toggle{position:fixed;top:20px;right:20px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:5px;transition:all .18s;}
+.theme-toggle:hover{border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}
+.theme-toggle span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;}
+</style>
+<script>
+(function(){
+  var saved = localStorage.getItem('ax_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+function toggleTheme(){
+  var current = document.documentElement.getAttribute('data-theme') || 'dark';
+  var next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('ax_theme', next);
+  var btn = document.getElementById('themeToggle');
+  btn.innerHTML = next === 'dark' ? '&#9790;<span>Dark</span>' : '&#9788;<span>Light</span>';
+}
+</script>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9790;<span>Dark</span></button>
+<div class="card">
+  <div class="logo">
+    <svg viewBox="0 0 22 31" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M21.679 20.761L21.815 20.859V22.414C21.815 24.008 20.967 25.485 19.593 26.263L13.133 29.995C11.757 30.792 10.064 30.792 8.689 29.995L7.327 29.218V29.062L21.679 20.761ZM8.689 7.387C10.064 6.59 11.757 6.59 13.133 7.387L14.358 8.087V8.398L5.212 13.685C4.277 14.21 3.713 15.221 3.74 16.31L3.76 17.029L3.917 17.126L16.842 9.661L17.068 9.661L19.593 11.119C20.967 11.916 21.815 13.374 21.815 14.968V17.884L21.724 18.059L4.943 27.74L4.772 27.74C4.772 27.74 4.048 27.321 3.264 26.867L2.9 26.656C2.173 26.235 1.481 25.835 1.347 25.757L1.367 25.563C2.828 24.727 16.875 16.621 18.081 15.921L18.19 15.765C18.232 15.571 18.291 15.085 18.013 14.599C17.735 14.113 17.299 13.938 17.105 13.88L16.924 13.899C15.732 14.58 1.668 22.705 0.177 23.561L0 23.464V21.989C0.0001 21.915 0.0001 21.839 0.001 21.761L0.002 20.486C0.002 20.396 0.002 20.304 0.002 20.212L0.003 19.085C0.003 18.99 0.003 18.896 0.003 18.802L0.004 17.697C0.004 17.608 0.004 17.52 0.004 17.433L0.005 16.247C0.005 16.177 0.005 16.109 0.005 16.043L0.006 14.968C0.006 13.374 0.853 11.916 2.228 11.119L8.689 7.387ZM10.933 0C15.719 0 19.653 3.674 19.996 8.281L19.702 8.456L16.631 6.687L16.555 6.59C15.639 4.432 13.448 2.916 10.892 2.916C8.334 2.916 6.145 4.452 5.249 6.648L5.173 6.726L2.123 8.495L1.829 8.32C2.107 3.694 6.081 0 10.933 0Z"/></svg>
+  </div>
+  <div class="check">&#10003;</div>
+  <h1>Signed Out</h1>
+  <p class="subtitle">You have been signed out of the Axxerion Operations Hub</p>
+  <p class="message">Your session has been cleared and you've been signed out of Microsoft. To continue working, sign in again below.</p>
+  <a href="/auth/login" class="btn">
+    <svg viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h10v10H1V1z" fill="#f25022"/><path d="M12 1h10v10H12V1z" fill="#7fba00"/><path d="M1 12h10v10H1V12z" fill="#00a4ef"/><path d="M12 12h10v10H12V12z" fill="#ffb900"/></svg>
+    Sign in with Microsoft
+  </a>
+  <div class="divider"></div>
+  <div class="footer">Secure Space Self Storage</div>
+</div>
+<script>
+  var t = document.documentElement.getAttribute('data-theme') || 'dark';
+  var btn = document.getElementById('themeToggle');
+  btn.innerHTML = t === 'dark' ? '&#9790;<span>Dark</span>' : '&#9788;<span>Light</span>';
+</script>
+</body>
+</html>

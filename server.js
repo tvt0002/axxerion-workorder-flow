@@ -89,8 +89,17 @@ app.get("/auth/debug", (req, res) => {
 
 app.get("/auth/logout", (req, res) => {
   req.session.destroy();
-  const postLogoutUri = REDIRECT_URI.replace("/auth/callback", "/");
+  const postLogoutUri = REDIRECT_URI.replace("/auth/callback", "/auth/signed-out");
   res.redirect(`https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(postLogoutUri)}`);
+});
+
+// Login page and signed-out page (served before auth guard)
+app.get("/auth/login-page", (req, res) => {
+  if (req.session && req.session.user) return res.redirect("/");
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+app.get("/auth/signed-out", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "signed-out.html"));
 });
 
 // Auth guard — block everything except /auth/* and /api/health
@@ -98,7 +107,7 @@ app.use((req, res, next) => {
   if (req.path.startsWith("/auth/")) return next();
   if (req.path === "/api/health") return next();
   if (req.session && req.session.user) return next();
-  res.redirect("/auth/login");
+  res.redirect("/auth/login-page");
 });
 
 // ── Postgres Cache (Railway provides DATABASE_URL) ──
