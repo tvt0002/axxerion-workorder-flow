@@ -5,6 +5,7 @@ var OPS_LOADED = false;
 
 // Queue status definitions (aligned with Axxerion WR-WO Statuses guide)
 var Q1_PRIORITIES = new Set(['Info Needed']);
+var Q1_STATUSES = new Set(['Info Needed', 'NFO NEEDED', 'Nfo Needed', 'Info needed']);
 var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
 var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
 
@@ -63,7 +64,7 @@ function getQ1Data() {
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] !== 'Request') return false;
-    if (!Q1_PRIORITIES.has(r[2])) return false;
+    if (!Q1_PRIORITIES.has(r[2]) && !Q1_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q1) return false;
     return true;

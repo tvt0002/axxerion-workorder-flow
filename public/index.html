@@ -757,6 +757,8 @@ STATUS_TOOLTIP_MAP['Work finished'] = STATUS_TOOLTIP_MAP['Work Finished'];
 STATUS_TOOLTIP_MAP['Work approved'] = {status:'Work Approved', meaning:'Area Manager has approved the completed work', action:'Moves to Prepare Financials or Invoiced depending on workflow', party:'Area Manager', color:'var(--green)'};
 STATUS_TOOLTIP_MAP['Additional Change Order Review'] = STATUS_TOOLTIP_MAP['Change Order Approver Review'];
 STATUS_TOOLTIP_MAP['No Invoice/Warranty/Internal'] = {status:'No Invoice/Warranty/Internal', meaning:'Work completed under warranty, internal work, or no invoice expected', action:'Review and close — no financial processing needed', party:'FM / Axxerion Support', color:'var(--muted)'};
+STATUS_TOOLTIP_MAP['NFO NEEDED'] = {status:'NFO NEEDED', meaning:'Additional information required before work request can proceed', action:'Provide missing details so request can be reviewed', party:'Requestor / DM', color:'var(--accent)'};
+STATUS_TOOLTIP_MAP['Info Needed'] = STATUS_TOOLTIP_MAP['NFO NEEDED'];
 
 function statusTooltipHTML(statusText) {
   var info = STATUS_TOOLTIP_MAP[statusText];
