@@ -2,6 +2,50 @@
 var OPS_DATA = { logs: {}, appointments: {}, emails: {}, vendors: {}, notes: {}, dismissed: {} };
 var OPS_QUEUE = 'q1';
 var OPS_LOADED = false;
+var OQ_SORT = { col: null, dir: 1 }; // current sort state
+
+function oqSortVal(item, col) {
+  var v = item[col];
+  if (v === undefined || v === null || v === '') return null;
+  if (typeof v === 'number') return v;
+  // Try parsing as number
+  var n = parseFloat(String(v).replace(/[$,]/g, ''));
+  if (!isNaN(n)) return n;
+  return String(v).toLowerCase();
+}
+
+function oqSortItems(items, col, dir) {
+  if (!col) return items;
+  return items.slice().sort(function(a, b) {
+    var va = oqSortVal(a, col), vb = oqSortVal(b, col);
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+    return va < vb ? -dir : va > vb ? dir : 0;
+  });
+}
+
+function oqSortHeader(label, key, isRight) {
+  var arrow = OQ_SORT.col === key ? (OQ_SORT.dir === 1 ? ' ▲' : ' ▼') : '';
+  var cls = isRight ? ' class="r"' : '';
+  return '<th' + cls + ' style="cursor:pointer;user-select:none" data-sortkey="' + key + '">' + label + arrow + '</th>';
+}
+
+function bindOqSort() {
+  var head = document.getElementById('oqHead');
+  if (!head) return;
+  var resetBtn = document.getElementById('oqSortReset');
+  if (resetBtn) resetBtn.style.display = OQ_SORT.col ? '' : 'none';
+  head.querySelectorAll('th[data-sortkey]').forEach(function(th) {
+    th.addEventListener('click', function() {
+      var key = th.getAttribute('data-sortkey');
+      if (OQ_SORT.col === key) { OQ_SORT.dir *= -1; }
+      else { OQ_SORT.col = key; OQ_SORT.dir = 1; }
+      renderQueue();
+    });
+  });
+}
 
 // Queue status definitions (aligned with Axxerion WR-WO Statuses guide)
 function isInfoNeeded(val) {
@@ -213,6 +257,7 @@ function priColor(p) {
 
 function switchQueue(q, btn) {
   OPS_QUEUE = q;
+  OQ_SORT = { col: null, dir: 1 };
   localStorage.setItem('ax_active_queue', q);
   window.location.hash = 'opsqueue/' + q;
   document.querySelectorAll('.oq-tab').forEach(function(b) { b.classList.remove('active'); });
@@ -258,7 +303,8 @@ function renderQueue() {
 
   if (OPS_QUEUE === 'q1') {
     items = getQ1Data();
-    headHTML = '<tr><th>Age</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Subject</th><th>Requestor</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Age','age') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Subject','subject') + oqSortHeader('Requestor','requestor') + '<th>Last Action</th><th>Actions</th></tr>';
+    items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var ageClass = d.age >= 3 ? 'color:var(--red)' : d.age >= 1 ? 'color:var(--orange)' : 'color:var(--green)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -279,7 +325,8 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q2') {
     items = getQ2Data();
-    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Email</th><th>Sched Start</th><th>Sched End</th><th>Actual Start</th><th>Actual End</th><th>Appointment</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Hours','hours') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Service Type','service') + oqSortHeader('Vendor','vendor') + oqSortHeader('Phone','vendorPhone') + oqSortHeader('Email','vendorEmail') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Sched End','schedUntil') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Appointment','apptDate') + oqSortHeader('Calls','callCount') + '<th>Last Action</th><th>Actions</th></tr>';
+    items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -311,7 +358,8 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr><th>Time</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Vendor</th><th>Vendor Email</th><th>Service Type</th><th>Confirmed</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
+    items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var confBadge = d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -334,7 +382,8 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q4') {
     items = getQ4Data();
-    headHTML = '<tr><th>Days</th><th>Date Finished</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Status</th><th>Priority</th><th class="r">Vendor Est Cost</th><th>Emails Sent</th><th>Last Email</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Days','daysSinceFinished') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
+    items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
@@ -342,7 +391,7 @@ function renderQueue() {
       var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
-        + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + (d.finishedDate ? fmtDate(d.finishedDate) : '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + (d.finishedDate ? fmtShortDate(d.finishedDate) : '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + d.vendor + '</td>'
@@ -359,7 +408,8 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q5') {
     items = getQ5Data();
-    headHTML = '<tr><th>Sent</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>To</th><th>Subject</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Sent','sentAtFmt') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('To','to') + oqSortHeader('Subject','subject') + '<th>Actions</th></tr>';
+    items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       return '<tr>'
@@ -379,6 +429,7 @@ function renderQueue() {
   body.innerHTML = rowsHTML;
   empty.style.display = items.length ? 'none' : 'block';
   document.getElementById('oqTable').style.display = items.length ? '' : 'none';
+  bindOqSort();
 }
 
 // ── Actions ──

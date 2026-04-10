@@ -194,6 +194,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .db-section-title .phl{flex:1;height:1px;background:var(--border);}
 
 .oq-kpi .kpi-val{font-size:clamp(22px,3vw,36px);font-weight:600;}
+#oqTable th{font-size:11px;letter-spacing:.04em;}
+#oqTable th[data-sortkey]:hover{color:var(--accent);}
+.oq-sort-reset{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;margin-left:auto;}
+.oq-sort-reset:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),.4);}
 /* ── Ops Queue Buttons ── */
 .oq-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--accent);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .oq-btn:hover{background:rgba(var(--accent-rgb),.12);border-color:var(--accent);}
@@ -614,6 +618,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <button class="gtab oq-tab" data-queue="q3" onclick="switchQueue('q3',this)">Q3 · Day-of Appts</button>
     <button class="gtab oq-tab" data-queue="q4" onclick="switchQueue('q4',this)">Q4 · Invoice Follow-Up</button>
     <button class="gtab oq-tab" data-queue="q5" onclick="switchQueue('q5',this)">Q5 · Email Log</button>
+    <button class="oq-sort-reset" id="oqSortReset" style="display:none" onclick="OQ_SORT={col:null,dir:1};document.getElementById('oqSortReset').style.display='none';renderQueue();">Reset Sort</button>
   </div>
 
   <!-- Queue Content -->
