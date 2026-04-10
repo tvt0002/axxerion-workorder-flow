@@ -1683,9 +1683,9 @@ function sizeKPIs(){
     el.style.fontSize='';
     var parent=el.parentElement;
     var maxW=parent.clientWidth-36;
-    var size=24;
+    var size=36;
     el.style.fontSize=size+'px';
-    while(el.scrollWidth>maxW&&size>10){size--;el.style.fontSize=size+'px';}
+    while(el.scrollWidth>maxW&&size>16){size--;el.style.fontSize=size+'px';}
   });
 }
 var _resizeTimer;
