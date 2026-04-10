@@ -732,6 +732,7 @@ function switchView(view, btn, skipHash) {
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
   if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
   if(view==='snow'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else{loadSnowContracts(renderSnow);} }
+  if(typeof sizeKPIs==='function') setTimeout(sizeKPIs,100);
 }
 
 /* ── Status Definitions (from Axxerion WR-WO Statuses) ── */
