@@ -214,6 +214,7 @@ function priColor(p) {
 function switchQueue(q, btn) {
   OPS_QUEUE = q;
   localStorage.setItem('ax_active_queue', q);
+  window.location.hash = 'opsqueue/' + q;
   document.querySelectorAll('.oq-tab').forEach(function(b) { b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   document.querySelectorAll('.oq-kpi').forEach(function(k) {
@@ -546,8 +547,8 @@ function logEmailOnly(ref, vendorName) {
 }
 
 // ── Init ──
-function initOpsQueue() {
-  var savedQ = localStorage.getItem('ax_active_queue') || 'q1';
+function initOpsQueue(hashQueue) {
+  var savedQ = hashQueue || localStorage.getItem('ax_active_queue') || 'q1';
   loadOpsData(function() {
     switchQueue(savedQ, document.querySelector('.oq-tab[data-queue="' + savedQ + '"]'));
   });

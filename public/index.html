@@ -716,12 +716,13 @@ function rgbaVar(rgbName,alpha){return 'rgba('+cssVar(rgbName)+','+alpha+')';}
 
 
 /* ── View Switching ── */
-function switchView(view, btn) {
+function switchView(view, btn, skipHash) {
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
   document.querySelectorAll('.gtab').forEach(function(b){b.classList.remove('active');});
   document.getElementById('view-'+view).classList.add('active');
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   localStorage.setItem('ax_active_view', view);
+  if(!skipHash) window.location.hash = view === 'dashboard' ? '' : view;
   if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
   if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
@@ -1956,9 +1957,16 @@ function showBadge(text,bg,color,border){
   if(icon){icon.style.background=bg;icon.style.borderColor=border;icon.style.color=color;}
 }
 
-/* ── Init: restore last active view ── */
-var _savedView = localStorage.getItem('ax_active_view') || 'dashboard';
-if(window.location.hash==='#workflow') _savedView='workflow';
+/* ── Init: restore last active view (hash > localStorage) ── */
+function parseHash(){
+  var h=(window.location.hash||'').replace('#','');
+  if(!h) return {view:null,queue:null};
+  var parts=h.split('/');
+  return {view:parts[0]||null, queue:parts[1]||null};
+}
+var _hashInfo=parseHash();
+var _savedView=_hashInfo.view || localStorage.getItem('ax_active_view') || 'dashboard';
+var _hashQueue=_hashInfo.queue||null;
 if(_savedView!=='dashboard'){
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
   document.querySelectorAll('.gtab').forEach(function(b){b.classList.remove('active');});
@@ -1970,12 +1978,27 @@ if(_savedView!=='dashboard'){
     tabs.forEach(function(t){if(t.textContent.toLowerCase().indexOf(_tabMatch)!==-1)t.classList.add('active');});
   }
 }
+// Listen for hash changes (back/forward navigation)
+window.addEventListener('hashchange',function(){
+  var info=parseHash();
+  var view=info.view||'dashboard';
+  var tab=null;
+  document.querySelectorAll('.gtab').forEach(function(b){
+    var match=view==='opsqueue'?'ops':view==='statusguide'?'status guide':view;
+    if(b.textContent.toLowerCase().indexOf(match)!==-1) tab=b;
+  });
+  switchView(view,tab,true);
+  if(view==='opsqueue'&&info.queue){
+    var qTab=document.querySelector('.oq-tab[data-queue="'+info.queue+'"]');
+    if(typeof switchQueue==='function') switchQueue(info.queue,qTab);
+  }
+});
 // Always load live data (needed by all views)
 window._dbInit=true;
 setTimeout(loadLiveData,100);
 // If ops queue was last view, init it after data loads
 if(_savedView==='opsqueue'){
-  var _oqWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_oqWait);window._oqInit=true;initOpsQueue();}},500);
+  var _oqWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_oqWait);window._oqInit=true;initOpsQueue(_hashQueue);}},500);
 }
 if(_savedView==='statusguide'){
   window._sgInit=true;
