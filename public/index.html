@@ -523,6 +523,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
+  <!-- Facility Manager Priority Breakdown -->
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-card-title">Tim — Priority Breakdown</div>
+      <div id="tblFMTim"></div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-title">Felipe — Priority Breakdown</div>
+      <div id="tblFMFelipe"></div>
+    </div>
+  </div>
+
   <!-- DM + Regional -->
   <div class="db-grid">
     <div class="db-card">
@@ -723,23 +735,23 @@ var STATUS_GUIDE = {
     {status:'AM / DM Review', meaning:'DM has to review the work request to ensure the correct priority, scope of work is clear, work is needed', action:'GENERATE WORKORDER (Pest Control, Landscaping, Snow Removal, Junk Removal, Rekey Locks, Golf Cart Minor Repairs) or APPROVE if related to REPAIR', party:'District Manager', color:'var(--orange)'},
     {status:'Security Related', meaning:'Security FM will review request', action:'APPROVE if related to CCTV or Security Guard Service — Work Order Generated', party:'Security FM', color:'var(--accent2)'},
     {status:'FM Review', meaning:'FM to review and classify correct Priority', action:'GENERATE WORKORDER to complete repair', party:'Facility Manager', color:'var(--accent)'},
-    {status:'OLD WORK FLOW - IN PROCESS', meaning:'Pending payment of final invoice (old workflow)', action:'Work order is still open for work or invoice processing', party:'Vendor', color:'var(--muted)'},
-    {status:'CLOSED (no closed date)', meaning:'Old workflow — Work order has been generated', action:'Pending WO completion / invoice paid - Link to the work order from the work request', party:'Vendor', color:'var(--muted)'}
+    {status:'OLD WORK FLOW - IN PROCESS', meaning:'Pending payment of final invoice (old workflow)', action:'Work order is still open for work or invoice processing', party:'Overseas Team', color:'var(--muted)'},
+    {status:'CLOSED (no closed date)', meaning:'Old workflow — Work order has been generated', action:'Pending WO completion / invoice paid - Link to the work order from the work request', party:'Overseas Team', color:'var(--muted)'}
   ],
   wo: [
     {status:'Draft', meaning:'Started creating but not completed', action:'Submit', party:'Assigner (DM, FM or Security FM)', color:'var(--muted)', phase:'Creation'},
-    {status:'Assigned', meaning:'WO has been assigned to Vendor', action:'Accept or reject work', party:'Vendor', color:'var(--accent)', phase:'Assignment'},
+    {status:'Assigned', meaning:'WO has been assigned to Vendor', action:'Accept or reject work', party:'Overseas Team', color:'var(--accent)', phase:'Assignment'},
     {status:'Approver Review', meaning:'Over Assigner\'s threshold limit - Needs approval before being assigned to vendor', action:'Next approver - APPROVE', party:'FM, Randy, Chris Runckle (based on NTE value)', color:'var(--yellow)', phase:'Assignment'},
-    {status:'Accepted', meaning:'Vendor has accepted the work', action:'Set Scheduled Start - START WORK', party:'Vendor', color:'var(--green)', phase:'Assignment'},
-    {status:'Need Reassignment', meaning:'Vendor has rejected the work', action:'Sent back to FM to assign to new vendor', party:'Vendor reject → FM reassigns', color:'var(--red)', phase:'Assignment'},
-    {status:'Work In Progress', meaning:'Work is started - All invoice fields are open to enter invoice information', action:'CHANGE ORDER submission OR END WORK to finish work', party:'Vendor', color:'var(--green)', phase:'Execution'},
-    {status:'Change Order Submitted', meaning:'Vendor costs are going to exceed NTE - Change order required before they complete work or attach ESTIMATE for change of Scope of Work', action:'SUBMIT CHANGE ORDER - FM to review change order', party:'Vendor', color:'var(--orange)', phase:'Change Orders'},
+    {status:'Accepted', meaning:'Vendor has accepted the work', action:'Set Scheduled Start - START WORK', party:'Overseas Team', color:'var(--green)', phase:'Assignment'},
+    {status:'Need Reassignment', meaning:'Vendor has rejected the work', action:'Sent back to FM to assign to new vendor', party:'Overseas Team reject → FM reassigns', color:'var(--red)', phase:'Assignment'},
+    {status:'Work In Progress', meaning:'Work is started - All invoice fields are open to enter invoice information', action:'CHANGE ORDER submission OR END WORK to finish work', party:'Overseas Team', color:'var(--green)', phase:'Execution'},
+    {status:'Change Order Submitted', meaning:'Vendor costs are going to exceed NTE - Change order required before they complete work or attach ESTIMATE for change of Scope of Work', action:'SUBMIT CHANGE ORDER - FM to review change order', party:'Overseas Team', color:'var(--orange)', phase:'Change Orders'},
     {status:'Change Order Approver Review', meaning:'FM Reviews Change order', action:'APPROVE & REJECT - if approved, moves to next approver or vendor', party:'Assigner (DM, FM or Security FM)', color:'var(--orange)', phase:'Change Orders'},
     {status:'Change Order Approved', meaning:'If cost exceed Assigner\'s Approval Limit - routes to next approver', action:'APPROVE - moves to next approver or vendor if within threshold', party:'FM, Randy, Chris Runckle (based on NTE value)', color:'var(--green)', phase:'Change Orders'},
     {status:'Change Order Rejected', meaning:'Change order has been rejected', action:'REJECT — Vendor will need to submit invoice for original NTE amount - END WORK', party:'DM, FM, Randy, Chris Runckle', color:'var(--red)', phase:'Change Orders'},
     {status:'Work Finished', meaning:'Work has been completed', action:'Goes to AM to confirm work completion - APPROVED or VENDOR NOT FINISHED or REJECT WORK', party:'Area Manager', color:'var(--accent2)', phase:'Completion'},
-    {status:'Unsatisfactory', meaning:'Work has not been completed to satisfaction or as per Scope of Work', action:'Sent back to Vendor to FINISH WORK', party:'Vendor', color:'var(--red)', phase:'Completion'},
-    {status:'Prepare Financials', meaning:'Work has been completed and confirmed, but vendor has not submitted their invoice', action:'Vendor to submit invoice information - SUBMIT FINANCIALS', party:'Vendor', color:'var(--yellow)', phase:'Financials'},
+    {status:'Unsatisfactory', meaning:'Work has not been completed to satisfaction or as per Scope of Work', action:'Sent back to Vendor to FINISH WORK', party:'Overseas Team', color:'var(--red)', phase:'Completion'},
+    {status:'Prepare Financials', meaning:'Work has been completed and confirmed, but vendor has not submitted their invoice', action:'Vendor to submit invoice information - SUBMIT FINANCIALS', party:'Overseas Team', color:'var(--yellow)', phase:'Financials'},
     {status:'Financials Submitted', meaning:'Invoice costs to be reviewed by Assigner', action:'APPROVE - marks WO as COMPLETED - Invoice created and submitted for audit review', party:'Assigner (DM, FM or Security FM)', color:'var(--accent)', phase:'Financials'},
     {status:'Financials Rejected', meaning:'Invoice costs have been rejected and sent back to vendor', action:'Vendor to correct and resubmit financials', party:'Assigner (DM, FM or Security FM)', color:'var(--red)', phase:'Financials'},
     {status:'Invoiced', meaning:'All work has been completed, invoice submitted for payment', action:'Audit Process - Review Invoice submitted - Approve and send to Accounting for processing', party:'Axxerion Support', color:'var(--green)', phase:'Audit & Close'},
@@ -879,7 +891,7 @@ function $(id){return document.getElementById(id);}
 function fmt$(n){return n>=1000?'$'+Math.round(n).toLocaleString():'$'+n.toFixed(2);}
 function pct(n,t){return t?((n/t)*100).toFixed(1)+'%':'0%';}
 
-function buildMultiSelect(id,values,onChange){
+function buildMultiSelect(id,values,onChange,labelMap){
   var wrap=$(id);
   var prev=wrap._selected||new Set();
   var btn=document.createElement('button');btn.className='ms-btn';btn.type='button';
@@ -896,7 +908,8 @@ function buildMultiSelect(id,values,onChange){
   values.forEach(function(v){
     var row=document.createElement('div');row.className='ms-opt';row.dataset.val=v;
     if(prev.has(v))row.classList.add('sel');
-    row.innerHTML='<span class="ms-cb"></span><span class="ms-lbl">'+v.replace(/</g,'&lt;')+'</span>';
+    var displayLabel=labelMap&&labelMap[v]?labelMap[v]:v;
+    row.innerHTML='<span class="ms-cb"></span><span class="ms-lbl">'+displayLabel.replace(/</g,'&lt;')+'</span>';
     row.addEventListener('click',function(e){
       e.stopPropagation();
       row.classList.toggle('sel');
@@ -974,12 +987,14 @@ function buildStatusTable(data,total){
     'Financials Rejected':'var(--red)','Change Order Submitted':'var(--orange)',
     'Change Order Rejected':'var(--red)','Invoiced':'var(--green)','Work approved':'var(--green)',
     'Rejected':'var(--red)','Not Resolved':'var(--red)'};
-  var h='<table class="db-table"><tr><th>Status</th><th class="r">Count</th><th style="width:45%"></th><th class="r">%</th></tr>';
+  var h='<table class="db-table"><tr><th>Status</th><th>Responsibility</th><th class="r">Count</th><th style="width:40%"></th><th class="r">%</th></tr>';
   groups.forEach(function(g){
     if(g.count===0)return;
     var p=total?(g.count/total*100):0;
     var c=colors[g.label]||'var(--muted)';
-    h+='<tr><td>'+statusTooltipHTML(g.label)+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
+    var guide=STATUS_TOOLTIP_MAP[g.label];
+    var resp=guide?guide.party:'—';
+    h+='<tr><td>'+statusTooltipHTML(g.label)+'</td><td style="font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+resp+'">'+resp+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
   });
   h+='</table>';
   $('tblStatus').innerHTML=h;
@@ -1002,6 +1017,27 @@ function buildPriorityTable(data,total){
   });
   h+='</table>';
   $('tblPriority').innerHTML=h;
+}
+
+function buildFMPriorityTable(targetId,data,fmName){
+  var priOrder=['Critical','High','Medium','Low','Very low'];
+  var priColors={'Critical':'var(--red)','High':'var(--orange)','Medium':'var(--yellow)','Low':'var(--accent)','Very low':'#6b7280'};
+  var fmData=data.filter(function(r){return r[17]===fmName;});
+  var fmTotal=fmData.length;
+  var counts={};
+  fmData.forEach(function(r){var p=r[2]||'(None)';counts[p]=(counts[p]||0)+1;});
+  var rows=[];
+  priOrder.forEach(function(p){if(counts[p])rows.push({label:p,count:counts[p]});});
+  Object.keys(counts).sort().forEach(function(p){if(priOrder.indexOf(p)===-1)rows.push({label:p,count:counts[p]});});
+  var h='<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-bottom:10px">'+fmTotal+' work orders</div>';
+  h+='<table class="db-table"><tr><th>Priority</th><th class="r">Count</th><th style="width:40%"></th><th class="r">%</th></tr>';
+  rows.forEach(function(g){
+    var p=fmTotal?(g.count/fmTotal*100):0;
+    var c=priColors[g.label]||'var(--muted)';
+    h+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:6px;vertical-align:middle;"></span>'+g.label+'</td><td class="r">'+g.count+'</td><td><div class="db-bar-wrap"><div class="db-bar" style="width:'+p+'%;background:'+c+'"></div></div></td><td class="r db-pct">'+p.toFixed(1)+'%</td></tr>';
+  });
+  h+='</table>';
+  $(targetId).innerHTML=h;
 }
 
 function buildGroupTable(id,data,colIdx,headers){
@@ -1132,6 +1168,8 @@ function renderDashboard(data){
 
   buildStatusTable(data,total);
   buildPriorityTable(data,total);
+  buildFMPriorityTable('tblFMTim',data,'Tim MacVittie');
+  buildFMPriorityTable('tblFMFelipe',data,'Felipe Lopez');
   buildGroupTable('tblDM',data,8,[{t:'District Manager'},{t:'WO Count',r:1},{t:'Total NTE',r:1}]);
   buildGroupTable('tblService',data,3,[{t:'Service Type'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
   buildGroupTable('tblVendor',data,6,[{t:'Vendor'},{t:'WOs',r:1},{t:'Total NTE',r:1},{t:'Spend',r:1}]);
@@ -1666,7 +1704,10 @@ function rebuildDependentFilters(){
   buildMultiSelect('fDM',unique(8));
   buildMultiSelect('fPriority',unique(2));
   buildMultiSelect('fServiceType',unique(3));
-  buildMultiSelect('fStatus',unique(1));
+  var statusVals=unique(1);
+  var statusLabelMap={};
+  statusVals.forEach(function(s){var g=STATUS_TOOLTIP_MAP[s];if(g&&g.party)statusLabelMap[s]=s+' ('+g.party+')';});
+  buildMultiSelect('fStatus',statusVals,null,statusLabelMap);
   var fmVals=new Set();subset.forEach(function(r){var v=r[17];fmVals.add(v?v:'(Unassigned)');});
   buildMultiSelect('fFM',Array.from(fmVals).sort());
   var maintVals=new Set();subset.forEach(function(r){var v=r[9];maintVals.add(v?v:'(No Schedule)');});
@@ -1711,6 +1752,7 @@ function fixBookmark(url){return url?url.replace('axpr21.','axpr19.'):'';}
 // [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
 // [23]Closed [24]Assignee [25]NTEExceeded [26]VendorInvoiceNumber
 // [27]VendorPhone [28]VendorMobile [29]VendorEmail [30]Floor
+// [31]VendorEstimatedCost [32]SecondaryContact
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
@@ -1723,7 +1765,8 @@ function mapApiRows(data){
     r['Closed']||'',r['Assignee']||'',r['NTE Exceeded']||'',
     r['Vendor Invoice #']||'',
     r['Phone']||'',r['Mobile']||'',r['Email']||'',
-    r['Floor']||''];});
+    r['Floor']||'',
+    parseNum(r['Vendor Estimated Cost']),r['Secondary Contact']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
@@ -1734,7 +1777,7 @@ function mapRequestRows(data){
     'Request',r['Requestor']||'',r['Facility Manager']||'',
     '','','','','','','','',
     '','','',
-    ''];});
+    '',0,''];});
 }
 
 var AX_CACHE_KEY='ax_workorders_v4';

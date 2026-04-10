@@ -134,7 +134,9 @@ function getQ3Data() {
       var sf = new Date(r[19]);
       if (!isNaN(sf.getTime())) time = sf.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null };
+    var vendorInfo = OPS_DATA.vendors[r[6] || ''] || {};
+    var vEmail = r[29] || vendorInfo.email || '';
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail };
   }).sort(function(a, b) { return (a.time || 'ZZ').localeCompare(b.time || 'ZZ'); });
 }
 
@@ -157,7 +159,7 @@ function getQ4Data() {
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
     var finishedDate = r[22] || r[23] || r[12]; // Actual end, Closed, or Created as fallback
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', vendorEstCost: r[31] || 0, bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
   }).sort(function(a, b) {
     // Sort by: no emails first, then oldest finished date
     if (a.emailCount === 0 && b.emailCount > 0) return -1;
@@ -213,10 +215,20 @@ function switchQueue(q, btn) {
   OPS_QUEUE = q;
   localStorage.setItem('ax_active_queue', q);
   document.querySelectorAll('.oq-tab').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelectorAll('.oq-kpi').forEach(function(k) { k.style.boxShadow = ''; });
   if (btn) btn.classList.add('active');
-  var kpi = document.querySelector('.oq-kpi[data-queue="' + q + '"]');
-  if (kpi) kpi.style.boxShadow = '0 0 0 2px rgba(var(--accent-rgb),.4)';
+  document.querySelectorAll('.oq-kpi').forEach(function(k) {
+    if (k.dataset.queue === q) {
+      k.style.opacity = '1';
+      k.style.transform = 'scale(1.03)';
+      k.style.boxShadow = '0 0 0 2px rgba(var(--accent-rgb),.5)';
+      k.style.transition = 'all .2s ease';
+    } else {
+      k.style.opacity = '0.4';
+      k.style.transform = 'scale(1)';
+      k.style.boxShadow = '';
+      k.style.transition = 'all .2s ease';
+    }
+  });
   renderQueue();
 }
 
@@ -266,7 +278,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q2') {
     items = getQ2Data();
-    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Sched Start</th><th>Sched End</th><th>Actual Start</th><th>Actual End</th><th>Appointment</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Hours</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Service Type</th><th>Vendor</th><th>Phone</th><th>Email</th><th>Sched Start</th><th>Sched End</th><th>Actual Start</th><th>Actual End</th><th>Appointment</th><th>Calls</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -283,6 +295,7 @@ function renderQueue() {
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + phone + '</td>'
+        + '<td>' + (d.vendorEmail ? '<a href="mailto:' + d.vendorEmail + '" style="color:var(--accent);font-size:11px">' + d.vendorEmail + '</a>' : '<span style="color:var(--muted);font-size:10px">—</span>') + '</td>'
         + '<td style="' + dateSty + '">' + (d.schedFrom || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="' + dateSty + '">' + (d.schedUntil || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="' + dateSty + '">' + (d.actualStart || '<span style="color:var(--muted)">—</span>') + '</td>'
@@ -297,7 +310,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr><th>Time</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Vendor</th><th>Service Type</th><th>Confirmed</th><th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Time</th><th>Reference</th><th>Property</th><th>Status</th><th>Priority</th><th>Vendor</th><th>Vendor Email</th><th>Service Type</th><th>Confirmed</th><th>Last Action</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var confBadge = d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
@@ -309,6 +322,7 @@ function renderQueue() {
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td>' + d.vendor + '</td>'
+        + '<td>' + (d.vendorEmail ? '<a href="mailto:' + d.vendorEmail + '" style="color:var(--accent);font-size:11px">' + d.vendorEmail + '</a>' : '<span style="color:var(--muted);font-size:10px">—</span>') + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
@@ -319,7 +333,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q4') {
     items = getQ4Data();
-    headHTML = '<tr><th>Days</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Status</th><th>Priority</th><th>Emails Sent</th><th>Last Email</th><th>Actions</th></tr>';
+    headHTML = '<tr><th>Days</th><th>Date Finished</th><th>Reference</th><th>Property</th><th>Vendor</th><th>Service Type</th><th>Status</th><th>Priority</th><th class="r">Vendor Est Cost</th><th>Emails Sent</th><th>Last Email</th><th>Actions</th></tr>';
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
@@ -327,12 +341,14 @@ function renderQueue() {
       var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + (d.finishedDate ? fmtDate(d.finishedDate) : '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + d.vendor + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
+        + '<td class="r" style="font-family:\'DM Mono\',monospace;font-size:11px">' + (d.vendorEstCost ? '$' + Number(d.vendorEstCost).toLocaleString() : '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.emailCount + '</td>'
         + '<td>' + lastEmail + '</td>'
         + '<td>' + emailBtn + ' <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'

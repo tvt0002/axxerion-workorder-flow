@@ -12,26 +12,32 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ── Azure AD SSO config ──
-const msalConfig = {
-  auth: {
-    clientId: process.env.AZURE_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
-    clientSecret: process.env.AZURE_CLIENT_SECRET,
-  },
-};
-const msalClient = new msal.ConfidentialClientApplication(msalConfig);
 const REDIRECT_URI = process.env.REDIRECT_URI || "http://localhost:3000/auth/callback";
+const LOCAL_DEV = !process.env.AZURE_CLIENT_ID || !process.env.AZURE_CLIENT_SECRET;
+let msalClient = null;
+if (!LOCAL_DEV) {
+  const msalConfig = {
+    auth: {
+      clientId: process.env.AZURE_CLIENT_ID,
+      authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
+      clientSecret: process.env.AZURE_CLIENT_SECRET,
+    },
+  };
+  msalClient = new msal.ConfidentialClientApplication(msalConfig);
+} else {
+  console.log("[Auth] Azure AD creds missing — running in local dev mode (no SSO)");
+}
 
 // Trust Railway's reverse proxy so secure cookies work behind HTTPS
 app.set("trust proxy", 1);
 
 // Session
-if (!process.env.SESSION_SECRET) {
+if (!process.env.SESSION_SECRET && !LOCAL_DEV) {
   console.error("[FATAL] SESSION_SECRET environment variable is required");
   process.exit(1);
 }
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || "local-dev-secret",
   resave: false,
   saveUninitialized: false,
   cookie: { secure: process.env.NODE_ENV === "production", maxAge: 8 * 60 * 60 * 1000 },
@@ -114,6 +120,7 @@ app.get("/favicon.ico", (req, res) => {
 
 // Auth guard — block everything except /auth/* and /api/health
 app.use((req, res, next) => {
+  if (LOCAL_DEV) { req.session.user = req.session.user || { name: "Local Dev", email: "dev@localhost" }; return next(); }
   if (req.path.startsWith("/auth/")) return next();
   if (req.path === "/api/health") return next();
   if (req.session && req.session.user) return next();
