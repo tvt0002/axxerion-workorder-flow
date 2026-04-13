@@ -222,6 +222,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .wo-result-prop{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .wo-result-status{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;}
 .wo-result-type{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;}
+.wo-result-related{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;background:rgba(var(--accent2-rgb),.15);color:var(--accent2);border:1px solid rgba(var(--accent2-rgb),.3);white-space:nowrap;flex-shrink:0;}
+.wo-related-header{display:flex;align-items:center;gap:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);background:rgba(var(--accent2-rgb),.06);border-bottom:1px solid rgba(var(--accent2-rgb),.15);cursor:pointer;transition:background .12s;}
+.wo-related-header:hover{background:rgba(var(--accent2-rgb),.12);}
+.wo-related-header .wo-rh-count{background:var(--accent2);color:#fff;font-size:8px;padding:1px 6px;border-radius:3px;}
+.wo-related-header .wo-rh-view{margin-left:auto;font-size:9px;color:var(--accent);text-decoration:none;}
 .wo-no-results{padding:14px;text-align:center;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
 
 /* ── Status Guide ── */
@@ -1363,7 +1368,10 @@ function openRawData(extra){
   extra=extra||{};
   var data, filterText;
 
-  if(extra.singleRecord){
+  if(extra.relatedWOs){
+    data=extra.relatedWOs;
+    filterText='Related Work Orders: '+extra.relatedBase+'-* ('+data.length+' WOs across all statuses)';
+  } else if(extra.singleRecord){
     data=[extra.singleRecord];
     var ref=extra.singleRecord[10]||'';
     filterText='Search result: '+ref;
@@ -1759,7 +1767,7 @@ function fixBookmark(url){return url?url.replace('axpr21.','axpr19.'):'';}
 // [18]Executor [19]ScheduledFrom [20]ScheduledUntil [21]ActualStart [22]ActualEnd
 // [23]Closed [24]Assignee [25]NTEExceeded [26]VendorInvoiceNumber
 // [27]VendorPhone [28]VendorMobile [29]VendorEmail [30]Floor
-// [31]VendorEstimatedCost [32]SecondaryContact
+// [31]VendorEstimatedCost [32]SecondaryContact [33]RequestNum
 function mapApiRows(data){
   return data.map(function(r){return[
     r['Property']||'',r['Status']||'',r['Priority']||'',r['Problem Type']||'',
@@ -1773,7 +1781,8 @@ function mapApiRows(data){
     r['Vendor Invoice #']||'',
     r['Phone']||'',r['Mobile']||'',r['Email']||'',
     r['Floor']||'',
-    parseNum(r['Vendor Estimated Cost']),r['Secondary Contact']||''];});
+    parseNum(r['Vendor Estimated Cost']),r['Secondary Contact']||'',
+    r['Request']||''];});
 }
 function mapRequestRows(data){
   return data.map(function(r){return[
@@ -2156,13 +2165,23 @@ function openWODetail(r){
     else if(e.key==='Escape'){box.classList.remove('open');input.blur();}
   });
 
+  // Find all WOs sharing the same Request number (e.g. Request 0009275 → WRK-261615, WRK-2510344)
+  function findRelatedByRequest(reqNum){
+    if(!reqNum) return [];
+    var related=[];
+    for(var i=0;i<ALLDATA.length;i++){
+      if((ALLDATA[i][33]||'')===reqNum) related.push({row:ALLDATA[i],idx:i});
+    }
+    return related;
+  }
+
   function doSearch(){
     var q=input.value.trim().toLowerCase();
     if(q.length<2||!ALLDATA.length){box.classList.remove('open');box.innerHTML='';return;}
 
-    // Search across reference, property, subject, vendor, address, status
+    // Search across reference, property, subject, vendor, address, status, AND request number
     var matches=[];
-    for(var i=0;i<ALLDATA.length&&matches.length<15;i++){
+    for(var i=0;i<ALLDATA.length;i++){
       var r=ALLDATA[i];
       var ref=(r[10]||'').toLowerCase();
       var prop=(r[0]||'').toLowerCase();
@@ -2170,7 +2189,8 @@ function openWODetail(r){
       var vendor=(r[6]||'').toLowerCase();
       var addr=(r[13]||'').toLowerCase();
       var status=(r[1]||'').toLowerCase();
-      if(ref.indexOf(q)!==-1||prop.indexOf(q)!==-1||subj.indexOf(q)!==-1||vendor.indexOf(q)!==-1||addr.indexOf(q)!==-1||status.indexOf(q)!==-1){
+      var reqNum=(r[33]||'').toLowerCase();
+      if(ref.indexOf(q)!==-1||prop.indexOf(q)!==-1||subj.indexOf(q)!==-1||vendor.indexOf(q)!==-1||addr.indexOf(q)!==-1||status.indexOf(q)!==-1||reqNum.indexOf(q)!==-1){
         matches.push({row:r,idx:i});
       }
     }
@@ -2181,30 +2201,90 @@ function openWODetail(r){
       return;
     }
 
+    // Build a map of Request# → all related WOs (across ALL data, not just matches)
+    var relatedMap={};
+    matches.forEach(function(m){
+      var rn=m.row[33]||'';
+      if(rn && !relatedMap[rn]) relatedMap[rn]=findRelatedByRequest(rn);
+    });
+
+    // Deduplicate: if multiple matches share a Request#, group them
+    var rendered=new Set();
     var html='';
     matches.forEach(function(m){
-      var r=m.row, idx=m.idx;
-      var isReq=(r[15]==='Request');
-      var typeColor=isReq?'color:var(--orange)':'color:var(--accent)';
-      var typeLabel=isReq?'REQ':'WO';
-      var ref=r[10]||'—';
-      var prop=r[0]||'';
-      var status=r[1]||'';
-      var subj=r[11]||'';
-      var truncSubj=subj.length>40?subj.substring(0,40)+'…':subj;
+      var reqNum=m.row[33]||'';
+      var related=reqNum?relatedMap[reqNum]:null;
+      var hasFamily=related&&related.length>1;
 
-      html+='<div class="wo-result" data-idx="'+idx+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" title="'+subj.replace(/"/g,'&quot;')+'">'
-        +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
-        +'<span class="wo-result-ref">'+ref+'</span>'
-        +'<span class="wo-result-prop">'+prop+(truncSubj?' · '+truncSubj:'')+'</span>'
-        +'<span class="wo-result-status">'+status+'</span>'
-        +'</div>';
+      // If this WO is part of a family and we already rendered that family, skip
+      if(hasFamily && rendered.has(reqNum)) return;
+
+      if(hasFamily){
+        rendered.add(reqNum);
+        // Render "Related WOs" group header with Request number
+        var shortReq=reqNum.replace(/^0+/,'');
+        html+='<div class="wo-related-header" data-reqnum="'+reqNum+'">'
+          +'&#128279; Request #'+shortReq+' — '+related.length+' Work Orders'
+          +'<span class="wo-rh-count">'+related.length+'</span>'
+          +'<span class="wo-rh-view">View all &#8599;</span>'
+          +'</div>';
+        // Render each related WO (show ALL related, not just matches — surfaces completed/closed siblings)
+        related.forEach(function(rel){
+          var rr=rel.row;
+          var isReq=(rr[15]==='Request');
+          var typeColor=isReq?'color:var(--orange)':'color:var(--accent)';
+          var typeLabel=isReq?'REQ':'WO';
+          var rRef=rr[10]||'—';
+          var rProp=rr[0]||'';
+          var rStatus=rr[1]||'';
+          var rSubj=rr[11]||'';
+          var truncSubj=rSubj.length>35?rSubj.substring(0,35)+'…':rSubj;
+          html+='<div class="wo-result" data-idx="'+rel.idx+'" data-ref="'+rRef.replace(/"/g,'&quot;')+'" data-reqnum="'+reqNum+'" title="'+rSubj.replace(/"/g,'&quot;')+'" style="padding-left:28px;">'
+            +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
+            +'<span class="wo-result-ref">'+rRef+'</span>'
+            +'<span class="wo-result-prop">'+rProp+(truncSubj?' · '+truncSubj:'')+'</span>'
+            +'<span class="wo-result-status">'+rStatus+'</span>'
+            +'</div>';
+        });
+      } else {
+        // Single WO, no family
+        var ref=m.row[10]||'—';
+        var isReq=(m.row[15]==='Request');
+        var typeColor=isReq?'color:var(--orange)':'color:var(--accent)';
+        var typeLabel=isReq?'REQ':'WO';
+        var prop=m.row[0]||'';
+        var status=m.row[1]||'';
+        var subj=m.row[11]||'';
+        var truncSubj=subj.length>40?subj.substring(0,40)+'…':subj;
+        var reqBadge=(m.row[33])?'<span class="wo-result-related">Req #'+m.row[33].replace(/^0+/,'')+'</span>':'';
+        html+='<div class="wo-result" data-idx="'+m.idx+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" title="'+subj.replace(/"/g,'&quot;')+'">'
+          +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
+          +'<span class="wo-result-ref">'+ref+'</span>'
+          +'<span class="wo-result-prop">'+prop+(truncSubj?' · '+truncSubj:'')+'</span>'
+          +reqBadge
+          +'<span class="wo-result-status">'+status+'</span>'
+          +'</div>';
+      }
     });
 
     box.innerHTML=html;
     box.classList.add('open');
 
-    // Click handler — open raw data page for just this one record
+    // Click handler for group header — open raw data showing ALL related WOs
+    box.querySelectorAll('.wo-related-header').forEach(function(el){
+      el.addEventListener('click',function(){
+        var rn=el.getAttribute('data-reqnum');
+        var related=findRelatedByRequest(rn);
+        if(related.length){
+          var shortReq=rn.replace(/^0+/,'');
+          openRawData({relatedWOs:related.map(function(r){return r.row;}),relatedBase:'Request #'+shortReq});
+        }
+        box.classList.remove('open');
+        input.value='';
+      });
+    });
+
+    // Click handler for individual result — open single record
     box.querySelectorAll('.wo-result').forEach(function(el){
       el.addEventListener('click',function(){
         var idx=parseInt(el.getAttribute('data-idx'),10);
