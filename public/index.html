@@ -46,6 +46,12 @@ body.sidebar-collapsed{margin-left:58px;}
 .sidebar.collapsed .sidebar-footer-btn .sidebar-btn-label{display:none;}
 .sidebar.collapsed .sidebar-kbd{display:none;}
 .sidebar-kbd{margin-left:auto;font-size:9px;opacity:.55;}
+.settings-wrap{position:relative;}
+.settings-menu{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:0 -8px 24px rgba(0,0,0,var(--shadow-strength));display:none;flex-direction:column;gap:2px;z-index:300;}
+.settings-menu.open{display:flex;}
+.sidebar.collapsed .settings-menu{left:100%;right:auto;bottom:0;margin-left:8px;min-width:180px;}
+.settings-item{text-align:left;padding:8px 12px;border-radius:5px;border:none;background:transparent;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.03em;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:9px;transition:background .12s;white-space:nowrap;}
+.settings-item:hover{background:rgba(var(--accent-rgb),.08);color:var(--accent);}
 .sidebar-collapse-btn{width:100%;padding:6px 10px;margin-top:2px;background:transparent;border:1px dashed var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
 .sidebar-collapse-btn:hover{border-color:var(--accent);color:var(--accent);border-style:solid;}
 .sidebar.collapsed .sidebar-collapse-btn .sidebar-collapse-label{display:none;}
@@ -330,9 +336,14 @@ body.sidebar-collapsed{margin-left:58px;}
   </nav>
   <div class="sidebar-footer">
     <button class="sidebar-footer-btn ai" onclick="toggleChatPanel()" title="Ask the AI assistant (Ctrl+J)">&#9733;<span class="sidebar-btn-label"> Ask AI</span><span class="sidebar-kbd">Ctrl+J</span></button>
-    <a class="sidebar-footer-btn" id="sidebarAdminLink" href="/admin" style="display:none;" title="User Management — chat usage & user budgets">&#128101;<span class="sidebar-btn-label"> User Management</span></a>
-    <a class="sidebar-footer-btn" href="https://axpr19.axxerion.us/axxerion/ui" target="_blank" title="Axxerion Login">&#8599;<span class="sidebar-btn-label"> Axxerion Login</span></a>
-    <button class="sidebar-footer-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">&#9790;<span class="sidebar-btn-label" style="display:inline;"> Dark</span></button>
+    <div class="settings-wrap">
+      <button class="sidebar-footer-btn" id="settingsBtn" onclick="toggleSettings(event)" title="Settings">&#9881;<span class="sidebar-btn-label"> Settings</span></button>
+      <div class="settings-menu" id="settingsMenu">
+        <a class="settings-item" id="settingsAdminLink" href="/admin" style="display:none;">&#128101; <span>User Management</span></a>
+        <a class="settings-item" href="https://axpr19.axxerion.us/axxerion/ui" target="_blank">&#8599; <span>Axxerion Login</span></a>
+        <button class="settings-item" id="themeToggle" onclick="toggleTheme()">&#9790; <span>Dark Mode</span></button>
+      </div>
+    </div>
     <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" title="Collapse sidebar"><span id="sidebarCollapseIcon">&laquo;</span><span class="sidebar-collapse-label">Collapse</span></button>
   </div>
 </aside>
@@ -373,15 +384,32 @@ function toggleSidebarCollapse(){
     }
   }
 })();
-// Show Admin link in sidebar for admin users
+// Show User Management link in settings menu for admin users
 (function(){
   fetch('/api/me').then(function(r){return r.json();}).then(function(u){
     if(u && u.isAdmin){
-      var link = document.getElementById('sidebarAdminLink');
+      var link = document.getElementById('settingsAdminLink');
       if(link) link.style.display = '';
     }
   }).catch(function(){});
 })();
+// Settings menu toggle + close on outside click / escape
+function toggleSettings(e){
+  if(e) e.stopPropagation();
+  var m = document.getElementById('settingsMenu');
+  if(m) m.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var m = document.getElementById('settingsMenu');
+  var wrap = e.target.closest('.settings-wrap');
+  if(m && !wrap && m.classList.contains('open')) m.classList.remove('open');
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    var m = document.getElementById('settingsMenu');
+    if(m) m.classList.remove('open');
+  }
+});
 </script>
 
 <!-- ══════════ VIEW 1: WORKFLOW ══════════ -->
@@ -816,7 +844,7 @@ function toggleTheme(){
 function updateToggleLabel(theme){
   var btn = document.getElementById('themeToggle');
   if(!btn) return;
-  btn.innerHTML = theme === 'dark' ? '&#9790;<span>Dark</span>' : '&#9788;<span>Light</span>';
+  btn.innerHTML = theme === 'dark' ? '&#9790; <span>Dark Mode</span>' : '&#9788; <span>Light Mode</span>';
 }
 function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
 function resolveColor(c){if(c.indexOf('var(')===0){var n=c.replace('var(','').replace(')','');return cssVar(n);}return c;}
