@@ -330,7 +330,7 @@ body.sidebar-collapsed{margin-left:58px;}
   </nav>
   <div class="sidebar-footer">
     <button class="sidebar-footer-btn ai" onclick="toggleChatPanel()" title="Ask the AI assistant (Ctrl+J)">&#9733;<span class="sidebar-btn-label"> Ask AI</span><span class="sidebar-kbd">Ctrl+J</span></button>
-    <a class="sidebar-footer-btn" id="sidebarAdminLink" href="/admin" style="display:none;" title="Admin — chat usage & user budgets">&#9881;<span class="sidebar-btn-label"> Admin</span></a>
+    <a class="sidebar-footer-btn" id="sidebarAdminLink" href="/admin" style="display:none;" title="User Management — chat usage & user budgets">&#128101;<span class="sidebar-btn-label"> User Management</span></a>
     <a class="sidebar-footer-btn" href="https://axpr19.axxerion.us/axxerion/ui" target="_blank" title="Axxerion Login">&#8599;<span class="sidebar-btn-label"> Axxerion Login</span></a>
     <button class="sidebar-footer-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">&#9790;<span class="sidebar-btn-label" style="display:inline;"> Dark</span></button>
     <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" title="Collapse sidebar"><span id="sidebarCollapseIcon">&laquo;</span><span class="sidebar-collapse-label">Collapse</span></button>
@@ -2496,7 +2496,7 @@ function openWODetail(r){
 <div id="chatPanel">
   <div class="chat-header">
     <h3>&#9733; FM Assistant</h3>
-    <span id="chatAdminLink" style="display:none;margin-left:8px;"><a href="/admin" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-decoration:none;">Admin &rarr;</a></span>
+    <span id="chatAdminLink" style="display:none;margin-left:8px;"><a href="/admin" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-decoration:none;">User Management &rarr;</a></span>
     <button class="chat-close" onclick="toggleChatPanel()" title="Close (Esc)">&times;</button>
   </div>
   <div class="chat-budget" id="chatBudget" style="display:none;">
