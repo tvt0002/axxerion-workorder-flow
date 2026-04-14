@@ -53,6 +53,11 @@ body{margin-left:220px;transition:margin-left .25s;}
 .gright{margin-left:auto;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
 .view{display:none;}.view.active{display:block;}
 
+/* ── Pill-style tab buttons (Ops Queue Q1-Q5) ── */
+.oq-tab{font-family:'DM Mono',monospace;font-size:12px;padding:7px 18px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;letter-spacing:.05em;text-transform:uppercase;}
+.oq-tab:hover{border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}
+.oq-tab.active{background:rgba(var(--accent-rgb),.15);border-color:rgba(var(--accent-rgb),.5);color:var(--accent);}
+
 /* ── Workflow View (original styles) ── */
 .hdr{padding:14px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);}
 .badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:100px;}
