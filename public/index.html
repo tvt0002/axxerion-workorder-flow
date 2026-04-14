@@ -8,7 +8,6 @@
 <script src="data.js"></script>
 <script src="requests.js"></script>
 <script src="opsqueue.js"></script>
-<script src="snow.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
 :root,
@@ -783,7 +782,7 @@ function switchView(view, btn, skipHash) {
   if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
   if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
-  if(view==='snow'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else{loadSnowContracts(renderSnow);} }
+  if(view==='snow' && typeof initSnow==='function'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else if(typeof loadSnowContracts==='function'){loadSnowContracts(renderSnow);} }
   if(typeof sizeKPIs==='function') setTimeout(sizeKPIs,100);
 }
 
@@ -2067,7 +2066,7 @@ if(_savedView==='statusguide'){
   setTimeout(renderStatusGuide,200);
 }
 if(_savedView==='snow'){
-  var _snowWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_snowWait);window._snowInit=true;initSnow();}},500);
+  var _snowWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_snowWait);window._snowInit=true;if(typeof initSnow==='function')initSnow();}},500);
 }
 
 /* ── Work Order Detail Panel ── */
