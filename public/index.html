@@ -209,9 +209,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* ── WO Search ── */
 .wo-search-wrap{position:relative;margin-left:auto;margin-right:16px;}
-.wo-search-input{font-family:'DM Mono',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 30px;width:220px;outline:none;transition:border-color .18s,width .25s;}
+.wo-search-input{font-family:'DM Mono',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 30px;width:280px;outline:none;transition:border-color .18s,width .25s;}
 .wo-search-input::placeholder{color:var(--muted);}
-.wo-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.15);width:300px;}
+.wo-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.15);width:360px;}
 .wo-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
 .wo-results{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;max-height:360px;overflow-y:auto;z-index:400;box-shadow:0 12px 32px rgba(0,0,0,var(--shadow-strength));min-width:380px;}
 .wo-results.open{display:block;}
@@ -223,6 +223,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .wo-result-status{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;}
 .wo-result-type{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;}
 .wo-result-related{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;background:rgba(var(--accent2-rgb),.15);color:var(--accent2);border:1px solid rgba(var(--accent2-rgb),.3);white-space:nowrap;flex-shrink:0;}
+.wo-result-context{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wo-related-header{display:flex;align-items:center;gap:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);background:rgba(var(--accent2-rgb),.06);border-bottom:1px solid rgba(var(--accent2-rgb),.15);cursor:pointer;transition:background .12s;}
 .wo-related-header:hover{background:rgba(var(--accent2-rgb),.12);}
 .wo-related-header .wo-rh-count{background:var(--accent2);color:#fff;font-size:8px;padding:1px 6px;border-radius:3px;}
@@ -278,7 +279,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   </div>
   <div class="wo-search-wrap">
     <span class="wo-search-icon">&#128269;</span>
-    <input type="text" class="wo-search-input" id="woSearch" placeholder="Search work orders..." autocomplete="off">
+    <input type="text" class="wo-search-input" id="woSearch" placeholder="Search anything — vendor, phone, FM, region..." autocomplete="off">
     <div class="wo-results" id="woResults"></div>
   </div>
   <a href="https://axpr19.axxerion.us/axxerion/ui" target="_blank" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);padding:5px 10px;border-radius:5px;text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='rgba(var(--accent-rgb),.15)';this.style.borderColor='rgba(var(--accent-rgb),.4)'" onmouseout="this.style.background='rgba(var(--accent-rgb),.08)';this.style.borderColor='rgba(var(--accent-rgb),.2)'">Axxerion Login &#8599;</a>
@@ -2175,28 +2176,79 @@ function openWODetail(r){
     return related;
   }
 
+  // Global search field definitions: [index, label]
+  var SEARCH_FIELDS=[
+    [10,'Reference'],[0,'Property'],[11,'Subject'],[6,'Vendor'],
+    [13,'Address'],[1,'Status'],[33,'Request #'],
+    [2,'Priority'],[3,'Service Type'],[7,'Region'],
+    [8,'DM'],[17,'Facility Mgr'],[18,'Executor'],[24,'Assignee'],
+    [27,'Vendor Phone'],[28,'Vendor Mobile'],[29,'Vendor Email'],
+    [30,'Floor/Unit'],[32,'Secondary Contact'],[26,'Invoice #'],
+    [16,'Requestor']
+  ];
+
+  // Strip non-digits for phone matching (so "555-1234" matches "(555) 555-1234")
+  function stripPhone(s){return s.replace(/\D/g,'');}
+
   function doSearch(){
     var q=input.value.trim().toLowerCase();
     if(q.length<2||!ALLDATA.length){box.classList.remove('open');box.innerHTML='';return;}
 
-    // Search across reference, property, subject, vendor, address, status, AND request number
+    // Pre-compute: is query likely a phone number? (mostly digits after stripping)
+    var qDigits=stripPhone(q);
+    var isPhoneQuery=qDigits.length>=3 && qDigits.length>=q.replace(/[\s\-\(\)\.]/g,'').length*0.6;
+
+    // Search across all global fields + OPS_DATA vendor contacts
     var matches=[];
     for(var i=0;i<ALLDATA.length;i++){
       var r=ALLDATA[i];
-      var ref=(r[10]||'').toLowerCase();
-      var prop=(r[0]||'').toLowerCase();
-      var subj=(r[11]||'').toLowerCase();
-      var vendor=(r[6]||'').toLowerCase();
-      var addr=(r[13]||'').toLowerCase();
-      var status=(r[1]||'').toLowerCase();
-      var reqNum=(r[33]||'').toLowerCase();
-      if(ref.indexOf(q)!==-1||prop.indexOf(q)!==-1||subj.indexOf(q)!==-1||vendor.indexOf(q)!==-1||addr.indexOf(q)!==-1||status.indexOf(q)!==-1||reqNum.indexOf(q)!==-1){
-        matches.push({row:r,idx:i});
+      var matchLabel='';
+
+      // Check each search field
+      for(var f=0;f<SEARCH_FIELDS.length;f++){
+        var fi=SEARCH_FIELDS[f][0], fl=SEARCH_FIELDS[f][1];
+        var val=r[fi];
+        if(!val) continue;
+        var vs=String(val).toLowerCase();
+
+        // Phone fields get digit-only matching too
+        if((fi===27||fi===28)&&isPhoneQuery&&qDigits.length>=4){
+          if(stripPhone(vs).indexOf(qDigits)!==-1){matchLabel=fl+': '+val;break;}
+        }
+        if(vs.indexOf(q)!==-1){
+          // For the original 7 fields, don't show a label (keeps results clean for common searches)
+          if(fi===10||fi===0||fi===11||fi===6||fi===13||fi===1||fi===33){matchLabel='';break;}
+          matchLabel=fl+': '+val;
+          break;
+        }
+      }
+
+      // If no record field matched, check OPS_DATA vendor fallback contacts
+      if(matchLabel==='' && f>=SEARCH_FIELDS.length){
+        // No match in record fields — check OPS_DATA.vendors fallback
+        var vName=r[6];
+        if(vName && typeof OPS_DATA!=='undefined' && OPS_DATA.vendors && OPS_DATA.vendors[vName]){
+          var vi=OPS_DATA.vendors[vName];
+          if(vi.phone){
+            var vp=vi.phone.toLowerCase();
+            if(vp.indexOf(q)!==-1||(isPhoneQuery&&qDigits.length>=4&&stripPhone(vp).indexOf(qDigits)!==-1)){
+              matchLabel='Vendor Phone: '+vi.phone;
+            }
+          }
+          if(!matchLabel&&vi.email&&vi.email.toLowerCase().indexOf(q)!==-1){
+            matchLabel='Vendor Email: '+vi.email;
+          }
+        }
+      }
+
+      // f < SEARCH_FIELDS.length means the inner loop broke early (match found)
+      if(f<SEARCH_FIELDS.length||matchLabel){
+        matches.push({row:r,idx:i,matchLabel:matchLabel||''});
       }
     }
 
     if(!matches.length){
-      box.innerHTML='<div class="wo-no-results">No results for "'+q.replace(/</g,'&lt;')+'"</div>';
+      box.innerHTML='<div class="wo-no-results">No results for "'+q.replace(/</g,'&lt;')+'" across all fields</div>';
       box.classList.add('open');
       return;
     }
@@ -2257,10 +2309,16 @@ function openWODetail(r){
         var subj=m.row[11]||'';
         var truncSubj=subj.length>40?subj.substring(0,40)+'…':subj;
         var reqBadge=(m.row[33])?'<span class="wo-result-related">Req #'+m.row[33].replace(/^0+/,'')+'</span>':'';
+        // Show match context when the match came from a non-obvious field
+        var contextHtml='';
+        if(m.matchLabel){
+          var ml=m.matchLabel.replace(/</g,'&lt;');
+          contextHtml='<span class="wo-result-context">'+ml+'</span>';
+        }
         html+='<div class="wo-result" data-idx="'+m.idx+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" title="'+subj.replace(/"/g,'&quot;')+'">'
           +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
           +'<span class="wo-result-ref">'+ref+'</span>'
-          +'<span class="wo-result-prop">'+prop+(truncSubj?' · '+truncSubj:'')+'</span>'
+          +'<span class="wo-result-prop">'+prop+(contextHtml?' · '+contextHtml:(truncSubj?' · '+truncSubj:''))+'</span>'
           +reqBadge
           +'<span class="wo-result-status">'+status+'</span>'
           +'</div>';
