@@ -6,6 +6,8 @@ const https = require("https");
 const fs = require("fs");
 const { Pool } = require("pg");
 require("dotenv").config();
+const { sendChatMessage } = require("./lib/chat");
+const chatUsage = require("./lib/chat-usage");
 
 const app = express();
 app.use(express.json());
@@ -522,9 +524,99 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Current user info for frontend
-app.get("/api/me", (req, res) => {
-  res.json(req.session.user || null);
+// Current user info for frontend (extended with admin flag + budget)
+app.get("/api/me", async (req, res) => {
+  const u = req.session.user;
+  if (!u) return res.json(null);
+  try {
+    const budget = await chatUsage.checkBudget(pool, u.email, u.name);
+    res.json({ ...u, isAdmin: budget.isAdmin, mtdCost: budget.mtdCost, monthlyBudget: budget.monthlyBudget, percentUsed: budget.percentUsed });
+  } catch (e) {
+    res.json({ ...u, isAdmin: chatUsage.isAdmin(u.email) });
+  }
+});
+
+// ── Chat API ──
+app.post("/api/chat", async (req, res) => {
+  const u = req.session.user;
+  if (!u) return res.status(401).json({ error: "Unauthorized" });
+  const { messages } = req.body || {};
+  if (!Array.isArray(messages) || !messages.length) return res.status(400).json({ error: "messages required" });
+  try {
+    const result = await sendChatMessage({
+      user: u,
+      messages,
+      pool,
+      getData: () => ({ workOrders: cachedWO || [], requests: cachedReq || [] }),
+    });
+    res.json(result);
+  } catch (e) {
+    console.error("[/api/chat] error:", e.message);
+    res.status(500).json({ error: "Something went wrong with the AI assistant. Please reach out to IT support." });
+  }
+});
+
+app.get("/api/chat/budget", async (req, res) => {
+  const u = req.session.user;
+  if (!u) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const b = await chatUsage.checkBudget(pool, u.email, u.name);
+    res.json(b);
+  } catch (e) { res.status(500).json({ error: "Failed to fetch budget" }); }
+});
+
+// ── Admin-only endpoints ──
+function requireAdmin(req, res, next) {
+  const u = req.session.user;
+  if (!u) return res.status(401).json({ error: "Unauthorized" });
+  chatUsage.checkBudget(pool, u.email, u.name)
+    .then(b => { if (b.isAdmin) next(); else res.status(403).json({ error: "Admin access required" }); })
+    .catch(() => res.status(500).json({ error: "Admin check failed" }));
+}
+
+app.get("/api/admin/usage", requireAdmin, async (req, res) => {
+  try {
+    const stats = await chatUsage.getUsageStats(pool);
+    res.json(stats);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post("/api/admin/budget", requireAdmin, async (req, res) => {
+  const { email, budget, name } = req.body || {};
+  if (!email || budget == null) return res.status(400).json({ error: "email and budget required" });
+  try {
+    await chatUsage.upsertUserBudget(pool, email.toLowerCase().trim(), name || null, parseFloat(budget), req.session.user.email);
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+app.post("/api/admin/add-admin", requireAdmin, async (req, res) => {
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: "email required" });
+  try {
+    await chatUsage.addAdmin(pool, email.toLowerCase().trim(), req.session.user.email);
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+app.post("/api/admin/remove-admin", requireAdmin, async (req, res) => {
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: "email required" });
+  try {
+    await chatUsage.removeAdmin(pool, email.toLowerCase().trim(), req.session.user.email);
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// Admin page (guarded)
+app.get("/admin", async (req, res) => {
+  const u = req.session.user;
+  if (!u) return res.redirect("/auth/login-page");
+  try {
+    const b = await chatUsage.checkBudget(pool, u.email, u.name);
+    if (!b.isAdmin) return res.status(403).send("Admin access required");
+  } catch (e) { return res.status(500).send("Admin check failed"); }
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -537,6 +629,7 @@ app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   // 1. Init DB and load cached data (instant LIVE on deploy)
   await initDB();
+  await chatUsage.initChatTables(pool);
   await loadFromDB();
   if (cachedWO) console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
   // 2. Fetch fresh data — full WO pull on startup + every 4h, incremental every 10m, requests every 10m

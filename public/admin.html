@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Axxerion FM Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6fa; --card:#ffffff; --text:#1a2235; --muted:#64748b; --border:#e2e8f0;
+  --accent:#1f4a9a; --accent2:#4182c3; --green:#5ec28f; --red:#c34141; --yellow:#ffd600;
+  --accent-rgb:31,74,154; --accent2-rgb:65,130,195; --green-rgb:94,194,143; --red-rgb:195,65,65;
+}
+html[data-theme="dark"]{
+  --bg:#0c1120; --card:#111827; --text:#e2e8f0; --muted:#94a3b8; --border:#1a2235;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;margin:0;min-height:100vh;}
+.nav{display:flex;align-items:center;gap:16px;padding:14px 28px;background:var(--card);border-bottom:1px solid var(--border);}
+.nav h1{font-family:'Syne',sans-serif;font-size:18px;margin:0;font-weight:600;}
+.nav a{color:var(--muted);font-size:12px;text-decoration:none;font-family:'DM Mono',monospace;}
+.nav a:hover{color:var(--accent);}
+.wrap{max-width:1280px;margin:0 auto;padding:28px;}
+h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin:24px 0 12px;letter-spacing:.03em;}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.kpi-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:600;margin-top:6px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;font-family:'DM Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--border);background:rgba(var(--accent-rgb),.03);}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.bar{height:6px;background:var(--border);border-radius:100px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle;margin-left:8px;}
+.bar-fill{height:100%;background:var(--green);transition:width .2s;}
+.bar-fill.warn{background:var(--yellow);}
+.bar-fill.over{background:var(--red);}
+input.budget-input{font-family:'DM Mono',monospace;font-size:12px;width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text);}
+.btn{font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text);cursor:pointer;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);color:white;border-color:var(--accent);}
+.btn.primary:hover{background:var(--accent2);}
+.btn.danger:hover{color:var(--red);border-color:var(--red);}
+.admin-badge{display:inline-block;padding:2px 8px;font-size:9px;background:rgba(var(--accent-rgb),.12);color:var(--accent);border-radius:100px;font-family:'DM Mono',monospace;margin-left:6px;}
+.footnote{font-size:11px;color:var(--muted);margin-top:12px;font-style:italic;}
+.add-admin-row{display:flex;gap:8px;align-items:center;margin-top:16px;}
+.add-admin-row input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;}
+.msg{padding:10px 14px;border-radius:6px;margin:12px 0;font-size:12px;display:none;}
+.msg.ok{background:rgba(var(--green-rgb),.1);color:var(--green);display:block;}
+.msg.err{background:rgba(var(--red-rgb),.1);color:var(--red);display:block;}
+</style>
+</head>
+<body>
+<div class="nav">
+  <h1>Admin · Chat API Usage</h1>
+  <a href="/" style="margin-left:auto;">← Back to Dashboard</a>
+</div>
+<div class="wrap">
+  <div id="msg" class="msg"></div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">MTD Est. Cost</div><div class="kpi-val" id="kMtdCost">—</div></div>
+    <div class="kpi"><div class="kpi-label">MTD Queries</div><div class="kpi-val" id="kMtdQueries">—</div></div>
+    <div class="kpi"><div class="kpi-label">Active Users</div><div class="kpi-val" id="kActiveUsers">—</div></div>
+  </div>
+
+  <h2>Per-User Usage &amp; Budgets</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th><th>MTD Cost</th><th>Budget</th><th>Usage</th><th>Queries</th><th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userRows"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+    </table>
+  </div>
+  <p class="footnote">Cost estimates based on Claude Sonnet 4.6 pricing ($3/MTok input, $15/MTok output). Actual Anthropic invoices may vary.</p>
+
+  <h2>Add Admin</h2>
+  <div class="card" style="padding:16px;">
+    <div class="add-admin-row">
+      <input id="newAdminEmail" type="email" placeholder="user@insitepg.com" />
+      <button class="btn primary" onclick="addAdmin()">Grant Admin</button>
+    </div>
+    <p class="footnote">Admins bypass the monthly budget cap and can access this page. Built-in admins (in code) cannot be removed from this UI.</p>
+  </div>
+</div>
+
+<script>
+async function load() {
+  const r = await fetch('/api/admin/usage');
+  if (!r.ok) { showMsg('Failed to load usage: ' + (await r.text()), false); return; }
+  const d = await r.json();
+  document.getElementById('kMtdCost').textContent = '$' + d.summary.mtdCost.toFixed(2);
+  document.getElementById('kMtdQueries').textContent = d.summary.mtdQueries;
+  document.getElementById('kActiveUsers').textContent = d.summary.activeUsers;
+
+  const tbody = document.getElementById('userRows');
+  if (!d.users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No users yet — activity will appear here once someone uses the chat.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = d.users.map(u => {
+    const pct = u.monthlyBudget > 0 ? Math.min(100, (u.mtdCost / u.monthlyBudget) * 100) : 0;
+    const barCls = u.isAdmin ? '' : (pct >= 100 ? 'over' : (pct >= 80 ? 'warn' : ''));
+    const emailEsc = u.email.replace(/"/g, '&quot;');
+    const displayName = u.name ? u.name + ' <span style="color:var(--muted);font-size:11px">' + u.email + '</span>' : u.email;
+    const adminBadge = u.isAdmin ? '<span class="admin-badge">ADMIN</span>' : '';
+    return `<tr>
+      <td>${displayName}${adminBadge}</td>
+      <td style="font-family:'DM Mono',monospace">$${u.mtdCost.toFixed(2)}</td>
+      <td>${u.isAdmin
+        ? '<span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:11px">unlimited</span>'
+        : `<input class="budget-input" type="number" step="1" min="0" max="1000" value="${u.monthlyBudget}" data-email="${emailEsc}" />`}</td>
+      <td>${u.isAdmin ? '—' : pct.toFixed(0) + '%<span class="bar"><span class="bar-fill ' + barCls + '" style="width:' + pct + '%"></span></span>'}</td>
+      <td style="font-family:'DM Mono',monospace">${u.mtdQueries}</td>
+      <td style="text-align:right">
+        ${u.isAdmin
+          ? '<button class="btn danger" onclick="removeAdmin(\'' + emailEsc + '\')">Remove Admin</button>'
+          : '<button class="btn primary" onclick="saveBudget(\'' + emailEsc + '\')">Save</button> <button class="btn" onclick="grantAdmin(\'' + emailEsc + '\')">Make Admin</button>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveBudget(email) {
+  const input = document.querySelector('input.budget-input[data-email="' + email.replace(/"/g, '&quot;') + '"]');
+  const budget = parseFloat(input.value);
+  const r = await fetch('/api/admin/budget', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, budget }) });
+  const d = await r.json();
+  if (r.ok) { showMsg('Budget updated for ' + email, true); load(); }
+  else showMsg('Error: ' + (d.error || 'Save failed'), false);
+}
+
+async function grantAdmin(email) {
+  if (!confirm('Grant admin access to ' + email + '?')) return;
+  const r = await fetch('/api/admin/add-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+  const d = await r.json();
+  if (r.ok) { showMsg(email + ' is now an admin', true); load(); }
+  else showMsg('Error: ' + (d.error || 'Failed'), false);
+}
+
+async function removeAdmin(email) {
+  if (!confirm('Remove admin access from ' + email + '?')) return;
+  const r = await fetch('/api/admin/remove-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+  const d = await r.json();
+  if (r.ok) { showMsg(email + ' is no longer an admin', true); load(); }
+  else showMsg('Error: ' + (d.error || 'Failed'), false);
+}
+
+async function addAdmin() {
+  const email = document.getElementById('newAdminEmail').value.trim();
+  if (!email) return;
+  await grantAdmin(email);
+  document.getElementById('newAdminEmail').value = '';
+}
+
+function showMsg(text, ok) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.className = 'msg'; }, 4000);
+}
+
+// Match parent theme
+if (localStorage.getItem('ax_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+load();
+</script>
+</body>
+</html>

@@ -282,6 +282,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <input type="text" class="wo-search-input" id="woSearch" placeholder="Search anything — vendor, phone, FM, region..." autocomplete="off">
     <div class="wo-results" id="woResults"></div>
   </div>
+  <button id="aiChatToggle" onclick="toggleChatPanel()" title="Ask the AI assistant (Ctrl+J)" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);background:rgba(var(--accent2-rgb),.08);border:1px solid rgba(var(--accent2-rgb),.2);padding:5px 10px;border-radius:5px;letter-spacing:.05em;white-space:nowrap;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='rgba(var(--accent2-rgb),.15)';this.style.borderColor='rgba(var(--accent2-rgb),.4)'" onmouseout="this.style.background='rgba(var(--accent2-rgb),.08)';this.style.borderColor='rgba(var(--accent2-rgb),.2)'">&#9733; Ask AI <span style="opacity:.6;font-size:9px">Ctrl+J</span></button>
   <a href="https://axpr19.axxerion.us/axxerion/ui" target="_blank" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);padding:5px 10px;border-radius:5px;text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='rgba(var(--accent-rgb),.15)';this.style.borderColor='rgba(var(--accent-rgb),.4)'" onmouseout="this.style.background='rgba(var(--accent-rgb),.08)';this.style.borderColor='rgba(var(--accent-rgb),.2)'">Axxerion Login &#8599;</a>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9790;<span>Dark</span></button>
   <span class="gright">SecureSpace Self Storage</span>
@@ -2352,6 +2353,252 @@ function openWODetail(r){
       });
     });
   }
+})();
+</script>
+
+<!-- ══════════ AI CHAT PANEL ══════════ -->
+<style>
+#chatPanel{position:fixed;top:0;right:0;width:440px;max-width:100vw;height:100vh;background:var(--card);border-left:1px solid var(--border);box-shadow:-8px 0 32px rgba(0,0,0,.2);z-index:1000;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease;font-family:'Inter',sans-serif;}
+#chatPanel.open{transform:translateX(0);}
+.chat-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.chat-header h3{margin:0;font-family:'Syne',sans-serif;font-size:14px;font-weight:600;}
+.chat-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;margin-left:auto;padding:4px 8px;border-radius:4px;}
+.chat-close:hover{background:var(--border);color:var(--text);}
+.chat-budget{padding:10px 18px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.chat-budget-bar{flex:1;height:4px;background:var(--border);border-radius:100px;overflow:hidden;}
+.chat-budget-fill{height:100%;background:var(--green);transition:width .3s;}
+.chat-budget-fill.warn{background:var(--yellow);}
+.chat-budget-fill.over{background:var(--red);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.chat-welcome{color:var(--muted);font-size:13px;line-height:1.6;}
+.chat-welcome h4{font-family:'Syne',sans-serif;font-size:14px;color:var(--text);margin:0 0 8px;}
+.chat-suggestions{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+.chat-suggestion{padding:8px 12px;background:rgba(var(--accent2-rgb),.08);border:1px solid rgba(var(--accent2-rgb),.2);border-radius:6px;font-size:12px;cursor:pointer;color:var(--accent2);transition:all .15s;}
+.chat-suggestion:hover{background:rgba(var(--accent2-rgb),.15);border-color:rgba(var(--accent2-rgb),.4);}
+.chat-msg{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.55;max-width:88%;white-space:pre-wrap;word-wrap:break-word;}
+.chat-msg.user{background:var(--accent);color:white;align-self:flex-end;}
+.chat-msg.assistant{background:rgba(var(--accent2-rgb),.08);color:var(--text);align-self:flex-start;border:1px solid rgba(var(--accent2-rgb),.15);}
+.chat-msg.error{background:rgba(var(--red-rgb),.08);color:var(--red);align-self:flex-start;border:1px solid rgba(var(--red-rgb),.2);}
+.chat-msg table{border-collapse:collapse;margin:8px 0;font-size:11px;}
+.chat-msg th,.chat-msg td{border:1px solid var(--border);padding:4px 8px;text-align:left;}
+.chat-msg th{background:rgba(var(--accent-rgb),.06);font-weight:500;}
+.chat-msg code{background:rgba(var(--accent-rgb),.1);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;}
+.chat-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.chat-tool-pill{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:100px;background:rgba(var(--accent-rgb),.08);color:var(--accent);border:1px solid rgba(var(--accent-rgb),.2);}
+.chat-loading{display:flex;gap:4px;padding:12px 14px;}
+.chat-loading span{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:chatDot 1.2s infinite;}
+.chat-loading span:nth-child(2){animation-delay:.15s;}
+.chat-loading span:nth-child(3){animation-delay:.3s;}
+@keyframes chatDot{0%,60%,100%{opacity:.3;transform:scale(.8);}30%{opacity:1;transform:scale(1);}}
+.chat-input-wrap{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.chat-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;outline:none;min-height:38px;max-height:120px;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{padding:8px 14px;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:'DM Mono',monospace;}
+.chat-send:disabled{opacity:.4;cursor:not-allowed;}
+</style>
+
+<div id="chatPanel">
+  <div class="chat-header">
+    <h3>&#9733; FM Assistant</h3>
+    <span id="chatAdminLink" style="display:none;margin-left:8px;"><a href="/admin" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-decoration:none;">Admin &rarr;</a></span>
+    <button class="chat-close" onclick="toggleChatPanel()" title="Close (Esc)">&times;</button>
+  </div>
+  <div class="chat-budget" id="chatBudget" style="display:none;">
+    <span id="chatBudgetText">—</span>
+    <div class="chat-budget-bar"><div class="chat-budget-fill" id="chatBudgetFill" style="width:0%"></div></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-welcome">
+      <h4>Ask about work orders, vendors, properties, or stats.</h4>
+      I can search across all loaded Axxerion data — WOs, requests, vendors, FMs. Read-only for now.
+      <div class="chat-suggestions">
+        <div class="chat-suggestion" onclick="chatSuggest(this)">How many open critical WOs are there right now?</div>
+        <div class="chat-suggestion" onclick="chatSuggest(this)">Show me Tim MacVittie's workload</div>
+        <div class="chat-suggestion" onclick="chatSuggest(this)">What vendors have we spent the most with this year?</div>
+        <div class="chat-suggestion" onclick="chatSuggest(this)">Find elevator WOs that exceeded NTE</div>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-wrap">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask anything... (Shift+Enter for newline)" rows="1"></textarea>
+    <button class="chat-send" id="chatSend" onclick="chatSend()">Send</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var panel = document.getElementById('chatPanel');
+  var messagesEl = document.getElementById('chatMessages');
+  var inputEl = document.getElementById('chatInput');
+  var sendBtn = document.getElementById('chatSend');
+  var budgetEl = document.getElementById('chatBudget');
+  var budgetText = document.getElementById('chatBudgetText');
+  var budgetFill = document.getElementById('chatBudgetFill');
+  var adminLink = document.getElementById('chatAdminLink');
+  var history = [];
+  var loading = false;
+
+  window.toggleChatPanel = function(){
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open')){
+      inputEl.focus();
+      loadBudget();
+    }
+  };
+
+  window.chatSuggest = function(el){
+    inputEl.value = el.textContent;
+    inputEl.focus();
+  };
+
+  inputEl.addEventListener('input', function(){
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(120, inputEl.scrollHeight) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSend(); }
+    else if(e.key === 'Escape'){ toggleChatPanel(); }
+  });
+
+  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Very lightweight markdown: **bold**, *italic*, `code`, tables, line breaks
+  function renderMarkdown(text){
+    text = escapeHtml(text);
+    // Tables
+    text = text.replace(/(\|[^\n]+\|\n)+/g, function(block){
+      var rows = block.trim().split('\n').filter(r=>r.trim());
+      if(rows.length < 2) return block;
+      var sep = rows[1];
+      if(!/^\|[\s\-:|]+\|$/.test(sep)) return block;
+      var header = rows[0].split('|').slice(1,-1).map(c=>c.trim());
+      var body = rows.slice(2).map(r=>r.split('|').slice(1,-1).map(c=>c.trim()));
+      var html = '<table><thead><tr>' + header.map(h=>'<th>'+h+'</th>').join('') + '</tr></thead><tbody>';
+      html += body.map(row => '<tr>' + row.map(c=>'<td>'+c+'</td>').join('') + '</tr>').join('');
+      return html + '</tbody></table>';
+    });
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    text = text.replace(/\n/g, '<br>');
+    return text;
+  }
+
+  function addMessage(role, text, toolCalls){
+    var welcome = messagesEl.querySelector('.chat-welcome');
+    if(welcome) welcome.remove();
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    if(role === 'assistant') div.innerHTML = renderMarkdown(text);
+    else div.textContent = text;
+    if(toolCalls && toolCalls.length){
+      var tools = document.createElement('div');
+      tools.className = 'chat-tools';
+      toolCalls.forEach(function(tc){
+        var pill = document.createElement('span');
+        pill.className = 'chat-tool-pill';
+        pill.title = JSON.stringify(tc.input);
+        pill.textContent = tc.name + ' · ' + tc.summary;
+        tools.appendChild(pill);
+      });
+      div.appendChild(tools);
+    }
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function showLoading(){
+    var div = document.createElement('div');
+    div.className = 'chat-msg assistant';
+    div.id = 'chatLoading';
+    div.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
+    div.style.padding = '0';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+  function hideLoading(){
+    var el = document.getElementById('chatLoading');
+    if(el) el.remove();
+  }
+
+  function updateBudget(b){
+    if(!b){ budgetEl.style.display='none'; return; }
+    budgetEl.style.display = 'flex';
+    if(b.isAdmin){
+      budgetText.textContent = 'Admin · unlimited · MTD $' + (b.mtdCost||0).toFixed(2);
+      budgetFill.style.width = '0%';
+    } else {
+      var pct = Math.min(100, b.percentUsed || 0);
+      budgetText.textContent = '$' + (b.mtdCost||0).toFixed(2) + ' / $' + (b.monthlyBudget||0).toFixed(2);
+      budgetFill.style.width = pct + '%';
+      budgetFill.className = 'chat-budget-fill' + (pct >= 100 ? ' over' : (pct >= 80 ? ' warn' : ''));
+    }
+  }
+
+  async function loadBudget(){
+    try{
+      var r = await fetch('/api/chat/budget');
+      if(r.ok){
+        var b = await r.json();
+        updateBudget(b);
+        if(b.isAdmin) adminLink.style.display = 'inline';
+      }
+    }catch(e){}
+  }
+
+  window.chatSend = async function(){
+    if(loading) return;
+    var text = inputEl.value.trim();
+    if(!text) return;
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    addMessage('user', text);
+    history.push({ role: 'user', content: text });
+    loading = true;
+    sendBtn.disabled = true;
+    showLoading();
+    try{
+      var r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: history }),
+      });
+      var d = await r.json();
+      hideLoading();
+      if(d.error){
+        addMessage('error', d.error);
+      } else if(d.blocked){
+        addMessage('error', d.reply);
+        updateBudget(d.budget);
+      } else {
+        addMessage('assistant', d.reply, d.toolCalls);
+        history.push({ role: 'assistant', content: d.reply });
+        updateBudget(d.budget);
+      }
+    }catch(e){
+      hideLoading();
+      addMessage('error', 'Something went wrong with the AI assistant. Please reach out to IT support.');
+    }
+    loading = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  };
+
+  // Global keyboard shortcuts: Ctrl+K focus search, Ctrl+J toggle chat
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+      e.preventDefault();
+      var search = document.getElementById('woSearch');
+      if(search){ search.focus(); search.select(); }
+    } else if((e.ctrlKey || e.metaKey) && e.key === 'j'){
+      e.preventDefault();
+      toggleChatPanel();
+    }
+  });
+
+  // Preload budget so the admin badge shows
+  loadBudget();
 })();
 </script>
 </body>

@@ -6,6 +6,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
     "@azure/msal-node": "^5.1.0",
     "dotenv": "^17.3.1",
     "express": "^4.21.0",
