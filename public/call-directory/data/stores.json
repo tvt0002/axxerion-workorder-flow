@@ -1,0 +1,4500 @@
+[
+  {
+    "code": "L002",
+    "name": "Titusville",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 12pm-5:30pm\nClosed Wed, Sun",
+    "store_email": "titusville@securespace.com",
+    "store_office_phone": "321-225-8603",
+    "store_cell_phone": "321-522-6127",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Renee Archer",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "321-506-1880",
+        "email": ""
+      },
+      {
+        "name": "Ashley Waterhouse",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "321-505-2090",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Geoff",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "geoffrey@insitepg.com"
+    }
+  },
+  {
+    "code": "L003",
+    "name": "Camarillo",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "5300 Adolfo Rd Camarillo, CA 93012",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4:00pm\nClosed Sun",
+    "store_email": "camarillo@securespace.com",
+    "store_office_phone": "805-413-4918",
+    "store_cell_phone": "805-416-6293",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Shontel Palmer",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Steve Seufert",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "805-704-3206",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Yessenia",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "yessenia@insitepg.com"
+    }
+  },
+  {
+    "code": "L005",
+    "name": "Brooklyn",
+    "state": "NY",
+    "timezone": "EST",
+    "address": "",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Wed, Sun",
+    "store_email": "manager@parkslopeselfstorage.com",
+    "store_office_phone": "347-756-7647",
+    "store_cell_phone": "718-938-1142",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Rosemary Apolinaris",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "646 488 0698",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "MD/EST",
+        "phone": "",
+        "email": "lgeathers@securespace.com"
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "jeanne@insitepg.com"
+    }
+  },
+  {
+    "code": "L006",
+    "name": "Torrance",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "722 W. 220th St Torrance, CA 90502",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4pm\nClosed Sun",
+    "store_email": "torrance@securespace.com",
+    "store_office_phone": "310-953-3180",
+    "store_cell_phone": "424-400-4347",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Delilah Ragland",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "702-503-9708",
+        "email": ""
+      },
+      {
+        "name": "Vance Stelly",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "323-705-9097",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": ""
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST",
+        "phone": "713-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "danielle@insitepg.com"
+    }
+  },
+  {
+    "code": "L007",
+    "name": "Clearwater",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "16809 US Hwy 19 N Clearwater, FL 33764",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Wed, Sun",
+    "store_email": "clearwater@securespace.com",
+    "store_office_phone": "727-933-9141",
+    "store_cell_phone": "727-338-7516",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Charles McDaniel",
+        "role": "ASM",
+        "store_code_ref": "L007",
+        "phone": "385 282 3495",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "danica@insitepg.com"
+    }
+  },
+  {
+    "code": "L008",
+    "name": "Spring Valley",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "11902 Campo Rd Spring Valley, CA 91978",
+    "hours_raw": "Mon, Wed, Thurs, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Tues",
+    "store_email": "springvalley@securespace.com",
+    "store_office_phone": "619-777-1585",
+    "store_cell_phone": "619-380-1939",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Amanda Bohy",
+        "role": "Store Manager",
+        "store_code_ref": "L008",
+        "phone": "858-899-8298",
+        "email": ""
+      },
+      {
+        "name": "Linda Borders",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L008",
+        "phone": "909-921-9451",
+        "email": ""
+      },
+      {
+        "name": "Anthony Ellwood",
+        "role": "Multi-Store Manager - L008, L025, and L027",
+        "store_code_ref": "L025",
+        "phone": "(858) 265-8940",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "claire@insitepg.com"
+    }
+  },
+  {
+    "code": "L009",
+    "name": "Lanham",
+    "state": "MD",
+    "timezone": "EST",
+    "address": "10108 Greenbelt Road Lanham, MD 20706",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun",
+    "store_email": "lanham@securespace.com",
+    "store_office_phone": "301-941-4918",
+    "store_cell_phone": "301-458-1513",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Stacie Ramirez",
+        "role": "Store Manager- Do not contact! On leave.",
+        "store_code_ref": "L009",
+        "phone": "(CELL)",
+        "email": ""
+      },
+      {
+        "name": "Tashara Watson",
+        "role": "Acting Store Manager",
+        "store_code_ref": "L009",
+        "phone": "202-880-9085",
+        "email": ""
+      },
+      {
+        "name": "Santigie Sesay",
+        "role": "Maintenance Man",
+        "store_code_ref": "L009",
+        "phone": "240-280-4366",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "MD/EST",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "danielle@insitepg.com"
+    }
+  },
+  {
+    "code": "L010",
+    "name": "Palm Harbor",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "265 US Alt 19 Palm Harbor, FL 34683",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-12:00pm\nClosed Wed, Sun",
+    "store_email": "palmharbor@securespace.com",
+    "store_office_phone": "727-933-5193",
+    "store_cell_phone": "727-293-1240",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Charles McDaniel",
+        "role": "ASM",
+        "store_code_ref": "L010",
+        "phone": "385 282 3495",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "sharon@insitepg.com"
+    }
+  },
+  {
+    "code": "L011",
+    "name": "Centennial",
+    "state": "OR",
+    "timezone": "",
+    "address": "16061 SE Division St Portland, OR 97236",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4pm\nClosed Sun",
+    "store_email": "centennial@securespace.com",
+    "store_office_phone": "503-809-4919",
+    "store_cell_phone": "503-435-7301",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Ashtyn Adams",
+        "role": "Store Manager",
+        "store_code_ref": "L011",
+        "phone": "360-608-4203",
+        "email": ""
+      },
+      {
+        "name": "Austin Rohwer",
+        "role": "Night Facility Maintenance Inspector",
+        "store_code_ref": "L011",
+        "phone": "707-630-2014",
+        "email": ""
+      },
+      {
+        "name": "Liz Niemeir",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L011, L012, L042",
+        "phone": "406.546.8309",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Justin Shaw",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "Justin@insitepg.com"
+    }
+  },
+  {
+    "code": "L012",
+    "name": "NE Portland",
+    "state": "OR",
+    "timezone": "",
+    "address": "3737 NE Columbia Blvd Portland, OR 97211",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun",
+    "store_email": "neportland@securespace.com",
+    "store_office_phone": "503-868-4918",
+    "store_cell_phone": "503-717-2384",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Liz Niemeir",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L011, L012, L042",
+        "phone": "406.546.8309",
+        "email": ""
+      },
+      {
+        "name": "David Rosenthal",
+        "role": "ASM",
+        "store_code_ref": "L012",
+        "phone": "206-387-5751",
+        "email": ""
+      },
+      {
+        "name": "Melanie Taddicken",
+        "role": "ASM",
+        "store_code_ref": "L012",
+        "phone": "503-619-5023",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L013",
+    "name": "Stelton - Piscataway",
+    "state": "NJ",
+    "timezone": "",
+    "address": "1635 Stelton Rd, Piscataway, NJ 08854",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Wed",
+    "store_email": "stelton@securespace.com",
+    "store_office_phone": "732-695-4918",
+    "store_cell_phone": "732-759-1073",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Joseph Ramos",
+        "role": "Store Manager",
+        "store_code_ref": "L013",
+        "phone": "213-280-1351",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L014",
+    "name": "Rialto",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2850 Foothill Blvd, Rialto, CA 92376",
+    "hours_raw": "Mon, Tue, Thu, Fri: 9:30am - 6pm\nSat: 10 am-4 pm\nClosed: Wed, Sun",
+    "store_email": "rialto@securespace.com",
+    "store_office_phone": "909-746-4918",
+    "store_cell_phone": "909-301-9127",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Brittany Hewitt",
+        "role": "Store Manager",
+        "store_code_ref": "L014",
+        "phone": "(951) 428-1499",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danielle@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L015",
+    "name": "Waipahu",
+    "state": "HI",
+    "timezone": "",
+    "address": "94-130 Leokane St, Waipahu, HI 96797",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Wed",
+    "store_email": "waipahu@securespace.com",
+    "store_office_phone": "808-649-4918",
+    "store_cell_phone": "808-699-0692",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Puna Cleaver",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L015",
+        "phone": "808-699-0827",
+        "email": ""
+      },
+      {
+        "name": "Henry Pascua",
+        "role": "Assistant Store Manager - Part time",
+        "store_code_ref": "L015",
+        "phone": "808-489-6430",
+        "email": ""
+      },
+      {
+        "name": "Kalenakai Strohlin",
+        "role": "ASM",
+        "store_code_ref": "L015, L023, L072",
+        "phone": "(808) 364-9928",
+        "email": ""
+      },
+      {
+        "name": "Malia Love",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L015, L023, L072",
+        "phone": "951-403-3877",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L016",
+    "name": "Parkland",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "220 112 St E, Tacoma, WA 98445",
+    "hours_raw": "Tues-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Mon",
+    "store_email": "parkland@securespace.com",
+    "store_office_phone": "253-361-4918",
+    "store_cell_phone": "253-363-0489",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Burney Campbell",
+        "role": "Multi Store Manager L016, L018, L026, L031",
+        "store_code_ref": "",
+        "phone": "206-820-7926",
+        "email": ""
+      },
+      {
+        "name": "Cyril Carty",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L016, L018 (Sat)",
+        "phone": "206.693.1096",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L017",
+    "name": "Riverview",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "10105 Gibsonton Dr, Riverview, FL 33578",
+    "hours_raw": "Wed, Fri 9:30am-6pm\nTues, Thurs 12pm-6pm\nSat 9am-5:30pm\nClosed Sun, Mon",
+    "store_email": "riverview@securespace.com",
+    "store_office_phone": "813-776-4918",
+    "store_cell_phone": "813-981-2192",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Jeffrey Braat",
+        "role": "ASM",
+        "store_code_ref": "L017",
+        "phone": "8137325129",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L018",
+    "name": "Lakewood",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "12611 Pacific Hwy SW, Lakewood, WA 98499",
+    "hours_raw": "Mon-Wed, Fri 9:30am - 6pm\nThurs 11am-6pm\nSat 9am - 1pm\nClosed Sun",
+    "store_email": "lakewood@securespace.com",
+    "store_office_phone": "253-361-4919",
+    "store_cell_phone": "253-281-7840",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Burney Campbell",
+        "role": "Multi Store Manager L016, L018, L026, L031",
+        "store_code_ref": "",
+        "phone": "206-820-7926",
+        "email": ""
+      },
+      {
+        "name": "Tonya Reins",
+        "role": "Store Manager",
+        "store_code_ref": "L018",
+        "phone": "253-344-3887",
+        "email": ""
+      },
+      {
+        "name": "Zion Grae-El",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L018",
+        "phone": "(206)326-9160",
+        "email": ""
+      },
+      {
+        "name": "Cyril Carty",
+        "role": "ASM (Sat)",
+        "store_code_ref": "L018, L016 (Tu-Fri)",
+        "phone": "206.693.1096",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L019",
+    "name": "Murray",
+    "state": "UT",
+    "timezone": "MT",
+    "address": "4317 Commerce Dr, Murray, UT 84107",
+    "hours_raw": "Mon, Tue, Thurs, Fri: 9:30am - 6pm\nSat: 12pm - 5:30pm\nClosed Sun, Wed",
+    "store_email": "murray@securespace.com",
+    "store_office_phone": "801-290-8260",
+    "store_cell_phone": "801-440-0328",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Chuck Koubec",
+        "role": "Store Manager",
+        "store_code_ref": "L019",
+        "phone": "702-375-2257",
+        "email": ""
+      },
+      {
+        "name": "Shawn Bedient",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L019",
+        "phone": "435-406-7622",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Justin",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "Justin@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L020",
+    "name": "Ballard (Seattle)",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "4714 Ballard Ave NW, Seattle, WA 98107",
+    "hours_raw": "Tue-Sat 9am - 6pm\nClosed Sun, Mon",
+    "store_email": "ballard@securespace.com",
+    "store_office_phone": "206-761-4919",
+    "store_cell_phone": "206-799-9791",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "James Dial",
+        "role": "Store Manager - FT",
+        "store_code_ref": "L020",
+        "phone": "404-512-9752",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L021",
+    "name": "Homestead",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "1496 Old Dixie Hwy Homestead, FL 33030",
+    "hours_raw": "Mon, Tue, Thu, Fri 10am-6pm\nSat 9am-2pm\nClosed Sun, Wed",
+    "store_email": "homestead@securespace.com",
+    "store_office_phone": "305-413-4918",
+    "store_cell_phone": "305-900-7965",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Sonia Villanueva",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L076",
+        "phone": "305-495-0860",
+        "email": ""
+      },
+      {
+        "name": "Marcel Rodriquez",
+        "role": "Assistant Manager",
+        "store_code_ref": "FL (EST)",
+        "phone": "(239)777-6577",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L022",
+    "name": "Atlantic Beach",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "1770 Mayport Road, Atlantic Beach, FL 32233",
+    "hours_raw": "Thurs 12pm-6pm\nTues, Wed, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Mon",
+    "store_email": "atlanticbeach@securespace.com",
+    "store_office_phone": "904-750-4918",
+    "store_cell_phone": "904-676-9216",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Brian Phillips",
+        "role": "Store manager",
+        "store_code_ref": "L022",
+        "phone": "(904) 755-0069",
+        "email": ""
+      },
+      {
+        "name": "Quinnita Edwards",
+        "role": "Assistant manager",
+        "store_code_ref": "L022",
+        "phone": "904-718-2771",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L023",
+    "name": "Mililani",
+    "state": "HI",
+    "timezone": "",
+    "address": "95-1 Wikao St, Mililani, HI 96789",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Wed",
+    "store_email": "mililani@securespace.com",
+    "store_office_phone": "808-909-2093",
+    "store_cell_phone": "808-699-3061",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Malia Love",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L015, L023, L072",
+        "phone": "951-403-3877",
+        "email": ""
+      },
+      {
+        "name": "Tammy Carmichael",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L023",
+        "phone": "808-224-3058",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danielle@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L024",
+    "name": "Everett",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "8407 Broadway, Everett, WA 98208",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun",
+    "store_email": "everett@securespace.com",
+    "store_office_phone": "425-585-4918",
+    "store_cell_phone": "425-583-7167",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Scott Birdsell",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "832-841-6846",
+        "email": ""
+      },
+      {
+        "name": "Ivi Lanoire",
+        "role": "Asst. Store Manager",
+        "store_code_ref": "L024",
+        "phone": "657-463-0176",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L025",
+    "name": "Rancho Penasquitos",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "10389 Azuaga St, San Diego, CA 92129",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4:00pm\nClosed Sun",
+    "store_email": "ranchopenasquitos@securespace.com",
+    "store_office_phone": "619-943-3180",
+    "store_cell_phone": "619-310-1103",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Anthony Ellwood",
+        "role": "Multi-Store Manager - L008, L025, and L027",
+        "store_code_ref": "L025",
+        "phone": "(858) 265-8940",
+        "email": ""
+      },
+      {
+        "name": "Kellie Tague",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L025",
+        "phone": "(858) 349-4038",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L026",
+    "name": "Federal Way",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "34202 16th Ave S, Federal Way, WA 98003",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Wed, Sun",
+    "store_email": "federalway@securespace.com",
+    "store_office_phone": "253-528-4387",
+    "store_cell_phone": "253-312-3145",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Burney Campbell",
+        "role": "Multi Store Manager L016, L018, L026, L031",
+        "store_code_ref": "",
+        "phone": "206-820-7926",
+        "email": ""
+      },
+      {
+        "name": "Kathleen Roetger",
+        "role": "Store Manager",
+        "store_code_ref": "L026",
+        "phone": "253-754-0300",
+        "email": ""
+      },
+      {
+        "name": "Travis Cavin",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L026",
+        "phone": "253-954-4040",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "503-830-5391",
+        "email": ""
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Huston",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "huston@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L027",
+    "name": "Vista San Diego",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "220 Huff St Vista, CA 92083",
+    "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4:00pm\nClosed Sun",
+    "store_email": "vista@securespace.com",
+    "store_office_phone": "760-457-4918",
+    "store_cell_phone": "760-382-7193",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Anthony Ellwood",
+        "role": "Multi-Store Manager - L008, L025, and L027",
+        "store_code_ref": "L027",
+        "phone": "(858) 265-8940",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Huston",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "huston@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L028",
+    "name": "Maspeth Queens",
+    "state": "NY",
+    "timezone": "EST",
+    "address": "59-20 Borden Ave Maspeth NY 11378",
+    "hours_raw": "Mon-Fri 8am-7pm\nSat-Sun 9am-6pm",
+    "store_email": "maspeth@securespace.com",
+    "store_office_phone": "646-440-3180",
+    "store_cell_phone": "929-946-1232",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Athelstan Hutson",
+        "role": "Store Manager",
+        "store_code_ref": "L028",
+        "phone": "718-600-4907",
+        "email": ""
+      },
+      {
+        "name": "Felicia Acevado",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "917 923 2021",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danielle@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L029",
+    "name": "North Wales",
+    "state": "PA",
+    "timezone": "EST",
+    "address": "212 Church Road North Wales PA 19454",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6:00pm\nSat 9am-5:30pm\nClosed Sun, Wed",
+    "store_email": "northwales@securespace.com",
+    "store_office_phone": "267-281-9555",
+    "store_cell_phone": "267-951-8836",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Shannon Schaffer",
+        "role": "Store Manager",
+        "store_code_ref": "L029",
+        "phone": "(267) 252-3418",
+        "email": ""
+      },
+      {
+        "name": "Kelvin Ramirez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L029",
+        "phone": "(267) 982-0068",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "(551) 341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Huston",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "huston@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L030",
+    "name": "Park Hill Denver",
+    "state": "CO",
+    "timezone": "MT",
+    "address": "7200 E 36th Ave, Denver, CO 80207",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Wed",
+    "store_email": "parkhilldenver@securespace.com",
+    "store_office_phone": "303-228-4618",
+    "store_cell_phone": "303-409-9146",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Crystal Cramer",
+        "role": "Store Manager",
+        "store_code_ref": "L030",
+        "phone": "720-829-3715",
+        "email": ""
+      },
+      {
+        "name": "Natalie Stubblefield",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L030",
+        "phone": "720-636-4348",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L031",
+    "name": "Nalley Valley Tacoma",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "2201 S Tacoma Way, Tacoma, WA 98409",
+    "hours_raw": "Mon-Sat 9am - 7pm\nSun 11am - 4pm",
+    "store_email": "nalleyvalleytacoma@securespace.com",
+    "store_office_phone": "253-993-4919",
+    "store_cell_phone": "253-740-2219",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Rosa Gasca",
+        "role": "Store Manager",
+        "store_code_ref": "L031",
+        "phone": "832-438-4850",
+        "email": ""
+      },
+      {
+        "name": "Burney Campbell",
+        "role": "Multi-Store Manager - L016, L018, L026, L031,",
+        "store_code_ref": "L031",
+        "phone": "206-820-7926",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "503-830-5391",
+        "email": ""
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L032",
+    "name": "Austin Congress",
+    "state": "TX",
+    "timezone": "CT",
+    "address": "8327 S Congress Ave, Austin, TX 78745",
+    "hours_raw": "Mon, Tue, Thu, Fri: 9:30am - 6pm\nSat: 9am - 5:30pm\nClosed: Sun, Wed",
+    "store_email": "austincongress@securespace.com",
+    "store_office_phone": "512-503-4918",
+    "store_cell_phone": "512-734-6569",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jimmy Perez",
+        "role": "Store Manager",
+        "store_code_ref": "L032",
+        "phone": "512-296-7397",
+        "email": ""
+      },
+      {
+        "name": "Angela Delossantos",
+        "role": "Multi-Store Manager - L032, L033, L034",
+        "store_code_ref": "L032",
+        "phone": "512-762-3983",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L033",
+    "name": "Austin Service",
+    "state": "TX",
+    "timezone": "CT",
+    "address": "8200 S I-35 Frontage Rd, Austin, TX 78745",
+    "hours_raw": "Mon, Wed, Thu, Fri: 9:30am - 6pm\nSat: 9am - 5:30pm\nClosed: Sun, Tues",
+    "store_email": "austinservice@securespace.com",
+    "store_office_phone": "512-617-4918",
+    "store_cell_phone": "512-734-6738",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Angela Delossantos",
+        "role": "Multi-Store Manager - L032, L033, L034",
+        "store_code_ref": "L033",
+        "phone": "512-762-3983",
+        "email": ""
+      },
+      {
+        "name": "Kimberly Wallace",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L033",
+        "phone": "512-669-9643",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L034",
+    "name": "Bee Cave",
+    "state": "TX",
+    "timezone": "CT",
+    "address": "14635 State Hwy 71, Bee Cave, TX 78738",
+    "hours_raw": "Tues-Wed: 9:30am - 6pm\nThu-Fri: 12pm - 6pm\nSat: 9am - 5:30pm\nClosed: Sun, Mon",
+    "store_email": "beecave@securespace.com",
+    "store_office_phone": "512-885-4918",
+    "store_cell_phone": "512-734-6758",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Angela Delossantos",
+        "role": "Multi-Store Manager - L032, L033, L034",
+        "store_code_ref": "L034",
+        "phone": "512-762-3983",
+        "email": ""
+      },
+      {
+        "name": "Oldmixon, Stephanie",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L034",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne Flores",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L035",
+    "name": "Milpitas",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "324 S Main St, Milpitas, CA 95035",
+    "hours_raw": "Mon Tues, Wed, Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Thurs",
+    "store_email": "milpitas@securespace.com",
+    "store_office_phone": "408-404-4379",
+    "store_cell_phone": "408-710-1356",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Hasan Guerra",
+        "role": "Store Manager",
+        "store_code_ref": "L035",
+        "phone": "(408) 899-0738",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L036",
+    "name": "San Jose Hedding",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "355 W Hedding St, San Jose, CA 95110",
+    "hours_raw": "Mon, Wed, Fri 9:30am - 6pm\nSat 10am - 4:00pm\nClosed Sun, Tues, Thurs",
+    "store_email": "sanjosehedding@securespace.com",
+    "store_office_phone": "408-404-4306",
+    "store_cell_phone": "408-710-5489",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Dylan Hobour",
+        "role": "Multi-Store Manager: L036 and Teresa L038",
+        "store_code_ref": "",
+        "phone": "408-701-7867",
+        "email": ""
+      },
+      {
+        "name": "Alycia Alvarez",
+        "role": "Store Manager Do not contact! On leave.",
+        "store_code_ref": "L036",
+        "phone": "408-469-0559",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L037",
+    "name": "San Jose Lonus",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "900 Lonus St. San Jose CA 95126",
+    "hours_raw": "Mon, Wed, Thurs, Fri 9:30am - 6pm\nTuesday 2pm - 6pm\nSat 10am - 4pm\nClosed Sun",
+    "store_email": "sanjoselonus@securespace.com",
+    "store_office_phone": "408-404-4316",
+    "store_cell_phone": "408-710-0624",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Ramon Alvarez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L065",
+        "phone": "408-649-8501",
+        "email": ""
+      },
+      {
+        "name": "Rocio Garcia",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L036",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L038",
+    "name": "San Jose Teresa",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "6880 Santa Teresa Blvd, San Jose, CA 95119",
+    "hours_raw": "Mon, Wed, Thu, Fri: 9:30am - 6pm\nSat 10am - 4:00pm\nClosed Sun, Tues",
+    "store_email": "sanjoseteresa@securespace.com",
+    "store_office_phone": "408-404-4301",
+    "store_cell_phone": "408-710-0189",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Dylan Hobour",
+        "role": "Multi-Store Manager: L036 and Teresa L038",
+        "store_code_ref": "",
+        "phone": "408-701-7867",
+        "email": ""
+      },
+      {
+        "name": "Ramon Alvarez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L065",
+        "phone": "408-649-8501",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L039",
+    "name": "San Leandro",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "13760 E 14th St, San Leandro, CA 94578",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am - 6pm\nClosed Sun, Wed, Sat",
+    "store_email": "sanleandro@securespace.com",
+    "store_office_phone": "510-721-4919",
+    "store_cell_phone": "510-954-2370",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Leonardo Galo",
+        "role": "Store Manager",
+        "store_code_ref": "L039",
+        "phone": "510-541-6463",
+        "email": ""
+      },
+      {
+        "name": "Tavio Guevarra",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "510-833-5938",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L040",
+    "name": "Berkeley",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2721 Shattuck Ave, Berkeley, CA 94705",
+    "hours_raw": "Mon, Wed, Thu, Fri: 9:30am - 6pm\nSat: 9am - 4pm\nClosed: Sun, Tues",
+    "store_email": "berkeley@securespace.com",
+    "store_office_phone": "510-721-4918",
+    "store_cell_phone": "510-908-0131",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jared Novinger",
+        "role": "Store Manager",
+        "store_code_ref": "L040",
+        "phone": "209-663-3000",
+        "email": ""
+      },
+      {
+        "name": "Tavio Guevarra",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "510-833-5938",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L041",
+    "name": "Antioch",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2100 A St, Antioch, CA 94509",
+    "hours_raw": "Mon, Wed, Thu, Fri: 9:30am - 6pm\nSat: 9am - 5:30pm\nClosed: Sun, Tues",
+    "store_email": "antioch@securespace.com",
+    "store_office_phone": "925-722-4918",
+    "store_cell_phone": "925-597-0930",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Edward Lee",
+        "role": "Store Manager",
+        "store_code_ref": "L041",
+        "phone": "925 303 6460",
+        "email": ""
+      },
+      {
+        "name": "Daniel Reeves",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L041",
+        "phone": "925-437-3260",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L042",
+    "name": "Portland 16th",
+    "state": "OR",
+    "timezone": "PST",
+    "address": "1323 NW 16th Ave, Portland, OR 97209",
+    "hours_raw": "Mon-Fri 9:30am -6pm\nSat 9am - 5:30pm\nClosed Sun",
+    "store_email": "portland16th@securespace.com",
+    "store_office_phone": "503-922-7270",
+    "store_cell_phone": "503-509-0801",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Liz Niemeir",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L011, L012, L042",
+        "phone": "406.546.8309",
+        "email": ""
+      },
+      {
+        "name": "Charles Hunter",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L042",
+        "phone": "503.954.8732",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L043",
+    "name": "Farley Los Gatos",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "17443 Farley Rd W, Los Gatos, CA 95030",
+    "hours_raw": "Mon-Sat 9am-5pm\nClosed: Tues, Thurs, Sun",
+    "store_email": "farleylosgatos@securespace.com",
+    "store_office_phone": "408-877-6882",
+    "store_cell_phone": "408-710-0400",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Mark Randall",
+        "role": "Multi-Store Manager: Los Gatos University, Farley and Winfield",
+        "store_code_ref": "L044",
+        "phone": "408-296-9479",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L044",
+    "name": "University Los Gatos",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "688 University Ave, Los Gatos, CA 95032",
+    "hours_raw": "Mon-Sat 9am-5pm\nClosed: Tues, Thurs, Sun",
+    "store_email": "universitylosgatos@securespace.com",
+    "store_office_phone": "408-538-4918",
+    "store_cell_phone": "408-710-0400",
+    "computers_onsite": "0",
+    "staff": [
+      {
+        "name": "Mark Randall",
+        "role": "Multi-Store Manager: Los Gatos University, Farley and Winfield",
+        "store_code_ref": "L044",
+        "phone": "408-296-9479",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L045",
+    "name": "Miami Coral Way",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "2811 Coral Way, Miami, FL 33145",
+    "hours_raw": "Mon-Fri 9:30am -6pm\nSat 9am - 5:30pm\nClosed Sun",
+    "store_email": "miamicoralway@securespace.com",
+    "store_office_phone": "305-703-4919",
+    "store_cell_phone": "786-778-6191",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jeffrey Martinez",
+        "role": "Store Manager",
+        "store_code_ref": "L045",
+        "phone": "786-690-1987",
+        "email": ""
+      },
+      {
+        "name": "Angie Toscano",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L045",
+        "phone": "(786) 354-6036",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "AM",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L046",
+    "name": "Brea",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2700 E Imperial Hwy Brea CA 92821",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am-6pm\nWed 1pm-6pm\nSat 10am-4pm\nClosed Sun",
+    "store_email": "Brea@securespace.com",
+    "store_office_phone": "714-881-5859",
+    "store_cell_phone": "714-716-0076",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Lawrence (Red) Hardin",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L046",
+        "phone": "832-865-3300",
+        "email": ""
+      },
+      {
+        "name": "Sanjay Patel",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L046",
+        "phone": "(704) 258-1904",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L047",
+    "name": "Van Nuys",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "7523 Woodman Pl, Van Nuys, CA 91405",
+    "hours_raw": "Mon, Wed, Thurs, Fri 9:30am - 6pm\nSat 10am-4pm\nClosed Tues, Sun",
+    "store_email": "vannuys@securespace.com",
+    "store_office_phone": "818-670-4918",
+    "store_cell_phone": "818-309-5837",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Lillian Sang-Anong",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L047",
+        "phone": "562-266-4183",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST",
+        "phone": "713-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L048",
+    "name": "Surprise",
+    "state": "AZ",
+    "timezone": "MT",
+    "address": "13930 W Sweetwater Ave, Surprise, AZ 85379",
+    "hours_raw": "Tues-Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Mon",
+    "store_email": "Surprise@SecureSpace.com",
+    "store_office_phone": "623-777-4499",
+    "store_cell_phone": "480-640-6834",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Kimberly Davidson",
+        "role": "Store Manager",
+        "store_code_ref": "L048",
+        "phone": "480-619-0442",
+        "email": ""
+      },
+      {
+        "name": "Scott Herman",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L048",
+        "phone": "406-249-2214",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager",
+        "store_code_ref": "TX(CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L049",
+    "name": "Blue Bell",
+    "state": "PA",
+    "timezone": "EST",
+    "address": "1950 W Skippack Pike Blue Bell, PA 19422",
+    "hours_raw": "Mon, Tues, Thurs, Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Wed",
+    "store_email": "bluebell@securespace.com",
+    "store_office_phone": "215-398-0804",
+    "store_cell_phone": "267-935-4505",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Michael Williams",
+        "role": "Store Manager",
+        "store_code_ref": "L049",
+        "phone": "267-239-3107",
+        "email": ""
+      },
+      {
+        "name": "Carla Meyers",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L049",
+        "phone": "215-317-3717",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Yessenia",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "yessenia@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L050",
+    "name": "Seattle Lake City",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "3116 NE 130th St, Seattle, WA 98125",
+    "hours_raw": "Mon-Fri 9am - 8pm\nSat-Sun 9am - 5pm",
+    "store_email": "seattlelakecity@securespace.com",
+    "store_office_phone": "206-970-4919",
+    "store_cell_phone": "206-640-3303",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Melissa Dendy",
+        "role": "Store Manager",
+        "store_code_ref": "L050",
+        "phone": "480-452-4960",
+        "email": ""
+      },
+      {
+        "name": "Ravel Graham",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L050",
+        "phone": "725-400-3153",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TN (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L051",
+    "name": "Los Angeles Firestone",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2268 Firestone Blvd. Los Angeles CA, 90002",
+    "hours_raw": "Mon-Fri 9:30am - 6pm\nSat- 10am - 4pm\nClosed Sun",
+    "store_email": "Firestone@securespace.com",
+    "store_office_phone": "213-647-3180",
+    "store_cell_phone": "213-671-3985",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Melissa Delgado",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L051",
+        "phone": "626-625-0165",
+        "email": ""
+      },
+      {
+        "name": "Jennifer Herrera",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L051",
+        "phone": "(562) 480-5393",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST",
+        "phone": "713-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L052",
+    "name": "Livingston",
+    "state": "NJ",
+    "timezone": "EST",
+    "address": "644 W Mount Pleasant Ave, Livingston, NJ 07039",
+    "hours_raw": "Mon, Tues, Wed, Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Thurs",
+    "store_email": "livingston@securespace.com",
+    "store_office_phone": "973-459-4918",
+    "store_cell_phone": "973-908-0069",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Kenneth James",
+        "role": "Store Manager",
+        "store_code_ref": "L052",
+        "phone": "201-925-6951",
+        "email": ""
+      },
+      {
+        "name": "Doug Miller",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L052",
+        "phone": "973-865-8809",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Jeanne",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "jeanne@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L053",
+    "name": "Richmond",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "1014 Chesley Ave, Richmond, CA 94801",
+    "hours_raw": "Mon-Fri 9:30am - 6pm\nSat 9:30am - 5pm\nClosed Sun",
+    "store_email": "richmond@securespace.com",
+    "store_office_phone": "510-980-4919",
+    "store_cell_phone": "510-672-2740",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Ashley Ramos",
+        "role": "Store Manager",
+        "store_code_ref": "L053",
+        "phone": "951-363-9962",
+        "email": ""
+      },
+      {
+        "name": "Amir Woodward",
+        "role": "Relief Manager",
+        "store_code_ref": "L053",
+        "phone": "415-368-3530",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "manal@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L054",
+    "name": "Downtown LA",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "1535 Essex St. Los Angeles, CA 90021",
+    "hours_raw": "Mon-Fri 9:30am - 6pm\nSat 10am - 4pm\nClosed Sun",
+    "store_email": "downtownla@securespace.com",
+    "store_office_phone": "213-755-4918",
+    "store_cell_phone": "213-507-1026",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Shekima Bradley",
+        "role": "Store Manager",
+        "store_code_ref": "L054",
+        "phone": "310-462-7611",
+        "email": ""
+      },
+      {
+        "name": "Parie Dedeaux",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L054",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST",
+        "phone": "713-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire Liu",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L055",
+    "name": "Elmsford",
+    "state": "NY",
+    "timezone": "EST",
+    "address": "33 West Main Street Elmsford NY 10523",
+    "hours_raw": "Mon-Fri 9:30am - 6pm\nSat 9am - 5:30pm\nSun 10am - 4pm",
+    "store_email": "elmsford@securespace.com",
+    "store_office_phone": "914-504-4918",
+    "store_cell_phone": "914-512-3842",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Earl Porter",
+        "role": "Store Manger",
+        "store_code_ref": "L055",
+        "phone": "347 938 7406",
+        "email": ""
+      },
+      {
+        "name": "Elyjah Nguyen",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L055",
+        "phone": "914-484-4409",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L056",
+    "name": "Langhorne",
+    "state": "PA",
+    "timezone": "EST",
+    "address": "300 Woodbourne Rd, Langhorne, PA 19047",
+    "hours_raw": "Mon, Tues, Wed, Fri 9:30am - 6pm\nSat 9am - 5:30pm\nClosed Sun, Thurs",
+    "store_email": "langhorne@securespace.com",
+    "store_office_phone": "215-710-8103",
+    "store_cell_phone": "215-910-2185",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Stephanie Fleuizard",
+        "role": "Store Manager",
+        "store_code_ref": "L056",
+        "phone": "215-989-5333",
+        "email": ""
+      },
+      {
+        "name": "Ashley Haines",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L056",
+        "phone": "267-596-0025",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L057",
+    "name": "Lynnwood",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "15706 HWY 99 Lynnwood, WA 98087",
+    "hours_raw": "Mon, Wed, Thurs, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Tues, Sun",
+    "store_email": "lynnwood@securespace.com",
+    "store_office_phone": "425-749-4691",
+    "store_cell_phone": "425-758-7920",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Eric Ogden",
+        "role": "Store Manager",
+        "store_code_ref": "L057",
+        "phone": "425-320-8777",
+        "email": ""
+      },
+      {
+        "name": "Ivi Lanoire",
+        "role": "PT Assistant Store Manager",
+        "store_code_ref": "L057",
+        "phone": "657-463-0176",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Claire Liu",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": "Claire@insitepg.com"
+    }
+  },
+  {
+    "code": "L058",
+    "name": "College Point",
+    "state": "NY",
+    "timezone": "EST",
+    "address": "131-21 14th Avenue, College Point, NY 11356",
+    "hours_raw": "Mon-Fri 8am - 7pm\nSat 9am - 7pm\nClosed Sun",
+    "store_email": "collegepoint@securespace.com",
+    "store_office_phone": "929-203-7379",
+    "store_cell_phone": "929-659-2587",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Kendall Baldo",
+        "role": "Store Manager",
+        "store_code_ref": "L058",
+        "phone": "929 928 0129",
+        "email": ""
+      },
+      {
+        "name": "Trayvon Hobbs",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L058",
+        "phone": "917 383 4783",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "L058",
+        "phone": "571 352 7988",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": "Sharon@insitepg.com"
+    }
+  },
+  {
+    "code": "L059",
+    "name": "West Seattle",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "2328 Harbor Avenue Southwest, Seattle, WA 98126",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSun 10am-4pm",
+    "store_email": "westseattle@securespace.com",
+    "store_office_phone": "206-274-6087",
+    "store_cell_phone": "206-945-2631",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Chonthicha Sumattra",
+        "role": "Store Manager",
+        "store_code_ref": "L059",
+        "phone": "253 888 3958",
+        "email": ""
+      },
+      {
+        "name": "Tony Rosales",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L059",
+        "phone": "206-817-4666",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danielle@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L060",
+    "name": "Manhattan",
+    "state": "NY",
+    "timezone": "EST",
+    "address": "424 East 90th Street, New York, NY 10128",
+    "hours_raw": "Daily: 9:30am - 6pm",
+    "store_email": "e90th@securespace.com",
+    "store_office_phone": "646-741-0720",
+    "store_cell_phone": "929-613-0560",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Julius Cruz",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L060",
+        "phone": "646 704 6416",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danielle O\u2019Neil",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danielle@insitepg.com",
+      "email": "Danielle@insitepg.com"
+    }
+  },
+  {
+    "code": "L061",
+    "name": "Philidelphia Glenwood",
+    "state": "PA",
+    "timezone": "EST",
+    "address": "2501 North 15th Street, Philadelphia, PA 19132",
+    "hours_raw": "Daily: 9am - 6pm",
+    "store_email": "glenwood@securespace.com",
+    "store_office_phone": "267-297-0432",
+    "store_cell_phone": "267-294-2619",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Evelise Hopkins",
+        "role": "Store Manager",
+        "store_code_ref": "L061",
+        "phone": "215 936 5527",
+        "email": ""
+      },
+      {
+        "name": "Jose Alequin",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "267-242-5156",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sharon Garcia",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sharon@insitepg.com",
+      "email": "sharon@institepg.com"
+    }
+  },
+  {
+    "code": "L062",
+    "name": "Philidelphia Grays Ferry",
+    "state": "PA",
+    "timezone": "EST",
+    "address": "3114 Grays Ferry Avenue, Philadelphia, PA 19146",
+    "hours_raw": "M-F: 9:30AM - 6PM\nSat: 9AM - 5:30PM\nSun: 10AM - 4PM",
+    "store_email": "graysferry@securespace.com",
+    "store_office_phone": "215-967-6919",
+    "store_cell_phone": "267-887-0182",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Sean King",
+        "role": "Store Manager",
+        "store_code_ref": "L062",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Jacqueline Costello",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L062",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Larain Geathers",
+        "role": "DM",
+        "store_code_ref": "",
+        "phone": "571-352-7988",
+        "email": ""
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Huston",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "huston@insitepg.com",
+      "email": "houston@insitepg.com"
+    }
+  },
+  {
+    "code": "L063",
+    "name": "Seattle Greenwood",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "9309 Aurora Ave N, Seattle, WA 98103",
+    "hours_raw": "Mon-Sat: 10am-7pm\nClosed Sun",
+    "store_email": "greenwood@securespace.com",
+    "store_office_phone": "206-319-5246",
+    "store_cell_phone": "206-580-5350",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Patricia Goffeney",
+        "role": "Store Manager",
+        "store_code_ref": "L063",
+        "phone": "(360) 472-1996",
+        "email": ""
+      },
+      {
+        "name": "Johtavias Mitchell",
+        "role": "Asst.Store Manager",
+        "store_code_ref": "L063",
+        "phone": "813-822-9557",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX(CST)",
+        "phone": "972-890-7318",
+        "email": ""
+      }
+    ],
+    "account_rep": {
+      "name": "Claire",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "claire@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L064",
+    "name": "San Bernardino",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "1320 East Highland Avenue, San Bernardino, CA 92404",
+    "hours_raw": "Mon, Tues, Thurs, Fri: 9:30am-6pm\nWed: 1pm-6pm\nSat: 10am-4pm\nClosed Sun",
+    "store_email": "sanbernardino@securespace.com",
+    "store_office_phone": "909-203-7447",
+    "store_cell_phone": "909-907-3571",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Olivia Thomas",
+        "role": "Store Manager",
+        "store_code_ref": "L064",
+        "phone": "(909) 602-3766",
+        "email": ""
+      },
+      {
+        "name": "Sara Gutierrez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L064",
+        "phone": "(909) 220-3784",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Yessenia",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "yessenia@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L065",
+    "name": "SJ Winfield",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "5775 Winfield Boulevard, San Jose, CA 95123",
+    "hours_raw": "Mon-Fri: 9:30am - 6pm\nSat: 9am - 5:30pm\nSun: 10am - 4pm",
+    "store_email": "sanjosewinfield@securespace.com",
+    "store_office_phone": "408-769-4202",
+    "store_cell_phone": "408-790-6149",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Mark Randall",
+        "role": "Multi-Store Manager: Los Gatos University, Farley and Winfield",
+        "store_code_ref": "L065",
+        "phone": "408-296-9479",
+        "email": ""
+      },
+      {
+        "name": "Ramon Alvarez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L065",
+        "phone": "408-649-8501",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "408-892-7702",
+        "email": "nicholas.kan@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L066",
+    "name": "Odenton",
+    "state": "MD",
+    "timezone": "EST",
+    "address": "1870 Mayfield Road, Odenton, MD 21113",
+    "hours_raw": "M-F: 9:30AM - 6PM\nSa: 9AM - 5:30PM\nClosed Sun",
+    "store_email": "odenton@securespace.com",
+    "store_office_phone": "410-412-3400",
+    "store_cell_phone": "240-930-7259",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Diana Solorzano",
+        "role": "Store Manager",
+        "store_code_ref": "L066",
+        "phone": "443-889-8089",
+        "email": ""
+      },
+      {
+        "name": "Stephanie Armstrong",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L066",
+        "phone": "living",
+        "email": ""
+      },
+      {
+        "name": "Manal",
+        "role": "Accounting Contact",
+        "store_code_ref": "",
+        "phone": "manal@insitepg.com",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "MD (EST)",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L067",
+    "name": "Avalon",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "6500 Avalon Blvd, Los Angeles, CA 90003",
+    "hours_raw": "Mon, Wed, Thurs, Fri: 9:30am-6pm\nTues: 1pm - 6pm\nSat: 10am -4pm\nClosed Sun",
+    "store_email": "avalon@securespace.com",
+    "store_office_phone": "323-673-7153",
+    "store_cell_phone": "323-574-0480",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Melissa Delgado",
+        "role": "Store Manager",
+        "store_code_ref": "L067",
+        "phone": "626-625-0165",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L068",
+    "name": "Long Beach",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "3050 Orange Ave, Long Beach, CA 90807",
+    "hours_raw": "Mon-Fri 9:30am -6pm\nSat 10am - 4pm\nClosed Sun",
+    "store_email": "longbeach@securespace.com",
+    "store_office_phone": "562-603-2229",
+    "store_cell_phone": "562-754-9813",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Elizabeth Ayala",
+        "role": "Store Manager",
+        "store_code_ref": "L068",
+        "phone": "562-278-5781",
+        "email": ""
+      },
+      {
+        "name": "Terence Johnson",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "424-391-2604",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "sheena@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L069",
+    "name": "Santa Fe Springs",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "11212 Norwalk Boulevard, Santa Fe Springs, CA 90670",
+    "hours_raw": "Mon, Wed-Fri 9:30am-6pm\nTu: 1pm - 6pm\nSa 10am - 4pm\nClosed Sun",
+    "store_email": "santafesprings@securespace.com",
+    "store_office_phone": "562-247-9267",
+    "store_cell_phone": "562-321-0895",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Lawrence (Red) Hardin",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L069",
+        "phone": "(832) 865-3300",
+        "email": ""
+      },
+      {
+        "name": "Hiring",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L069",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L070",
+    "name": "Rosemead",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "8635 Valley Blvd., Rosemead, CA 91770",
+    "hours_raw": "Mon-Fri 9:30am -6pm\nSat 10am - 4pm\nClosed Sun",
+    "store_email": "rosemead@securespace.com",
+    "store_office_phone": "626-470-1069",
+    "store_cell_phone": "626-703-8890",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Celeste Acosta",
+        "role": "Store Manager",
+        "store_code_ref": "L070",
+        "phone": "(626) 670-2417",
+        "email": ""
+      },
+      {
+        "name": "Jake Flores",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L070",
+        "phone": "562-329-9629",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Danica",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "danica@insitepg.com",
+      "email": ""
+    }
+  },
+  {
+    "code": "L071",
+    "name": "Martinez",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "4801 Sunrise Drive, Martinez, CA 94553",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSun 10am-4pm",
+    "store_email": "martinez@securespace.com",
+    "store_office_phone": "925-351-0733",
+    "store_cell_phone": "925-785-6601",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Billie Harris",
+        "role": "Store Manager",
+        "store_code_ref": "L071",
+        "phone": "707-430-6413",
+        "email": ""
+      },
+      {
+        "name": "Nelson Ambeau III",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L071",
+        "phone": "707",
+        "email": ""
+      },
+      {
+        "name": "Amir Woodward",
+        "role": "Relief Manager",
+        "store_code_ref": "L071",
+        "phone": "415-368-3530",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L072",
+    "name": "Kapolei",
+    "state": "HI",
+    "timezone": "",
+    "address": "91-551 Kapolei Kai St, Kapolei, HI 96707",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "Kapolei@securespace.com",
+    "store_office_phone": "808-509-3242",
+    "store_cell_phone": "808-752-5072",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Shaelyn Takeuchi",
+        "role": "Assitant Store Manager",
+        "store_code_ref": "L072",
+        "phone": "808-650-0146",
+        "email": ""
+      },
+      {
+        "name": "Leipunahele(Puna) Cleaver",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L072",
+        "phone": "808-699-0827",
+        "email": ""
+      },
+      {
+        "name": "Kalenakai Strohlin",
+        "role": "ASM",
+        "store_code_ref": "L015, L023, L072",
+        "phone": "(808) 364-9928",
+        "email": ""
+      },
+      {
+        "name": "Henry Pascua",
+        "role": "Assistant Store Manager - Part time",
+        "store_code_ref": "L072",
+        "phone": "808-489-6430",
+        "email": ""
+      },
+      {
+        "name": "Malia Love",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L015, L023, L072",
+        "phone": "951-403-3877",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "503-830-5391",
+        "email": "dmclintock@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L073",
+    "name": "Vallejo Benicia 1855",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "1250 Benicia Road, Vallejo, CA 94591\n1855 Benicia Rd, Vallejo, CA 94591",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "Vallejo1855@securespace.com",
+    "store_office_phone": "707-265-4126",
+    "store_cell_phone": "707-787-8157",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Joe Ellison",
+        "role": "Store Manager",
+        "store_code_ref": "L073",
+        "phone": "707-628-7639",
+        "email": ""
+      },
+      {
+        "name": "Tabitha Soriano",
+        "role": "Relief Manager",
+        "store_code_ref": "L073",
+        "phone": "650-290-3836",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L074",
+    "name": "North Plainfield",
+    "state": "NJ",
+    "timezone": "EST",
+    "address": "825 U.S. 22, North Plainfield, NJ 07060",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "northplainfield@securespace.com",
+    "store_office_phone": "908-293-6499",
+    "store_cell_phone": "908-963-2220",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Adrian Hilton ------ FMLA",
+        "role": "Store Manager  (Do Not contact on Leave)",
+        "store_code_ref": "L074",
+        "phone": "(908) 627-6446",
+        "email": ""
+      },
+      {
+        "name": "Thomas Santiago",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L074",
+        "phone": "(845) 492-9420",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "(571) 352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L075",
+    "name": "Signal Hill",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "3177 California Avenue, Signal Hill, CA 90755",
+    "hours_raw": "M-F 9:30am-6pm\nSa 10am-4:00pm\nClosed Sun",
+    "store_email": "signalhill@securespace.com",
+    "store_office_phone": "562-366-1121",
+    "store_cell_phone": "562-783-0808",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jarrius Moon",
+        "role": "Store Manager",
+        "store_code_ref": "L075",
+        "phone": "213-524-4116",
+        "email": ""
+      },
+      {
+        "name": "Jordan Taylor-Hopson",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L075",
+        "phone": "562-743-2282",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L076",
+    "name": "Coral Gables",
+    "state": "FL",
+    "timezone": "EST",
+    "address": "5402 West Flagler Street, Coral Gables, FL 33134",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "coralgables@securespace.com",
+    "store_office_phone": "786-347-7440",
+    "store_cell_phone": "786-897-6408",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Sonia Villanueva",
+        "role": "Multi Store Manager",
+        "store_code_ref": "L076",
+        "phone": "305-495-0860",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Alonzo Lewis",
+        "role": "Area Manager",
+        "store_code_ref": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L077",
+    "name": "Palm Springs",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "400 West San Rafael Drive, Palm Springs, CA 92262",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nClosed Sun",
+    "store_email": "palmsprings@securespace.com",
+    "store_office_phone": "760-620-0130",
+    "store_cell_phone": "760-803-1253",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Kelly Faigley",
+        "role": "Store Manager",
+        "store_code_ref": "L077",
+        "phone": "408-402-2201",
+        "email": ""
+      },
+      {
+        "name": "Ryan Rodriguez",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L077",
+        "phone": "(951) 972-9498",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": ""
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L078",
+    "name": "Seattle Magnolia",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "2707 West Commodore Way, Seattle, WA 98199",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "seattlemagnolia@securespace.com",
+    "store_office_phone": "206-331-4216",
+    "store_cell_phone": "206-940-4190",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Alliyah Fuller",
+        "role": "Store Manager",
+        "store_code_ref": "L078",
+        "phone": "478-508-9518",
+        "email": ""
+      },
+      {
+        "name": "Martina Morris",
+        "role": "ASM",
+        "store_code_ref": "L078",
+        "phone": "253-268-6283",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "DM",
+        "store_code_ref": "TX (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L079",
+    "name": "San Pedro",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "2215 North Gaffey Street, San Pedro, CA 90731",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "sanpedro@securespace.com",
+    "store_office_phone": "310-694-9170",
+    "store_cell_phone": "310-387-6565",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Peter (Jose) Marquez",
+        "role": "Store Manager",
+        "store_code_ref": "L079",
+        "phone": "310-704-3494",
+        "email": ""
+      },
+      {
+        "name": "Danny Myers",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L080",
+    "name": "Arlington",
+    "state": "VA",
+    "timezone": "EST",
+    "address": "2710 S Nelson St, Arlington, VA 22206",
+    "hours_raw": "Mon-Sat: 9:30am-6pm\nSun: 10am-4pm",
+    "store_email": "arlington@securespace.com",
+    "store_office_phone": "703-286-1542",
+    "store_cell_phone": "703-517-1213",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Uriel Santiago",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L080",
+        "phone": "(Cell) (703) 898 -5955",
+        "email": ""
+      },
+      {
+        "name": "Michael Morgan",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L080",
+        "phone": "(571) 361-9367",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Steven Obney",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "MD (EST)",
+        "phone": "(571) 352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L081",
+    "name": "SeaTac",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "2701 South 204th Street, SeaTac, WA 98198",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "SeaTac@securespace.com",
+    "store_office_phone": "206-337-7113",
+    "store_cell_phone": "206-840-1205",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jasmin Baker",
+        "role": "Multi-Store Manager",
+        "store_code_ref": "L081",
+        "phone": "206-890-9614",
+        "email": ""
+      },
+      {
+        "name": "Gavin Moore",
+        "role": "Asst. Store Manager",
+        "store_code_ref": "L081",
+        "phone": "253-317-3129",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager",
+        "store_code_ref": "TX (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L082",
+    "name": "Fremont",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "325 Mowry Ave, Fremont, CA 94536",
+    "hours_raw": "Mon-Fri 9:30am-6:00pm\nSat 9:00am-5:30pm\nClosed Sun",
+    "store_email": "Fremont@securespace.com",
+    "store_office_phone": "510-496-8986",
+    "store_cell_phone": "510-852-0244",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Lauren Stinnett",
+        "role": "Multi Store Manager (L082/L086)",
+        "store_code_ref": "L082",
+        "phone": "510-978-3567",
+        "email": ""
+      },
+      {
+        "name": "Saroj Dhimal",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L082",
+        "phone": "469-920-4297",
+        "email": ""
+      },
+      {
+        "name": "Sabrina Dumo",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L082",
+        "phone": "209-360-9517",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "FL (EST)",
+        "phone": "727-434-5089",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L083",
+    "name": "Seattle Beacon Hill",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "6305 Corgiat Drive South, Seattle, WA 98108",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "SeattleBeaconHill@securespace.com",
+    "store_office_phone": "206-274-7274",
+    "store_cell_phone": "206-819-7254",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Vivian Ignatius",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "206-468-0522",
+        "email": ""
+      },
+      {
+        "name": "Michael Hildebrandt",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "425-520-0068",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager",
+        "store_code_ref": "TX (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L084",
+    "name": "Sayreville South Amboy",
+    "state": "NJ",
+    "timezone": "EST",
+    "address": "1970 NJ-35, South Amboy, NJ 08879",
+    "hours_raw": "Mon-Fri 9:30am - 6pm\nSat 9am - 5:30pm\nSun 10am - 4pm",
+    "store_email": "sayreville@securespace.com",
+    "store_office_phone": "732-379-3299",
+    "store_cell_phone": "732-853-6039",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Bianca Serrano",
+        "role": "Store Manager",
+        "store_code_ref": "L084",
+        "phone": "732 900 5531",
+        "email": ""
+      },
+      {
+        "name": "Bruce Jenkins",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L084",
+        "phone": "908 334 0920",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "MD (EST)",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L085",
+    "name": "Glendale",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "127 Concord Street, Glendale, CA 91203",
+    "hours_raw": "Mon-Fri 9:30am-6:00pm\nSa 9:00am-5:30pm\nSu 10am-4pm",
+    "store_email": "Glendale@securespace.com",
+    "store_office_phone": "818-230-7101",
+    "store_cell_phone": "818-738-5683",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Daisy Uribe",
+        "role": "Store Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "(562) 329-9629",
+        "email": ""
+      },
+      {
+        "name": "Lillian Sang-Anong",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "562-266-4183",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "DM",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L086",
+    "name": "Fremont Glenmoor",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "38491 Fremont Blvd., Fremont, CA 94536",
+    "hours_raw": "Mon-Fri 9:30am-6:00pm\nSa 9:00am-5:30pm\nClosed Sun",
+    "store_email": "FremontGlenmoor@securespace.com",
+    "store_office_phone": "510-956-5279",
+    "store_cell_phone": "510-810-2994",
+    "computers_onsite": "1",
+    "staff": [
+      {
+        "name": "Lauren Stinnett",
+        "role": "Multi Store Manager (L082/L086)",
+        "store_code_ref": "",
+        "phone": "510-978-3567",
+        "email": ""
+      },
+      {
+        "name": "Saroj Dhimal",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "469-920-4297",
+        "email": ""
+      },
+      {
+        "name": "Sabrina Dumo",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "209-360-9517",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Trevor Drummond",
+        "role": "Senior Area Manager",
+        "store_code_ref": "",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "",
+        "phone": "727-434-5089",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L087",
+    "name": "West Roxbury",
+    "state": "MA",
+    "timezone": "EST",
+    "address": "99 Rivermoor St, Boston, MA 02132",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nClosed Sun",
+    "store_email": "westroxbury@securespace.com",
+    "store_office_phone": "617-250-0969",
+    "store_cell_phone": "617-862-7922",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Norvia Pena",
+        "role": "Part Time - ASM",
+        "store_code_ref": "",
+        "phone": "(617) 652 4248",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "MD (EST)",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Sheena Tino",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "sheena@insitepg.com"
+    }
+  },
+  {
+    "code": "L088",
+    "name": "Wakefield",
+    "state": "MA",
+    "timezone": "EST",
+    "address": "400 Audubon Road, Wakefield, MA 01880",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nClosed Sun",
+    "store_email": "wakefield@securespace.com",
+    "store_office_phone": "781-412-1632",
+    "store_cell_phone": "781-755-8857",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Ashton Manson",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "317 452 2079",
+        "email": ""
+      },
+      {
+        "name": "Kolby Berube",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "978 968 7891",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "MD (EST)",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal Ghaly",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": "manal@insitepg.com"
+    }
+  },
+  {
+    "code": "L089",
+    "name": "North Hollywood",
+    "state": "CA",
+    "timezone": "PT",
+    "address": "5260 Vineland Avenue, North Hollywood, CA 91601",
+    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
+    "store_email": "",
+    "store_office_phone": "(818) 334-2034",
+    "store_cell_phone": "818-523-5095",
+    "computers_onsite": "2",
+    "staff": [],
+    "supervisors": [
+      {
+        "name": "Temp Coverage - Zach Foreman",
+        "role": "Area Manager",
+        "store_code_ref": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Temp Coverage - John McFadden",
+        "role": "District Manager",
+        "store_code_ref": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L090",
+    "name": "Deer Park",
+    "state": "Eastern",
+    "timezone": "",
+    "address": "999 Long island Avenue, Deer Park, NY",
+    "hours_raw": "Mon, Tue,Wed, Fri, 930am to 600pm\nThursday / Sunday CLOSED",
+    "store_email": "deerpark@securespace.com",
+    "store_office_phone": "631 740 8414",
+    "store_cell_phone": "631 617 0797",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Earl Porter",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "347 938 7406",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Chris Francisco",
+        "role": "Area Manager",
+        "store_code_ref": "Eastern",
+        "phone": "856 473 0077",
+        "email": "cfrancisco@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager",
+        "store_code_ref": "Eastern",
+        "phone": "571 352 7988",
+        "email": "lgeathers@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L091",
+    "name": "Tukwila",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "5950 Southcenter Blvd, Tukwila, WA  98188",
+    "hours_raw": "M-S 9:30am-6pm\nSu 10am-5pm",
+    "store_email": "tukwila@securespace.com",
+    "store_office_phone": "206-880-2274",
+    "store_cell_phone": "206-919-1720",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jasmin Baker",
+        "role": "Multi-Store Manager",
+        "store_code_ref": "",
+        "phone": "206-890-9614",
+        "email": ""
+      },
+      {
+        "name": "Charity Mcleod",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "253-785-1121",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager",
+        "store_code_ref": "TX - CST",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": {
+      "name": "Manal Ghaly",
+      "role": "Account Representative",
+      "store_code_ref": "",
+      "phone": "",
+      "email": ""
+    }
+  },
+  {
+    "code": "L092",
+    "name": "Auburn",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "4425 Auburn Way N Aurburn, WA 98002",
+    "hours_raw": "M-S 930am-6pm                                          Su 10am-5pm",
+    "store_email": "auburn@securespace.com",
+    "store_office_phone": "(253) 449-2345",
+    "store_cell_phone": "253-449-2345",
+    "computers_onsite": "2",
+    "staff": [
+      {
+        "name": "Jasmin Baker",
+        "role": "Multi-Store Manager",
+        "store_code_ref": "",
+        "phone": "206-890-9614",
+        "email": ""
+      },
+      {
+        "name": "Tina",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "253-334-4852",
+        "email": ""
+      },
+      {
+        "name": "Nannette",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "WA - PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager",
+        "store_code_ref": "TX - CST",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L093",
+    "name": "Seattle Skyway",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "5890 South 129th Street, Seattle, WA 98178",
+    "hours_raw": "Mon-Sat 9:00am - 6:00pm, \nSunday 10am-5pm",
+    "store_email": "SeattleSkyway@securespace.com",
+    "store_office_phone": "(206) 895-5925",
+    "store_cell_phone": "206-503-4001",
+    "computers_onsite": "",
+    "staff": [
+      {
+        "name": "Jasmin Baker",
+        "role": "Multi-Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": "Jasmin.Baker@securespace.com"
+      },
+      {
+        "name": "Dani Sono",
+        "role": "Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Christina Eppling",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "supervisors": [
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager",
+        "store_code_ref": "WA - PST",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager",
+        "store_code_ref": "TX - CST",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      }
+    ],
+    "account_rep": null
+  },
+  {
+    "code": "L094",
+    "name": "San Diego Encanto",
+    "state": "CA",
+    "timezone": "PST",
+    "address": "5950 Federal Blvd., San Diego, CA 92114",
+    "hours_raw": "Mon-Fri 9:30am-6:00pm\nSat-Sun 9:30am-5:00pm",
+    "store_email": "SanDiegoEncanto@securespace.com",
+    "store_office_phone": "(619) 877-6644",
+    "store_cell_phone": "619-936-0565",
+    "computers_onsite": "",
+    "staff": [],
+    "supervisors": [],
+    "account_rep": null
+  }
+]

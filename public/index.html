@@ -352,7 +352,7 @@ body.sidebar-collapsed{margin-left:58px;}
   <nav class="sidebar-nav">
     <button class="gtab active" onclick="switchView('dashboard',this)" title="Dashboard"><span class="nav-ico">&#9638;</span><span class="nav-label">Dashboard</span></button>
     <button class="gtab" onclick="switchView('opsqueue',this)" title="Ops Queue"><span class="nav-ico">&#9889;</span><span class="nav-label">Ops Queue</span></button>
-    <button class="gtab" onclick="switchView('snow',this)" title="Snow Accruals"><span class="nav-ico">&#10052;</span><span class="nav-label">Snow Accruals</span></button>
+    <button class="gtab" onclick="switchView('orgchart',this)" title="Org Chart"><span class="nav-ico">&#127970;</span><span class="nav-label">Org Chart</span></button>
     <button class="gtab" onclick="switchView('workflow',this)" title="Workflow"><span class="nav-ico">&#8644;</span><span class="nav-label">Workflow</span></button>
     <button class="gtab" onclick="switchView('statusguide',this)" title="Status Guide"><span class="nav-ico">&#9432;</span><span class="nav-label">Status Guide</span></button>
   </nav>
@@ -363,6 +363,7 @@ body.sidebar-collapsed{margin-left:58px;}
       <div class="settings-menu" id="settingsMenu">
         <a class="settings-item" id="settingsAdminLink" href="/admin" style="display:none;">&#128101; <span>User Management</span></a>
         <a class="settings-item" href="https://axpr19.axxerion.us/axxerion/ui" target="_blank">&#8599; <span>Axxerion Login</span></a>
+        <button class="settings-item" onclick="switchView('snow',null);document.getElementById('settingsMenu').classList.remove('open');">&#10052; <span>Snow Accruals</span></button>
         <button class="settings-item" id="themeToggle" onclick="toggleTheme()">&#9790; <span>Dark Mode</span></button>
       </div>
     </div>
@@ -821,6 +822,21 @@ document.addEventListener('keydown', function(e){
 </div>
 </div><!-- /view-snow -->
 
+<!-- ══════════ VIEW: ORG CHART ══════════ -->
+<div id="view-orgchart" class="view" style="padding:0;">
+  <div style="display:flex;flex-direction:column;height:calc(100vh - 56px);">
+    <nav style="display:flex;gap:2px;padding:10px 18px 0;border-bottom:1px solid var(--border);background:var(--surface);">
+      <button id="ocTab-chart" class="oc-subtab active" onclick="setOrgChartTab('chart')">Org Chart</button>
+      <button id="ocTab-directory" class="oc-subtab" onclick="setOrgChartTab('directory')">Call Directory</button>
+    </nav>
+    <iframe id="orgChartFrame" src="/org-chart/index.html" title="Operations Org Chart" style="flex:1;width:100%;border:none;display:block;"></iframe>
+  </div>
+</div><!-- /view-orgchart -->
+<style>
+.oc-subtab{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-bottom:1px solid var(--border);border-top-left-radius:8px;border-top-right-radius:8px;margin-bottom:-1px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;}
+.oc-subtab.active{background:var(--bg);color:var(--text);border-bottom:1px solid var(--bg);}
+</style>
+
 <!-- ══════════ SNOW CONTRACT MODAL ══════════ -->
 <div id="snowModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:560px;max-height:85vh;overflow-y:auto;position:relative;">
@@ -856,6 +872,7 @@ function toggleTheme(){
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('ax_theme', next);
   updateToggleLabel(next);
+  if(typeof syncOrgChartTheme==='function') syncOrgChartTheme();
 }
 function updateToggleLabel(theme){
   var btn = document.getElementById('themeToggle');
@@ -879,7 +896,28 @@ function switchView(view, btn, skipHash) {
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
   if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
   if(view==='snow' && typeof initSnow==='function'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else if(typeof loadSnowContracts==='function'){loadSnowContracts(renderSnow);} }
+  if(view==='orgchart'){ syncOrgChartTheme(); }
   if(typeof sizeKPIs==='function') setTimeout(sizeKPIs,100);
+}
+
+/* ── Org Chart sub-tabs ── */
+function setOrgChartTab(tab){
+  var frame=document.getElementById('orgChartFrame');
+  if(!frame) return;
+  var src = tab==='chart' ? '/org-chart/index.html' : '/call-directory/index.html?role=viewer';
+  frame.src = src;
+  frame.title = tab==='chart' ? 'Operations Org Chart' : 'SecureSpace Call Directory';
+  var a=document.getElementById('ocTab-chart'), b=document.getElementById('ocTab-directory');
+  if(a) a.classList.toggle('active', tab==='chart');
+  if(b) b.classList.toggle('active', tab==='directory');
+}
+function syncOrgChartTheme(){
+  var frame=document.getElementById('orgChartFrame');
+  if(!frame) return;
+  var theme=document.documentElement.getAttribute('data-theme')||'dark';
+  var apply=function(){try{frame.contentDocument.documentElement.setAttribute('data-theme',theme);}catch(_){/* cross-origin safe */}};
+  apply();
+  frame.addEventListener('load', apply, {once:true});
 }
 
 /* ── Status Definitions (from Axxerion WR-WO Statuses) ── */

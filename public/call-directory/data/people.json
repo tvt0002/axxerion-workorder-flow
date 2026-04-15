@@ -1,0 +1,2959 @@
+[
+  {
+    "name": "Renee Archer",
+    "email": "",
+    "phone": "321-506-1880",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L002"
+    ]
+  },
+  {
+    "name": "Ashley Waterhouse",
+    "email": "",
+    "phone": "321-505-2090",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L002"
+    ]
+  },
+  {
+    "name": "Alonzo Lewis",
+    "email": "alewis@securespace.com",
+    "phone": "407-929-6611",
+    "roles": [
+      "AM",
+      "AM",
+      "AM",
+      "AM",
+      "AM",
+      "AM",
+      "AM",
+      "Area Manager",
+      "Area Manager - Southeast"
+    ],
+    "stores": [
+      "L002",
+      "L007",
+      "L010",
+      "L017",
+      "L021",
+      "L022",
+      "L045",
+      "L076",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "John McFadden",
+    "email": "jmcfadden@securespace.com",
+    "phone": "716-236-8291",
+    "roles": [
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "DM",
+      "DM",
+      "District Manager",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "DM",
+      "District Manager",
+      "DM",
+      "DM",
+      "District Manager",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "District Manager - Southeast/NorCal/San Jose"
+    ],
+    "stores": [
+      "L002",
+      "L003",
+      "L006",
+      "L007",
+      "L008",
+      "L010",
+      "L014",
+      "L017",
+      "L021",
+      "L022",
+      "L025",
+      "L027",
+      "L035",
+      "L036",
+      "L037",
+      "L038",
+      "L039",
+      "L040",
+      "L041",
+      "L043",
+      "L044",
+      "L045",
+      "L046",
+      "L047",
+      "L051",
+      "L053",
+      "L054",
+      "L064",
+      "L065",
+      "L067",
+      "L068",
+      "L069",
+      "L070",
+      "L071",
+      "L073",
+      "L075",
+      "L076",
+      "L077",
+      "L079",
+      "L082",
+      "L085",
+      "L086",
+      "L089",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Geoff",
+    "email": "geoffrey@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L002"
+    ]
+  },
+  {
+    "name": "Shontel Palmer",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L003"
+    ]
+  },
+  {
+    "name": "Steve Seufert",
+    "email": "",
+    "phone": "805-704-3206",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L003"
+    ]
+  },
+  {
+    "name": "Temp Coverage - Zach Foreman",
+    "email": "zforeman@securespace.com",
+    "phone": "951-484-5195",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager - SoCal 2 and Temp SoCal 1"
+    ],
+    "stores": [
+      "L003",
+      "L008",
+      "L014",
+      "L025",
+      "L027",
+      "L046",
+      "L047",
+      "L051",
+      "L054",
+      "L064",
+      "L067",
+      "L068",
+      "L069",
+      "L070",
+      "L075",
+      "L079",
+      "L085",
+      "L089",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Yessenia",
+    "email": "yessenia@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L003"
+    ]
+  },
+  {
+    "name": "Rosemary Apolinaris",
+    "email": "",
+    "phone": "646 488 0698",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L005"
+    ]
+  },
+  {
+    "name": "Larain Geathers",
+    "email": "lgeathers@securespace.com",
+    "phone": "",
+    "roles": [
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager - Northeast"
+    ],
+    "stores": [
+      "L005",
+      "L009",
+      "L013",
+      "L066",
+      "L074",
+      "L080",
+      "L084",
+      "L087",
+      "L088",
+      "L090",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Chris Francisco",
+    "email": "cfrancisco@securespace.com",
+    "phone": "856-473-0077",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Sr. Area Manager - NE1"
+    ],
+    "stores": [
+      "L005",
+      "L028",
+      "L055",
+      "L058",
+      "L060",
+      "L061",
+      "L062",
+      "L084",
+      "L087",
+      "L088",
+      "L090",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Jeanne",
+    "email": "jeanne@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L005"
+    ]
+  },
+  {
+    "name": "Delilah Ragland",
+    "email": "",
+    "phone": "702-503-9708",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L006"
+    ]
+  },
+  {
+    "name": "Vance Stelly",
+    "email": "",
+    "phone": "323-705-9097",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L006"
+    ]
+  },
+  {
+    "name": "Temp Coverage - Zach Foreman",
+    "email": "",
+    "phone": "951-484-5195",
+    "roles": [
+      "Area Manager"
+    ],
+    "stores": [
+      "L006"
+    ]
+  },
+  {
+    "name": "Danielle",
+    "email": "danielle@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L006",
+      "L009",
+      "L060"
+    ]
+  },
+  {
+    "name": "Charles McDaniel",
+    "email": "",
+    "phone": "385 282 3495",
+    "roles": [
+      "ASM",
+      "ASM"
+    ],
+    "stores": [
+      "L007",
+      "L010"
+    ]
+  },
+  {
+    "name": "Danica",
+    "email": "danica@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L007"
+    ]
+  },
+  {
+    "name": "Amanda Bohy",
+    "email": "",
+    "phone": "858-899-8298",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L008"
+    ]
+  },
+  {
+    "name": "Linda Borders",
+    "email": "",
+    "phone": "909-921-9451",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L008"
+    ]
+  },
+  {
+    "name": "Anthony Ellwood",
+    "email": "",
+    "phone": "(858) 265-8940",
+    "roles": [
+      "Multi-Store Manager - L008, L025, and L027",
+      "Multi-Store Manager - L008, L025, and L027",
+      "Multi-Store Manager - L008, L025, and L027"
+    ],
+    "stores": [
+      "L008",
+      "L025",
+      "L027"
+    ]
+  },
+  {
+    "name": "Claire",
+    "email": "claire@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L008",
+      "L057"
+    ]
+  },
+  {
+    "name": "Stacie Ramirez",
+    "email": "",
+    "phone": "(CELL)",
+    "roles": [
+      "Store Manager- Do not contact! On leave."
+    ],
+    "stores": [
+      "L009"
+    ]
+  },
+  {
+    "name": "Tashara Watson",
+    "email": "",
+    "phone": "202-880-9085",
+    "roles": [
+      "Acting Store Manager"
+    ],
+    "stores": [
+      "L009"
+    ]
+  },
+  {
+    "name": "Santigie Sesay",
+    "email": "",
+    "phone": "240-280-4366",
+    "roles": [
+      "Maintenance Man"
+    ],
+    "stores": [
+      "L009"
+    ]
+  },
+  {
+    "name": "Steven Obney",
+    "email": "sobney@securespace.com",
+    "phone": "551-341-2919",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager - NE2"
+    ],
+    "stores": [
+      "L009",
+      "L013",
+      "L029",
+      "L049",
+      "L052",
+      "L056",
+      "L066",
+      "L074",
+      "L080",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Sharon",
+    "email": "sharon@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L010",
+      "L058"
+    ]
+  },
+  {
+    "name": "Ashtyn Adams",
+    "email": "",
+    "phone": "360-608-4203",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L011"
+    ]
+  },
+  {
+    "name": "Austin Rohwer",
+    "email": "",
+    "phone": "707-630-2014",
+    "roles": [
+      "Night Facility Maintenance Inspector"
+    ],
+    "stores": [
+      "L011"
+    ]
+  },
+  {
+    "name": "Liz Niemeir",
+    "email": "",
+    "phone": "406.546.8309",
+    "roles": [
+      "Multi Store Manager",
+      "Multi Store Manager",
+      "Multi Store Manager"
+    ],
+    "stores": [
+      "L011",
+      "L012",
+      "L042"
+    ]
+  },
+  {
+    "name": "Dana McClintock",
+    "email": "dmclintock@securespace.com",
+    "phone": "503-830-5391",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager"
+    ],
+    "stores": [
+      "L011",
+      "L012",
+      "L015",
+      "L016",
+      "L018",
+      "L023",
+      "L042",
+      "L072"
+    ]
+  },
+  {
+    "name": "Mike Broadus",
+    "email": "mbroadus@securespace.com",
+    "phone": "972-890-7318",
+    "roles": [
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager - PNW 1/PNW 2 & HI"
+    ],
+    "stores": [
+      "L011",
+      "L012",
+      "L015",
+      "L016",
+      "L018",
+      "L019",
+      "L020",
+      "L023",
+      "L024",
+      "L026",
+      "L030",
+      "L031",
+      "L032",
+      "L033",
+      "L034",
+      "L042",
+      "L048",
+      "L050",
+      "L057",
+      "L059",
+      "L072",
+      "L078",
+      "L081",
+      "L083",
+      "L091",
+      "L092",
+      "L093",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Justin Shaw",
+    "email": "Justin@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L011"
+    ]
+  },
+  {
+    "name": "David Rosenthal",
+    "email": "",
+    "phone": "206-387-5751",
+    "roles": [
+      "ASM"
+    ],
+    "stores": [
+      "L012"
+    ]
+  },
+  {
+    "name": "Melanie Taddicken",
+    "email": "",
+    "phone": "503-619-5023",
+    "roles": [
+      "ASM"
+    ],
+    "stores": [
+      "L012"
+    ]
+  },
+  {
+    "name": "Manal",
+    "email": "",
+    "phone": "manal@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Accounting Contact"
+    ],
+    "stores": [
+      "L012",
+      "L039",
+      "L040",
+      "L041",
+      "L042",
+      "L043",
+      "L044",
+      "L053",
+      "L066"
+    ]
+  },
+  {
+    "name": "Joseph Ramos",
+    "email": "",
+    "phone": "213-280-1351",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L013"
+    ]
+  },
+  {
+    "name": "Sharon",
+    "email": "",
+    "phone": "sharon@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L013",
+      "L045",
+      "L047",
+      "L050"
+    ]
+  },
+  {
+    "name": "Brittany Hewitt",
+    "email": "",
+    "phone": "(951) 428-1499",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L014"
+    ]
+  },
+  {
+    "name": "Danielle",
+    "email": "",
+    "phone": "danielle@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L014",
+      "L023",
+      "L028",
+      "L059"
+    ]
+  },
+  {
+    "name": "Puna Cleaver",
+    "email": "",
+    "phone": "808-699-0827",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L015"
+    ]
+  },
+  {
+    "name": "Henry Pascua",
+    "email": "",
+    "phone": "808-489-6430",
+    "roles": [
+      "Assistant Store Manager - Part time",
+      "Assistant Store Manager - Part time"
+    ],
+    "stores": [
+      "L015",
+      "L072"
+    ]
+  },
+  {
+    "name": "Kalenakai Strohlin",
+    "email": "",
+    "phone": "(808) 364-9928",
+    "roles": [
+      "ASM",
+      "ASM"
+    ],
+    "stores": [
+      "L015",
+      "L072"
+    ]
+  },
+  {
+    "name": "Malia Love",
+    "email": "",
+    "phone": "951-403-3877",
+    "roles": [
+      "Multi Store Manager",
+      "Multi Store Manager",
+      "Multi Store Manager"
+    ],
+    "stores": [
+      "L015",
+      "L023",
+      "L072"
+    ]
+  },
+  {
+    "name": "Claire",
+    "email": "",
+    "phone": "claire@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L015",
+      "L035",
+      "L055",
+      "L056",
+      "L063"
+    ]
+  },
+  {
+    "name": "Burney Campbell",
+    "email": "",
+    "phone": "206-820-7926",
+    "roles": [
+      "Multi Store Manager L016, L018, L026, L031",
+      "Multi Store Manager L016, L018, L026, L031",
+      "Multi Store Manager L016, L018, L026, L031",
+      "Multi-Store Manager - L016, L018, L026, L031,"
+    ],
+    "stores": [
+      "L016",
+      "L018",
+      "L026",
+      "L031"
+    ]
+  },
+  {
+    "name": "Cyril Carty",
+    "email": "",
+    "phone": "206.693.1096",
+    "roles": [
+      "Assistant Store Manager",
+      "ASM (Sat)"
+    ],
+    "stores": [
+      "L016",
+      "L018"
+    ]
+  },
+  {
+    "name": "Danica",
+    "email": "",
+    "phone": "danica@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L016",
+      "L017",
+      "L018",
+      "L020",
+      "L021",
+      "L051",
+      "L070"
+    ]
+  },
+  {
+    "name": "Jeffrey Braat",
+    "email": "",
+    "phone": "8137325129",
+    "roles": [
+      "ASM"
+    ],
+    "stores": [
+      "L017"
+    ]
+  },
+  {
+    "name": "Tonya Reins",
+    "email": "",
+    "phone": "253-344-3887",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L018"
+    ]
+  },
+  {
+    "name": "Zion Grae-El",
+    "email": "",
+    "phone": "(206)326-9160",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L018"
+    ]
+  },
+  {
+    "name": "Chuck Koubec",
+    "email": "",
+    "phone": "702-375-2257",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L019"
+    ]
+  },
+  {
+    "name": "Shawn Bedient",
+    "email": "",
+    "phone": "435-406-7622",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L019"
+    ]
+  },
+  {
+    "name": "Julio Gloria",
+    "email": "jgloria@securespace.com",
+    "phone": "281-685-3897",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager"
+    ],
+    "stores": [
+      "L019",
+      "L030",
+      "L032",
+      "L033",
+      "L034",
+      "L048"
+    ]
+  },
+  {
+    "name": "Justin",
+    "email": "",
+    "phone": "Justin@insitepg.com",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L019"
+    ]
+  },
+  {
+    "name": "James Dial",
+    "email": "",
+    "phone": "404-512-9752",
+    "roles": [
+      "Store Manager - FT"
+    ],
+    "stores": [
+      "L020"
+    ]
+  },
+  {
+    "name": "Bart Mays",
+    "email": "bartholomew.mays@securespace.com",
+    "phone": "310-465-5434",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager - PNW2/Seattle"
+    ],
+    "stores": [
+      "L020",
+      "L024",
+      "L050",
+      "L057",
+      "L059",
+      "L063",
+      "L078",
+      "L081",
+      "L083",
+      "L091",
+      "L092",
+      "L093",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Sonia Villanueva",
+    "email": "",
+    "phone": "305-495-0860",
+    "roles": [
+      "Multi Store Manager",
+      "Multi Store Manager"
+    ],
+    "stores": [
+      "L021",
+      "L076"
+    ]
+  },
+  {
+    "name": "Marcel Rodriquez",
+    "email": "",
+    "phone": "(239)777-6577",
+    "roles": [
+      "Assistant Manager"
+    ],
+    "stores": [
+      "L021"
+    ]
+  },
+  {
+    "name": "Brian Phillips",
+    "email": "",
+    "phone": "(904) 755-0069",
+    "roles": [
+      "Store manager"
+    ],
+    "stores": [
+      "L022"
+    ]
+  },
+  {
+    "name": "Quinnita Edwards",
+    "email": "",
+    "phone": "904-718-2771",
+    "roles": [
+      "Assistant manager"
+    ],
+    "stores": [
+      "L022"
+    ]
+  },
+  {
+    "name": "Jeanne",
+    "email": "",
+    "phone": "jeanne@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L022",
+      "L025",
+      "L032",
+      "L033",
+      "L052"
+    ]
+  },
+  {
+    "name": "Tammy Carmichael",
+    "email": "",
+    "phone": "808-224-3058",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L023"
+    ]
+  },
+  {
+    "name": "Scott Birdsell",
+    "email": "",
+    "phone": "832-841-6846",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L024"
+    ]
+  },
+  {
+    "name": "Ivi Lanoire",
+    "email": "",
+    "phone": "657-463-0176",
+    "roles": [
+      "Asst. Store Manager",
+      "PT Assistant Store Manager"
+    ],
+    "stores": [
+      "L024",
+      "L057"
+    ]
+  },
+  {
+    "name": "Kellie Tague",
+    "email": "",
+    "phone": "(858) 349-4038",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L025"
+    ]
+  },
+  {
+    "name": "Kathleen Roetger",
+    "email": "",
+    "phone": "253-754-0300",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L026"
+    ]
+  },
+  {
+    "name": "Travis Cavin",
+    "email": "",
+    "phone": "253-954-4040",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L026"
+    ]
+  },
+  {
+    "name": "Dana McClintock",
+    "email": "",
+    "phone": "503-830-5391",
+    "roles": [
+      "Area Manager",
+      "Area Manager"
+    ],
+    "stores": [
+      "L026",
+      "L031"
+    ]
+  },
+  {
+    "name": "Huston",
+    "email": "",
+    "phone": "huston@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L026",
+      "L027",
+      "L029"
+    ]
+  },
+  {
+    "name": "Athelstan Hutson",
+    "email": "",
+    "phone": "718-600-4907",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L028"
+    ]
+  },
+  {
+    "name": "Felicia Acevado",
+    "email": "",
+    "phone": "917 923 2021",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L028"
+    ]
+  },
+  {
+    "name": "Larain Geathers",
+    "email": "",
+    "phone": "571-352-7988",
+    "roles": [
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM",
+      "DM"
+    ],
+    "stores": [
+      "L028",
+      "L029",
+      "L049",
+      "L052",
+      "L055",
+      "L056",
+      "L058",
+      "L060",
+      "L061",
+      "L062"
+    ]
+  },
+  {
+    "name": "Shannon Schaffer",
+    "email": "",
+    "phone": "(267) 252-3418",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L029"
+    ]
+  },
+  {
+    "name": "Kelvin Ramirez",
+    "email": "",
+    "phone": "(267) 982-0068",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L029"
+    ]
+  },
+  {
+    "name": "Crystal Cramer",
+    "email": "",
+    "phone": "720-829-3715",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L030"
+    ]
+  },
+  {
+    "name": "Natalie Stubblefield",
+    "email": "",
+    "phone": "720-636-4348",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L030"
+    ]
+  },
+  {
+    "name": "Sheena",
+    "email": "",
+    "phone": "sheena@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L030",
+      "L031",
+      "L036",
+      "L037",
+      "L038",
+      "L046",
+      "L048",
+      "L068"
+    ]
+  },
+  {
+    "name": "Rosa Gasca",
+    "email": "",
+    "phone": "832-438-4850",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L031"
+    ]
+  },
+  {
+    "name": "Jimmy Perez",
+    "email": "",
+    "phone": "512-296-7397",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L032"
+    ]
+  },
+  {
+    "name": "Angela Delossantos",
+    "email": "",
+    "phone": "512-762-3983",
+    "roles": [
+      "Multi-Store Manager - L032, L033, L034",
+      "Multi-Store Manager - L032, L033, L034",
+      "Multi-Store Manager - L032, L033, L034"
+    ],
+    "stores": [
+      "L032",
+      "L033",
+      "L034"
+    ]
+  },
+  {
+    "name": "Kimberly Wallace",
+    "email": "",
+    "phone": "512-669-9643",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L033"
+    ]
+  },
+  {
+    "name": "Oldmixon, Stephanie",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L034"
+    ]
+  },
+  {
+    "name": "Jeanne Flores",
+    "email": "",
+    "phone": "jeanne@insitepg.com",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L034"
+    ]
+  },
+  {
+    "name": "Hasan Guerra",
+    "email": "",
+    "phone": "(408) 899-0738",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L035"
+    ]
+  },
+  {
+    "name": "Nicholas Kan",
+    "email": "nicholas.kan@securespace.com",
+    "phone": "408-892-7702",
+    "roles": [
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager",
+      "Area Manager - NorCal SJ"
+    ],
+    "stores": [
+      "L035",
+      "L036",
+      "L037",
+      "L038",
+      "L043",
+      "L044",
+      "L065",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Dylan Hobour",
+    "email": "",
+    "phone": "408-701-7867",
+    "roles": [
+      "Multi-Store Manager: L036 and Teresa L038",
+      "Multi-Store Manager: L036 and Teresa L038"
+    ],
+    "stores": [
+      "L036",
+      "L038"
+    ]
+  },
+  {
+    "name": "Alycia Alvarez",
+    "email": "",
+    "phone": "408-469-0559",
+    "roles": [
+      "Store Manager Do not contact! On leave."
+    ],
+    "stores": [
+      "L036"
+    ]
+  },
+  {
+    "name": "Ramon Alvarez",
+    "email": "",
+    "phone": "408-649-8501",
+    "roles": [
+      "Assistant Store Manager",
+      "Assistant Store Manager",
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L037",
+      "L038",
+      "L065"
+    ]
+  },
+  {
+    "name": "Rocio Garcia",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L037"
+    ]
+  },
+  {
+    "name": "Leonardo Galo",
+    "email": "",
+    "phone": "510-541-6463",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L039"
+    ]
+  },
+  {
+    "name": "Tavio Guevarra",
+    "email": "",
+    "phone": "510-833-5938",
+    "roles": [
+      "Assistant Store Manager",
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L039",
+      "L040"
+    ]
+  },
+  {
+    "name": "Trevor Drummond",
+    "email": "tdrummond@securespace.com",
+    "phone": "415-498-4250",
+    "roles": [
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Senior Area Manager",
+      "Sr. Area Manager - NorCal"
+    ],
+    "stores": [
+      "L039",
+      "L040",
+      "L041",
+      "L053",
+      "L071",
+      "L073",
+      "L082",
+      "L086",
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Jared Novinger",
+    "email": "",
+    "phone": "209-663-3000",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L040"
+    ]
+  },
+  {
+    "name": "Edward Lee",
+    "email": "",
+    "phone": "925 303 6460",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L041"
+    ]
+  },
+  {
+    "name": "Daniel Reeves",
+    "email": "",
+    "phone": "925-437-3260",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L041"
+    ]
+  },
+  {
+    "name": "Charles Hunter",
+    "email": "",
+    "phone": "503.954.8732",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L042"
+    ]
+  },
+  {
+    "name": "Mark Randall",
+    "email": "",
+    "phone": "408-296-9479",
+    "roles": [
+      "Multi-Store Manager: Los Gatos University, Farley and Winfield",
+      "Multi-Store Manager: Los Gatos University, Farley and Winfield",
+      "Multi-Store Manager: Los Gatos University, Farley and Winfield"
+    ],
+    "stores": [
+      "L043",
+      "L044",
+      "L065"
+    ]
+  },
+  {
+    "name": "Jeffrey Martinez",
+    "email": "",
+    "phone": "786-690-1987",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L045"
+    ]
+  },
+  {
+    "name": "Angie Toscano",
+    "email": "",
+    "phone": "(786) 354-6036",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L045"
+    ]
+  },
+  {
+    "name": "Lawrence (Red) Hardin",
+    "email": "",
+    "phone": "832-865-3300",
+    "roles": [
+      "Multi Store Manager",
+      "Multi Store Manager"
+    ],
+    "stores": [
+      "L046",
+      "L069"
+    ]
+  },
+  {
+    "name": "Sanjay Patel",
+    "email": "",
+    "phone": "(704) 258-1904",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L046"
+    ]
+  },
+  {
+    "name": "Lillian Sang-Anong",
+    "email": "",
+    "phone": "562-266-4183",
+    "roles": [
+      "Assistant Store Manager",
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L047",
+      "L085"
+    ]
+  },
+  {
+    "name": "Kimberly Davidson",
+    "email": "",
+    "phone": "480-619-0442",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L048"
+    ]
+  },
+  {
+    "name": "Scott Herman",
+    "email": "",
+    "phone": "406-249-2214",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L048"
+    ]
+  },
+  {
+    "name": "Michael Williams",
+    "email": "",
+    "phone": "267-239-3107",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L049"
+    ]
+  },
+  {
+    "name": "Carla Meyers",
+    "email": "",
+    "phone": "215-317-3717",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L049"
+    ]
+  },
+  {
+    "name": "Yessenia",
+    "email": "",
+    "phone": "yessenia@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L049",
+      "L064"
+    ]
+  },
+  {
+    "name": "Melissa Dendy",
+    "email": "",
+    "phone": "480-452-4960",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L050"
+    ]
+  },
+  {
+    "name": "Ravel Graham",
+    "email": "",
+    "phone": "725-400-3153",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L050"
+    ]
+  },
+  {
+    "name": "Melissa Delgado",
+    "email": "",
+    "phone": "626-625-0165",
+    "roles": [
+      "Multi Store Manager",
+      "Store Manager"
+    ],
+    "stores": [
+      "L051",
+      "L067"
+    ]
+  },
+  {
+    "name": "Jennifer Herrera",
+    "email": "",
+    "phone": "(562) 480-5393",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L051"
+    ]
+  },
+  {
+    "name": "Kenneth James",
+    "email": "",
+    "phone": "201-925-6951",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L052"
+    ]
+  },
+  {
+    "name": "Doug Miller",
+    "email": "",
+    "phone": "973-865-8809",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L052"
+    ]
+  },
+  {
+    "name": "Ashley Ramos",
+    "email": "",
+    "phone": "951-363-9962",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L053"
+    ]
+  },
+  {
+    "name": "Amir Woodward",
+    "email": "",
+    "phone": "415-368-3530",
+    "roles": [
+      "Relief Manager",
+      "Relief Manager"
+    ],
+    "stores": [
+      "L053",
+      "L071"
+    ]
+  },
+  {
+    "name": "Shekima Bradley",
+    "email": "",
+    "phone": "310-462-7611",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L054"
+    ]
+  },
+  {
+    "name": "Parie Dedeaux",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L054"
+    ]
+  },
+  {
+    "name": "Claire Liu",
+    "email": "",
+    "phone": "claire@insitepg.com",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L054"
+    ]
+  },
+  {
+    "name": "Earl Porter",
+    "email": "",
+    "phone": "347 938 7406",
+    "roles": [
+      "Store Manger",
+      "Store Manager"
+    ],
+    "stores": [
+      "L055",
+      "L090"
+    ]
+  },
+  {
+    "name": "Elyjah Nguyen",
+    "email": "",
+    "phone": "914-484-4409",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L055"
+    ]
+  },
+  {
+    "name": "Stephanie Fleuizard",
+    "email": "",
+    "phone": "215-989-5333",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L056"
+    ]
+  },
+  {
+    "name": "Ashley Haines",
+    "email": "",
+    "phone": "267-596-0025",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L056"
+    ]
+  },
+  {
+    "name": "Eric Ogden",
+    "email": "",
+    "phone": "425-320-8777",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L057"
+    ]
+  },
+  {
+    "name": "Kendall Baldo",
+    "email": "",
+    "phone": "929 928 0129",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L058"
+    ]
+  },
+  {
+    "name": "Trayvon Hobbs",
+    "email": "",
+    "phone": "917 383 4783",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L058"
+    ]
+  },
+  {
+    "name": "Chonthicha Sumattra",
+    "email": "",
+    "phone": "253 888 3958",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L059"
+    ]
+  },
+  {
+    "name": "Tony Rosales",
+    "email": "",
+    "phone": "206-817-4666",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L059"
+    ]
+  },
+  {
+    "name": "Julius Cruz",
+    "email": "",
+    "phone": "646 704 6416",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L060"
+    ]
+  },
+  {
+    "name": "Evelise Hopkins",
+    "email": "",
+    "phone": "215 936 5527",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L061"
+    ]
+  },
+  {
+    "name": "Jose Alequin",
+    "email": "",
+    "phone": "267-242-5156",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L061"
+    ]
+  },
+  {
+    "name": "Sharon Garcia",
+    "email": "sharon@institepg.com",
+    "phone": "sharon@insitepg.com",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L061"
+    ]
+  },
+  {
+    "name": "Sean King",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L062"
+    ]
+  },
+  {
+    "name": "Jacqueline Costello",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L062"
+    ]
+  },
+  {
+    "name": "Huston",
+    "email": "houston@insitepg.com",
+    "phone": "huston@insitepg.com",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L062"
+    ]
+  },
+  {
+    "name": "Patricia Goffeney",
+    "email": "",
+    "phone": "(360) 472-1996",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L063"
+    ]
+  },
+  {
+    "name": "Johtavias Mitchell",
+    "email": "",
+    "phone": "813-822-9557",
+    "roles": [
+      "Asst.Store Manager"
+    ],
+    "stores": [
+      "L063"
+    ]
+  },
+  {
+    "name": "Mike Broadus",
+    "email": "",
+    "phone": "972-890-7318",
+    "roles": [
+      "DM"
+    ],
+    "stores": [
+      "L063"
+    ]
+  },
+  {
+    "name": "Olivia Thomas",
+    "email": "",
+    "phone": "(909) 602-3766",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L064"
+    ]
+  },
+  {
+    "name": "Sara Gutierrez",
+    "email": "",
+    "phone": "(909) 220-3784",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L064"
+    ]
+  },
+  {
+    "name": "Diana Solorzano",
+    "email": "",
+    "phone": "443-889-8089",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L066"
+    ]
+  },
+  {
+    "name": "Stephanie Armstrong",
+    "email": "",
+    "phone": "living",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L066"
+    ]
+  },
+  {
+    "name": "Elizabeth Ayala",
+    "email": "",
+    "phone": "562-278-5781",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L068"
+    ]
+  },
+  {
+    "name": "Terence Johnson",
+    "email": "",
+    "phone": "424-391-2604",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L068"
+    ]
+  },
+  {
+    "name": "Hiring",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L069"
+    ]
+  },
+  {
+    "name": "Celeste Acosta",
+    "email": "",
+    "phone": "(626) 670-2417",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L070"
+    ]
+  },
+  {
+    "name": "Jake Flores",
+    "email": "",
+    "phone": "562-329-9629",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L070"
+    ]
+  },
+  {
+    "name": "Billie Harris",
+    "email": "",
+    "phone": "707-430-6413",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L071"
+    ]
+  },
+  {
+    "name": "Nelson Ambeau III",
+    "email": "",
+    "phone": "707",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L071"
+    ]
+  },
+  {
+    "name": "Shaelyn Takeuchi",
+    "email": "",
+    "phone": "808-650-0146",
+    "roles": [
+      "Assitant Store Manager"
+    ],
+    "stores": [
+      "L072"
+    ]
+  },
+  {
+    "name": "Leipunahele(Puna) Cleaver",
+    "email": "",
+    "phone": "808-699-0827",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L072"
+    ]
+  },
+  {
+    "name": "Joe Ellison",
+    "email": "",
+    "phone": "707-628-7639",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L073"
+    ]
+  },
+  {
+    "name": "Tabitha Soriano",
+    "email": "",
+    "phone": "650-290-3836",
+    "roles": [
+      "Relief Manager"
+    ],
+    "stores": [
+      "L073"
+    ]
+  },
+  {
+    "name": "Adrian Hilton ------ FMLA",
+    "email": "",
+    "phone": "(908) 627-6446",
+    "roles": [
+      "Store Manager  (Do Not contact on Leave)"
+    ],
+    "stores": [
+      "L074"
+    ]
+  },
+  {
+    "name": "Thomas Santiago",
+    "email": "",
+    "phone": "(845) 492-9420",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L074"
+    ]
+  },
+  {
+    "name": "Jarrius Moon",
+    "email": "",
+    "phone": "213-524-4116",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L075"
+    ]
+  },
+  {
+    "name": "Jordan Taylor-Hopson",
+    "email": "",
+    "phone": "562-743-2282",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L075"
+    ]
+  },
+  {
+    "name": "Kelly Faigley",
+    "email": "",
+    "phone": "408-402-2201",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L077"
+    ]
+  },
+  {
+    "name": "Ryan Rodriguez",
+    "email": "",
+    "phone": "(951) 972-9498",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L077"
+    ]
+  },
+  {
+    "name": "Zach Foreman",
+    "email": "",
+    "phone": "951-484-5195",
+    "roles": [
+      "Area Manager"
+    ],
+    "stores": [
+      "L077"
+    ]
+  },
+  {
+    "name": "Alliyah Fuller",
+    "email": "",
+    "phone": "478-508-9518",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L078"
+    ]
+  },
+  {
+    "name": "Martina Morris",
+    "email": "",
+    "phone": "253-268-6283",
+    "roles": [
+      "ASM"
+    ],
+    "stores": [
+      "L078"
+    ]
+  },
+  {
+    "name": "Peter (Jose) Marquez",
+    "email": "",
+    "phone": "310-704-3494",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L079"
+    ]
+  },
+  {
+    "name": "Danny Myers",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L079"
+    ]
+  },
+  {
+    "name": "Uriel Santiago",
+    "email": "",
+    "phone": "(Cell) (703) 898 -5955",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L080"
+    ]
+  },
+  {
+    "name": "Michael Morgan",
+    "email": "",
+    "phone": "(571) 361-9367",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L080"
+    ]
+  },
+  {
+    "name": "Jasmin Baker",
+    "email": "",
+    "phone": "206-890-9614",
+    "roles": [
+      "Multi-Store Manager",
+      "Multi-Store Manager",
+      "Multi-Store Manager"
+    ],
+    "stores": [
+      "L081",
+      "L091",
+      "L092"
+    ]
+  },
+  {
+    "name": "Gavin Moore",
+    "email": "",
+    "phone": "253-317-3129",
+    "roles": [
+      "Asst. Store Manager"
+    ],
+    "stores": [
+      "L081"
+    ]
+  },
+  {
+    "name": "Lauren Stinnett",
+    "email": "",
+    "phone": "510-978-3567",
+    "roles": [
+      "Multi Store Manager (L082/L086)",
+      "Multi Store Manager (L082/L086)"
+    ],
+    "stores": [
+      "L082",
+      "L086"
+    ]
+  },
+  {
+    "name": "Saroj Dhimal",
+    "email": "",
+    "phone": "469-920-4297",
+    "roles": [
+      "Assistant Store Manager",
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L082",
+      "L086"
+    ]
+  },
+  {
+    "name": "Sabrina Dumo",
+    "email": "",
+    "phone": "209-360-9517",
+    "roles": [
+      "Assistant Store Manager",
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L082",
+      "L086"
+    ]
+  },
+  {
+    "name": "Vivian Ignatius",
+    "email": "",
+    "phone": "206-468-0522",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L083"
+    ]
+  },
+  {
+    "name": "Michael Hildebrandt",
+    "email": "",
+    "phone": "425-520-0068",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L083"
+    ]
+  },
+  {
+    "name": "Bianca Serrano",
+    "email": "",
+    "phone": "732 900 5531",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L084"
+    ]
+  },
+  {
+    "name": "Bruce Jenkins",
+    "email": "",
+    "phone": "908 334 0920",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L084"
+    ]
+  },
+  {
+    "name": "Daisy Uribe",
+    "email": "",
+    "phone": "(562) 329-9629",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L085"
+    ]
+  },
+  {
+    "name": "Norvia Pena",
+    "email": "",
+    "phone": "(617) 652 4248",
+    "roles": [
+      "Part Time - ASM"
+    ],
+    "stores": [
+      "L087"
+    ]
+  },
+  {
+    "name": "Sheena Tino",
+    "email": "sheena@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L087"
+    ]
+  },
+  {
+    "name": "Ashton Manson",
+    "email": "",
+    "phone": "317 452 2079",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L088"
+    ]
+  },
+  {
+    "name": "Kolby Berube",
+    "email": "",
+    "phone": "978 968 7891",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L088"
+    ]
+  },
+  {
+    "name": "Manal Ghaly",
+    "email": "manal@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L088"
+    ]
+  },
+  {
+    "name": "Charity Mcleod",
+    "email": "",
+    "phone": "253-785-1121",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L091"
+    ]
+  },
+  {
+    "name": "Manal Ghaly",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Account Representative"
+    ],
+    "stores": [
+      "L091"
+    ]
+  },
+  {
+    "name": "Tina",
+    "email": "",
+    "phone": "253-334-4852",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L092"
+    ]
+  },
+  {
+    "name": "Nannette",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L092"
+    ]
+  },
+  {
+    "name": "Jasmin Baker",
+    "email": "Jasmin.Baker@securespace.com",
+    "phone": "",
+    "roles": [
+      "Multi-Store Manager"
+    ],
+    "stores": [
+      "L093"
+    ]
+  },
+  {
+    "name": "Dani Sono",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L093"
+    ]
+  },
+  {
+    "name": "Christina Eppling",
+    "email": "",
+    "phone": "",
+    "roles": [
+      "Assistant Store Manager"
+    ],
+    "stores": [
+      "L093"
+    ]
+  },
+  {
+    "name": "Riddhi Chakraborty",
+    "email": "riddhi@insitepg.com",
+    "phone": "",
+    "roles": [
+      "HR Director"
+    ],
+    "stores": [
+      "HR PARTNERS"
+    ]
+  },
+  {
+    "name": "Samantha Chavez",
+    "email": "samanthac@insitepg.com",
+    "phone": "424-295-9316",
+    "roles": [
+      "HR Manager"
+    ],
+    "stores": [
+      "HR PARTNERS"
+    ]
+  },
+  {
+    "name": "Armani Nicolis",
+    "email": "armani@insitepg.com",
+    "phone": "562-600-0375",
+    "roles": [
+      "HR Coordinator - Recruitment, On-Boarding, Policies, Job Descriptions"
+    ],
+    "stores": [
+      "HR PARTNERS"
+    ]
+  },
+  {
+    "name": "Brian Ferguson",
+    "email": "bferguson@insitepg.com",
+    "phone": "424-260-4779 ext.137",
+    "roles": [
+      "Payroll, Compensation, and Benefits Specialist"
+    ],
+    "stores": [
+      "HR PARTNERS"
+    ]
+  },
+  {
+    "name": "Dalia Rosales",
+    "email": "dalia@insitepg.com",
+    "phone": "424-260-5729",
+    "roles": [
+      "HR Generalist - SOPs, Recruitment, Performance Review, Rewards, Policies, Practices, Procedures, Benefits, Worker\u2019s Compensation, Leave of Absence"
+    ],
+    "stores": [
+      "HR PARTNERS"
+    ]
+  },
+  {
+    "name": "Randy Hillman",
+    "email": "rhillman@securespace.com",
+    "phone": "424-372-4118",
+    "roles": [
+      "Regional Manager"
+    ],
+    "stores": [
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Julio Gloria",
+    "email": "jgloria@secuerspace.com",
+    "phone": "281-685-3897",
+    "roles": [
+      "Area Manager - West Central"
+    ],
+    "stores": [
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Dana McClintock",
+    "email": "dmcclintock@securespace.com",
+    "phone": "503-830-5391",
+    "roles": [
+      "Area Manager - PNW1/WA/OR/HI"
+    ],
+    "stores": [
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Amber Quesada",
+    "email": "",
+    "phone": "Please reach out to Zach Foreman",
+    "roles": [
+      "Area Manager- Socal 1"
+    ],
+    "stores": [
+      "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Stephanie Quilliams",
+    "email": "squilliams@securespace.com",
+    "phone": "541-841-0464",
+    "roles": [
+      "Learning Manager"
+    ],
+    "stores": [
+      "TRAINING PARTNERS"
+    ]
+  },
+  {
+    "name": "Saleena Barrera",
+    "email": "sbarrera@securespace.com",
+    "phone": "424-337-3383",
+    "roles": [
+      "Training Coordinator"
+    ],
+    "stores": [
+      "TRAINING PARTNERS"
+    ]
+  },
+  {
+    "name": "Brandee VanDerVelde",
+    "email": "brandee@securespace.com",
+    "phone": "828-399-1360",
+    "roles": [
+      "Customer Resolution Manager"
+    ],
+    "stores": [
+      "CUSTOMER RESOLUTION"
+    ]
+  },
+  {
+    "name": "Sandy Crincoli-Rios",
+    "email": "sandy@securespace.com",
+    "phone": "",
+    "roles": [
+      "Customer Resolution Rep"
+    ],
+    "stores": [
+      "CUSTOMER RESOLUTION"
+    ]
+  },
+  {
+    "name": "Shannon Frost",
+    "email": "sfrost@securespace.com",
+    "phone": "",
+    "roles": [
+      "Customer Resolution Rep"
+    ],
+    "stores": [
+      "CUSTOMER RESOLUTION"
+    ]
+  },
+  {
+    "name": "Emily Hyun",
+    "email": "emily@securespace.com",
+    "phone": "424-257-3695",
+    "roles": [
+      "Director of Transitions"
+    ],
+    "stores": [
+      "TRANSITIONS TEAM"
+    ]
+  },
+  {
+    "name": "Piya Futerman",
+    "email": "pfuterman@securespace.com",
+    "phone": "973-339-7817",
+    "roles": [
+      "Sr. Transitions Project Manager"
+    ],
+    "stores": [
+      "TRANSITIONS TEAM"
+    ]
+  },
+  {
+    "name": "Vincent McMahon",
+    "email": "vmcmahon@securespace.com",
+    "phone": "908-303-4393",
+    "roles": [
+      "Transition Manager"
+    ],
+    "stores": [
+      "TRANSITIONS TEAM"
+    ]
+  },
+  {
+    "name": "Ana Sanchez",
+    "email": "orders@securespace.com",
+    "phone": "310-561-6113",
+    "roles": [
+      "Operations Project Manager",
+      "Operations Project Assistant",
+      "Operations Project Assistant"
+    ],
+    "stores": [
+      "TRANSITIONS TEAM",
+      "TRANSITIONS TEAM",
+      "TRANSITIONS TEAM"
+    ]
+  },
+  {
+    "name": "Philip Giovanni",
+    "email": "pgiovanni@securespace.com",
+    "phone": "203-494-5684",
+    "roles": [
+      "Security Manager"
+    ],
+    "stores": [
+      "SECURITY TEAM"
+    ]
+  },
+  {
+    "name": "Grant Stanford",
+    "email": "gstanford@securespace.com",
+    "phone": "903-819-3655",
+    "roles": [
+      "Overnight Security Coordinator"
+    ],
+    "stores": [
+      "SECURITY TEAM"
+    ]
+  },
+  {
+    "name": "Felipe Lopez",
+    "email": "felipe@insitepg.com",
+    "phone": "210-775-8265",
+    "roles": [
+      "Facilities Manager"
+    ],
+    "stores": [
+      "FACILITIES TEAM"
+    ]
+  },
+  {
+    "name": "Tim Macvittie",
+    "email": "tmacvittie@securespace.com",
+    "phone": "716-479-5903",
+    "roles": [
+      "Facilities Manager"
+    ],
+    "stores": [
+      "FACILITIES TEAM"
+    ]
+  },
+  {
+    "name": "Denise Nippard",
+    "email": "denise@insitepg.com",
+    "phone": "716-880-7743",
+    "roles": [
+      "Axxerion Coordinator"
+    ],
+    "stores": [
+      "FACILITIES TEAM"
+    ]
+  },
+  {
+    "name": "Jake McMillan",
+    "email": "jake@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Director of Virtual Operations"
+    ],
+    "stores": [
+      "VIRTUAL OPS TEAM"
+    ]
+  },
+  {
+    "name": "Shaylin Wakefield",
+    "email": "shaylin@securespace.com",
+    "phone": "",
+    "roles": [
+      "Customer Success Manager"
+    ],
+    "stores": [
+      "VIRTUAL OPS TEAM"
+    ]
+  },
+  {
+    "name": "Kia Kolahi",
+    "email": "kia@insitepg.com",
+    "phone": "310-427-2443",
+    "roles": [
+      ""
+    ],
+    "stores": [
+      "ASSET MANAGEMENT"
+    ]
+  },
+  {
+    "name": "Rene Giron",
+    "email": "rgiron@insitepg.com",
+    "phone": "323-479-2469",
+    "roles": [
+      ""
+    ],
+    "stores": [
+      "ASSET MANAGEMENT"
+    ]
+  },
+  {
+    "name": "Christian Espinal",
+    "email": "christian@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Marketing Director"
+    ],
+    "stores": [
+      "MARKETING"
+    ]
+  },
+  {
+    "name": "Juan Castellanos",
+    "email": "juan@insitepg.com",
+    "phone": "",
+    "roles": [
+      "Senior Marketing Operations Manager"
+    ],
+    "stores": [
+      "MARKETING"
+    ]
+  },
+  {
+    "name": "TeamLogic IT",
+    "email": "supporttorranceca@teamlogicit.com",
+    "phone": "424-252-2016 x1",
+    "roles": [
+      "IT SUPPORT"
+    ],
+    "stores": [
+      "IT SUPPORT"
+    ]
+  },
+  {
+    "name": "OpenTech CIA",
+    "email": "",
+    "phone": "602-773-1700",
+    "roles": [
+      "Customer Support"
+    ],
+    "stores": [
+      "IT SUPPORT"
+    ]
+  },
+  {
+    "name": "Sitelink",
+    "email": "",
+    "phone": "919-865-0789",
+    "roles": [
+      "Technical Support"
+    ],
+    "stores": [
+      "IT SUPPORT"
+    ]
+  },
+  {
+    "name": "PTI Storlogix",
+    "email": "",
+    "phone": "866-240-7602",
+    "roles": [
+      "Customer Support"
+    ],
+    "stores": [
+      "IT SUPPORT"
+    ]
+  },
+  {
+    "name": "Stor-Guard (Tukila)",
+    "email": "",
+    "phone": "360-910-1924",
+    "roles": [
+      "Customer Support"
+    ],
+    "stores": [
+      "IT SUPPORT"
+    ]
+  }
+]

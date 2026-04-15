@@ -1,0 +1,379 @@
+{
+  "HR PARTNERS": {
+    "team_email": "hr@insitepg.com",
+    "members": [
+      {
+        "name": "Riddhi Chakraborty",
+        "role": "HR Director",
+        "timezone": "CA (PST)",
+        "phone": "",
+        "email": "riddhi@insitepg.com"
+      },
+      {
+        "name": "Samantha Chavez",
+        "role": "HR Manager",
+        "timezone": "CA (PST)",
+        "phone": "424-295-9316",
+        "email": "samanthac@insitepg.com"
+      },
+      {
+        "name": "Armani Nicolis",
+        "role": "HR Coordinator - Recruitment, On-Boarding, Policies, Job Descriptions",
+        "timezone": "CA (PST)",
+        "phone": "562-600-0375",
+        "email": "armani@insitepg.com"
+      },
+      {
+        "name": "Brian Ferguson",
+        "role": "Payroll, Compensation, and Benefits Specialist",
+        "timezone": "CA (PST)",
+        "phone": "424-260-4779 ext.137",
+        "email": "bferguson@insitepg.com"
+      },
+      {
+        "name": "Dalia Rosales",
+        "role": "HR Generalist - SOPs, Recruitment, Performance Review, Rewards, Policies, Practices, Procedures, Benefits, Worker\u2019s Compensation, Leave of Absence",
+        "timezone": "CA (PST)",
+        "phone": "424-260-5729",
+        "email": "dalia@insitepg.com"
+      }
+    ]
+  },
+  "OPS MANAGEMENT TEAM": {
+    "team_email": "",
+    "members": [
+      {
+        "name": "Randy Hillman",
+        "role": "Regional Manager",
+        "timezone": "NY (EST)",
+        "phone": "424-372-4118",
+        "email": "rhillman@securespace.com"
+      },
+      {
+        "name": "John McFadden",
+        "role": "District Manager - Southeast/NorCal/San Jose",
+        "timezone": "FL (EST)",
+        "phone": "716-236-8291",
+        "email": "jmcfadden@securespace.com"
+      },
+      {
+        "name": "Alonzo Lewis",
+        "role": "Area Manager - Southeast",
+        "timezone": "FL (EST)",
+        "phone": "407-929-6611",
+        "email": "alewis@securespace.com"
+      },
+      {
+        "name": "Trevor Drummond",
+        "role": "Sr. Area Manager - NorCal",
+        "timezone": "CA (PST)",
+        "phone": "415-498-4250",
+        "email": "tdrummond@securespace.com"
+      },
+      {
+        "name": "Nicholas Kan",
+        "role": "Area Manager - NorCal SJ",
+        "timezone": "CA (PST)",
+        "phone": "408-892-7702",
+        "email": "Nicholas.Kan@securespace.com"
+      },
+      {
+        "name": "Mike Broadus",
+        "role": "District Manager - PNW 1/PNW 2 & HI",
+        "timezone": "TX (CST)",
+        "phone": "972-890-7318",
+        "email": "mbroadus@securespace.com"
+      },
+      {
+        "name": "Julio Gloria",
+        "role": "Area Manager - West Central",
+        "timezone": "TX (CST)",
+        "phone": "281-685-3897",
+        "email": "jgloria@secuerspace.com"
+      },
+      {
+        "name": "Dana McClintock",
+        "role": "Area Manager - PNW1/WA/OR/HI",
+        "timezone": "WA (PST)",
+        "phone": "503-830-5391",
+        "email": "dmcclintock@securespace.com"
+      },
+      {
+        "name": "Bart Mays",
+        "role": "Area Manager - PNW2/Seattle",
+        "timezone": "WA (PST)",
+        "phone": "310-465-5434",
+        "email": "bartholomew.mays@securespace.com"
+      },
+      {
+        "name": "Amber Quesada",
+        "role": "Area Manager- Socal 1",
+        "timezone": "CA (PST)",
+        "phone": "Please reach out to Zach Foreman",
+        "email": ""
+      },
+      {
+        "name": "Zach Foreman",
+        "role": "Area Manager - SoCal 2 and Temp SoCal 1",
+        "timezone": "CA (PST)",
+        "phone": "951-484-5195",
+        "email": "zforeman@securespace.com"
+      },
+      {
+        "name": "Larain Geathers",
+        "role": "District Manager - Northeast",
+        "timezone": "MD (EST)",
+        "phone": "571-352-7988",
+        "email": "lgeathers@securespace.com"
+      },
+      {
+        "name": "Chris Francisco",
+        "role": "Sr. Area Manager - NE1",
+        "timezone": "NJ (EST)",
+        "phone": "856-473-0077",
+        "email": "cfrancisco@securespace.com"
+      },
+      {
+        "name": "Steve Obney",
+        "role": "Area Manager - NE2",
+        "timezone": "NJ (EST)",
+        "phone": "551-341-2919",
+        "email": "sobney@securespace.com"
+      }
+    ]
+  },
+  "TRAINING PARTNERS": {
+    "team_email": "learning@securespace.com",
+    "members": [
+      {
+        "name": "Stephanie Quilliams",
+        "role": "Learning Manager",
+        "timezone": "MI (EST)",
+        "phone": "541-841-0464",
+        "email": "squilliams@securespace.com"
+      },
+      {
+        "name": "Saleena Barrera",
+        "role": "Training Coordinator",
+        "timezone": "CA (PST)",
+        "phone": "424-337-3383",
+        "email": "sbarrera@securespace.com"
+      }
+    ]
+  },
+  "CUSTOMER RESOLUTION": {
+    "team_email": "resolution@securespace.com",
+    "members": [
+      {
+        "name": "Brandee VanDerVelde",
+        "role": "Customer Resolution Manager",
+        "timezone": "SC (EST)",
+        "phone": "828-399-1360",
+        "email": "brandee@securespace.com"
+      },
+      {
+        "name": "Sandy Crincoli-Rios",
+        "role": "Customer Resolution Rep",
+        "timezone": "NJ (EST)",
+        "phone": "",
+        "email": "sandy@securespace.com"
+      },
+      {
+        "name": "Shannon Frost",
+        "role": "Customer Resolution Rep",
+        "timezone": "SC (EST)",
+        "phone": "",
+        "email": "sfrost@securespace.com"
+      }
+    ]
+  },
+  "TRANSITIONS TEAM": {
+    "team_email": "transitions@securespace.com",
+    "members": [
+      {
+        "name": "Emily Hyun",
+        "role": "Director of Transitions",
+        "timezone": "NV (PST)",
+        "phone": "424-257-3695",
+        "email": "emily@securespace.com"
+      },
+      {
+        "name": "Piya Futerman",
+        "role": "Sr. Transitions Project Manager",
+        "timezone": "NJ (EST)",
+        "phone": "973-339-7817",
+        "email": "pfuterman@securespace.com"
+      },
+      {
+        "name": "Vincent McMahon",
+        "role": "Transition Manager",
+        "timezone": "NJ (EST)",
+        "phone": "908-303-4393",
+        "email": "vmcmahon@securespace.com"
+      },
+      {
+        "name": "Ana Sanchez",
+        "role": "Operations Project Manager",
+        "timezone": "CA (PST)",
+        "phone": "310-561-6113",
+        "email": "orders@securespace.com"
+      },
+      {
+        "name": "April Choy-Wu",
+        "role": "Operations Project Assistant",
+        "timezone": "FL (EST)",
+        "phone": "904-383-7210",
+        "email": "orders@securespace.com"
+      },
+      {
+        "name": "Taylor Dariarow (She/They)",
+        "role": "Operations Project Assistant",
+        "timezone": "CA (PST)",
+        "phone": "954-729-1615",
+        "email": "orders@securespace.com"
+      }
+    ]
+  },
+  "SECURITY TEAM": {
+    "team_email": "security@securespace.com",
+    "members": [
+      {
+        "name": "Philip Giovanni",
+        "role": "Security Manager",
+        "timezone": "CT (EST)",
+        "phone": "203-494-5684",
+        "email": "pgiovanni@securespace.com"
+      },
+      {
+        "name": "Grant Stanford",
+        "role": "Overnight Security Coordinator",
+        "timezone": "TX (CST)",
+        "phone": "903-819-3655",
+        "email": "gstanford@securespace.com"
+      }
+    ]
+  },
+  "FACILITIES TEAM": {
+    "team_email": "fm@securespace.com",
+    "members": [
+      {
+        "name": "Felipe Lopez",
+        "role": "Facilities Manager",
+        "timezone": "TX (CST)",
+        "phone": "210-775-8265",
+        "email": "felipe@insitepg.com"
+      },
+      {
+        "name": "Tim Macvittie",
+        "role": "Facilities Manager",
+        "timezone": "NY (EST)",
+        "phone": "716-479-5903",
+        "email": "tmacvittie@securespace.com"
+      },
+      {
+        "name": "Denise Nippard",
+        "role": "Axxerion Coordinator",
+        "timezone": "NY (EST)",
+        "phone": "716-880-7743",
+        "email": "denise@insitepg.com"
+      }
+    ]
+  },
+  "VIRTUAL OPS TEAM": {
+    "team_email": "customersuccess@securespace.com",
+    "members": [
+      {
+        "name": "Jake McMillan",
+        "role": "Director of Virtual Operations",
+        "timezone": "TN (CST)",
+        "phone": "",
+        "email": "jake@insitepg.com"
+      },
+      {
+        "name": "Shaylin Wakefield",
+        "role": "Customer Success Manager",
+        "timezone": "",
+        "phone": "",
+        "email": "shaylin@securespace.com"
+      }
+    ]
+  },
+  "ASSET MANAGEMENT": {
+    "team_email": "assetmanagement@insitepg.com",
+    "members": [
+      {
+        "name": "Kia Kolahi",
+        "role": "",
+        "timezone": "",
+        "phone": "310-427-2443",
+        "email": "kia@insitepg.com"
+      },
+      {
+        "name": "Rene Giron",
+        "role": "",
+        "timezone": "",
+        "phone": "323-479-2469",
+        "email": "rgiron@insitepg.com"
+      }
+    ]
+  },
+  "MARKETING": {
+    "team_email": "marketing@securespace.com",
+    "members": [
+      {
+        "name": "Christian Espinal",
+        "role": "Marketing Director",
+        "timezone": "",
+        "phone": "",
+        "email": "christian@insitepg.com"
+      },
+      {
+        "name": "Juan Castellanos",
+        "role": "Senior Marketing Operations Manager",
+        "timezone": "",
+        "phone": "",
+        "email": "juan@insitepg.com"
+      }
+    ]
+  },
+  "IT SUPPORT": {
+    "team_email": "",
+    "members": [
+      {
+        "name": "TeamLogic IT",
+        "role": "IT SUPPORT",
+        "timezone": "CA (PST)",
+        "phone": "424-252-2016 x1",
+        "email": "supporttorranceca@teamlogicit.com"
+      },
+      {
+        "name": "OpenTech CIA",
+        "role": "Customer Support",
+        "timezone": "AZ Time Zone",
+        "phone": "602-773-1700",
+        "email": ""
+      },
+      {
+        "name": "Sitelink",
+        "role": "Technical Support",
+        "timezone": "EST",
+        "phone": "919-865-0789",
+        "email": ""
+      },
+      {
+        "name": "PTI Storlogix",
+        "role": "Customer Support",
+        "timezone": "EST",
+        "phone": "866-240-7602",
+        "email": ""
+      },
+      {
+        "name": "Stor-Guard (Tukila)",
+        "role": "Customer Support",
+        "timezone": "WA (PST)",
+        "phone": "360-910-1924",
+        "email": ""
+      }
+    ]
+  }
+}

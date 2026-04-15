@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SecureSpace Call Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ─── SecureSpace palette (mirrors transitions-dashboard app.css) ─── */
+  :root, [data-theme="dark"] {
+    --bg:#0c1120; --surface:#111827; --card:#1a2235;
+    --border-color:#283044; --border-hover:#374151;
+    --primary:#1f4a9a; --primary-hover:#163d80; --primary-dim:rgba(31,74,154,.15);
+    --info:#4182c3; --cta:#5ec28f; --cta-hover:#6fd49f; --cta-dim:rgba(94,194,143,.15);
+    --green:#5ec28f; --green-dim:rgba(94,194,143,.12);
+    --orange:#fb923c; --orange-dim:rgba(251,146,60,.12);
+    --red:#c34141; --red-dim:rgba(195,65,65,.12);
+    --yellow:#ffd600; --yellow-dim:rgba(255,214,0,.12);
+    --text:#e8eaf0; --muted:#8893a7; --muted-dark:#6b7280;
+    --shadow:0 2px 8px rgba(0,0,0,.4); --shadow-hover:0 4px 24px rgba(0,0,0,.3);
+  }
+  [data-theme="light"] {
+    --bg:#f5f6fa; --surface:#fff; --card:#fff;
+    --border-color:#d5dae3; --border-hover:#c5cad3;
+    --primary:#1f4a9a; --primary-hover:#163d80; --primary-dim:rgba(31,74,154,.1);
+    --info:#4182c3; --cta:#22a331; --cta-hover:#1a8a28; --cta-dim:rgba(34,163,49,.08);
+    --green:#22a331; --green-dim:rgba(34,163,49,.08);
+    --orange:#ea580c; --orange-dim:rgba(234,88,12,.08);
+    --red:#c34141; --red-dim:rgba(195,65,65,.08);
+    --yellow:#ca8a04; --yellow-dim:rgba(202,138,4,.08);
+    --text:#1f2937; --muted:#6b7280; --muted-dark:#9ca3af;
+    --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-hover:0 4px 12px rgba(0,0,0,.1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; line-height:1.45; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--muted-dark); }
+
+  /* ─── Header ─── */
+  header { display:flex; align-items:center; gap:18px; padding:14px 22px;
+    background:var(--surface); border-bottom:1px solid var(--border-color); position:sticky; top:0; z-index:10; }
+  header .brand { display:flex; align-items:center; gap:10px; }
+  header .brand img { height:26px; width:auto; display:block; }
+  header .brand img.light-only { display:none; }
+  [data-theme="light"] header .brand img.dark-only { display:none; }
+  [data-theme="light"] header .brand img.light-only { display:block; }
+  header h1 { margin:0; font-size:15px; font-weight:700; letter-spacing:.2px; }
+  header h1 .dot { color:var(--primary); }
+  header h1 .sub { color:var(--muted); font-weight:400; font-size:12px; margin-left:6px; }
+  .search { flex:1; max-width:560px; position:relative; }
+  .search input { width:100%; padding:10px 14px 10px 38px; background:var(--card);
+    border:1px solid var(--border-color); border-radius:8px; color:var(--text); font-size:14px; outline:none;
+    font-family:inherit; transition:border-color .15s; }
+  .search input:focus { border-color:var(--primary); }
+  .search::before { content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
+  .tabs { display:flex; gap:4px; }
+  .tab-btn { padding:8px 14px; background:transparent; color:var(--muted);
+    border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit;
+    transition:all .15s; }
+  .tab-btn:hover { border-color:var(--border-hover); color:var(--text); }
+  .tab-btn.active { background:var(--primary-dim); color:var(--text); border-color:var(--primary); }
+  .theme-toggle { background:transparent; border:1px solid var(--border-color); color:var(--muted);
+    border-radius:8px; padding:8px 10px; cursor:pointer; font-size:14px; }
+  .theme-toggle:hover { color:var(--text); border-color:var(--border-hover); }
+
+  /* ─── Layout ─── */
+  main { display:grid; grid-template-columns:320px 1fr; height:calc(100vh - 58px); }
+  .sidebar { border-right:1px solid var(--border-color); overflow:auto; background:var(--surface); }
+  .content { overflow:auto; padding:24px 28px; }
+  .empty { color:var(--muted); text-align:center; margin-top:20vh; font-size:14px; }
+
+  /* ─── Toolbar (collapse/expand controls) ─── */
+  .toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 14px; background:var(--surface); border-bottom:1px solid var(--border-color);
+    position:sticky; top:0; z-index:2; }
+  .toolbar .label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+  .toolbar .actions { display:flex; gap:6px; }
+  .mini-btn { background:transparent; border:1px solid var(--border-color); color:var(--muted);
+    border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; font-family:inherit;
+    text-transform:uppercase; letter-spacing:.06em; font-weight:600; transition:all .15s; }
+  .mini-btn:hover { color:var(--text); border-color:var(--primary); background:var(--primary-dim); }
+  .profile-toolbar { margin:0 0 16px; display:flex; justify-content:flex-end; gap:6px; }
+
+  /* ─── Collapsible group (sidebar) ─── */
+  .group { background:var(--card); border-bottom:1px solid var(--border-color); position:sticky; top:0; z-index:1; }
+  .group-header { display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 14px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.12em;
+    cursor:pointer; user-select:none; }
+  .group-header:hover { color:var(--text); }
+  .group-header .chev { transition:transform .15s; display:inline-block; font-size:10px; color:var(--muted); }
+  .group.collapsed .chev { transform:rotate(-90deg); }
+  .group.collapsed + .group-body { display:none; }
+  .group-count { background:var(--primary-dim); color:var(--info); padding:1px 7px; border-radius:10px; font-size:10px; font-weight:600; }
+
+  .row { display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 14px; border-bottom:1px solid var(--border-color); cursor:pointer; transition:background .1s; }
+  .row:hover { background:var(--card); }
+  .row.active { background:var(--primary-dim); border-left:3px solid var(--primary); padding-left:11px; }
+  .row .code { color:var(--muted); font-family:'DM Mono',monospace; font-size:12px; }
+  .row .meta { color:var(--muted); font-size:11px; margin-top:2px; }
+
+  /* ─── Profile ─── */
+  .profile h2 { margin:0 0 4px; font-size:22px; font-weight:700; }
+  .profile h2 .code-inline { color:var(--muted); font-size:15px; font-weight:400; font-family:'DM Mono',monospace; margin-left:8px; }
+  .profile .subtitle { color:var(--muted); font-size:13px; margin-bottom:18px; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-bottom:22px; }
+  .card { background:var(--card); border:1px solid var(--border-color); border-radius:8px; padding:14px 16px; box-shadow:var(--shadow); }
+  .card h4 { margin:0 0 8px; font-size:11px; font-weight:600; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.1em; }
+  .card .big { font-size:15px; color:var(--text); }
+  .card a { color:var(--info); text-decoration:none; }
+  .card a:hover { color:var(--primary); }
+  .hours { white-space:pre-line; font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); line-height:1.6; }
+
+  /* ─── Collapsible section ─── */
+  details.section { margin-top:20px; background:var(--card); border:1px solid var(--border-color);
+    border-radius:8px; box-shadow:var(--shadow); overflow:hidden; }
+  details.section[open] { box-shadow:var(--shadow-hover); }
+  details.section > summary { list-style:none; cursor:pointer; padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; user-select:none; }
+  details.section > summary::-webkit-details-marker { display:none; }
+  details.section > summary h3 { margin:0; font-size:12px; font-weight:700; color:var(--text);
+    letter-spacing:.12em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+  details.section > summary h3 .chev { font-size:10px; color:var(--muted); transition:transform .15s; }
+  details.section[open] > summary h3 .chev { transform:rotate(90deg); }
+  details.section > summary .count { color:var(--muted); font-size:12px; font-family:'DM Mono',monospace; }
+  details.section > .section-body { padding:0 18px 18px; border-top:1px solid var(--border-color); padding-top:16px; }
+
+  /* ─── People cards ─── */
+  .people { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; }
+  .person { background:var(--surface); border:1px solid var(--border-color); border-radius:8px;
+    padding:12px 14px; display:flex; gap:12px; transition:border-color .15s, box-shadow .15s; }
+  .person:hover { border-color:var(--border-hover); box-shadow:var(--shadow); }
+  .avatar { width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--info)); color:#fff;
+    font-weight:700; font-size:13px; display:grid; place-items:center; flex-shrink:0; }
+  .person .name { font-weight:600; font-size:14px; }
+  .person .role { color:var(--muted); font-size:12px; margin-top:2px; }
+  .person .contact { margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; font-size:12px; }
+  .person .contact a { color:var(--info); text-decoration:none; }
+  .person .contact a:hover { color:var(--primary); }
+  .person.tag-temp { border-color:var(--orange); background:var(--orange-dim); }
+  .person.tag-multi { border-color:var(--cta); background:var(--cta-dim); }
+
+  .badge { display:inline-block; padding:2px 8px; font-size:10px; border-radius:10px;
+    text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-left:6px; vertical-align:middle; }
+  .badge.temp { background:var(--orange-dim); color:var(--orange); }
+  .badge.multi { background:var(--cta-dim); color:var(--cta); }
+
+  /* ─── Org chart ─── */
+  .org { display:flex; flex-direction:column; gap:16px; }
+  details.tier { background:var(--card); border:1px solid var(--border-color); border-radius:8px;
+    box-shadow:var(--shadow); overflow:hidden; }
+  details.tier > summary { list-style:none; cursor:pointer; padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between; user-select:none; }
+  details.tier > summary::-webkit-details-marker { display:none; }
+  details.tier > summary h3 { margin:0; font-size:13px; font-weight:700; color:var(--primary);
+    letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+  details.tier > summary h3 .chev { color:var(--muted); font-size:10px; transition:transform .15s; }
+  details.tier[open] > summary h3 .chev { transform:rotate(90deg); }
+  details.tier > .tier-body { padding:0 18px 16px; border-top:1px solid var(--border-color); padding-top:14px; }
+  .nodes { display:flex; flex-wrap:wrap; gap:8px; }
+  .node { background:var(--surface); border:1px solid var(--border-color); border-radius:999px;
+    padding:6px 14px; font-size:13px; cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:6px; }
+  .node:hover { border-color:var(--primary); color:var(--text); background:var(--primary-dim); }
+  .node .sm { color:var(--muted); font-size:11px; }
+
+  /* ─── Role switcher + admin UI ─── */
+  .role-pill { display:inline-flex; align-items:center; gap:6px; background:var(--card);
+    border:1px solid var(--border-color); border-radius:999px; padding:4px 10px 4px 8px; font-size:11px; color:var(--muted); }
+  .role-pill select { background:transparent; border:none; color:var(--text); font-family:inherit;
+    font-size:11px; font-weight:600; outline:none; cursor:pointer; text-transform:uppercase; letter-spacing:.08em; }
+  .role-dot { width:8px; height:8px; border-radius:50%; background:var(--cta); }
+  .role-dot.viewer { background:var(--muted); }
+  .role-dot.power  { background:var(--info); }
+  .role-dot.admin  { background:var(--red); }
+  .tab-btn[data-tab="manage"] { border-color:var(--red); color:var(--red); }
+  .tab-btn[data-tab="manage"].active { background:var(--red-dim); color:var(--text); }
+  .locked-notice { background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange);
+    border-radius:8px; padding:14px 18px; margin-bottom:16px; font-size:13px; display:flex; gap:10px; align-items:center; }
+
+  /* ─── Manage / bulk tools ─── */
+  .manage-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .tool-card { background:var(--card); border:1px solid var(--border-color); border-radius:10px;
+    padding:18px 20px; box-shadow:var(--shadow); cursor:pointer; transition:all .15s; }
+  .tool-card:hover { border-color:var(--primary); box-shadow:var(--shadow-hover); transform:translateY(-1px); }
+  .tool-card h3 { margin:0 0 8px; font-size:15px; font-weight:700; color:var(--text); }
+  .tool-card .desc { color:var(--muted); font-size:13px; line-height:1.5; }
+  .tool-card .icon { width:36px; height:36px; border-radius:8px; background:var(--primary-dim);
+    color:var(--info); display:grid; place-items:center; font-size:18px; margin-bottom:12px; }
+
+  /* ─── Modal ─── */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100; display:none;
+    align-items:flex-start; justify-content:center; padding:60px 20px; overflow:auto; }
+  .modal-backdrop.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border-color); border-radius:10px;
+    box-shadow:var(--shadow-hover); width:100%; max-width:720px; padding:0; overflow:hidden; }
+  .modal-head { padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex;
+    justify-content:space-between; align-items:center; }
+  .modal-head h3 { margin:0; font-size:16px; font-weight:700; }
+  .modal-head .close { background:transparent; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
+  .modal-body { padding:20px; max-height:60vh; overflow:auto; }
+  .modal-foot { padding:14px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:8px; }
+
+  .form-row { display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:center; margin-bottom:12px; }
+  .form-row label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
+  .form-row input, .form-row select, .form-row textarea { width:100%; padding:8px 10px;
+    background:var(--card); border:1px solid var(--border-color); border-radius:6px;
+    color:var(--text); font-family:inherit; font-size:13px; outline:none; }
+  .form-row input:focus, .form-row select:focus { border-color:var(--primary); }
+  .form-row textarea { min-height:80px; font-family:'DM Mono',monospace; font-size:12px; }
+
+  .btn { padding:8px 14px; border-radius:6px; font-family:inherit; font-size:13px; font-weight:600;
+    cursor:pointer; border:1px solid var(--border-color); background:var(--card); color:var(--text); transition:all .15s; }
+  .btn:hover { border-color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); }
+  .btn.danger { background:var(--red); border-color:var(--red); color:#fff; }
+  .btn.danger:hover { background:#a53535; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  .checkbox-list { max-height:320px; overflow:auto; border:1px solid var(--border-color);
+    border-radius:6px; background:var(--card); }
+  .checkbox-list .cl-head,
+  .checkbox-list label {
+    display:grid;
+    grid-template-columns:24px 72px 1fr 56px;
+    align-items:center;
+    gap:12px;
+    padding:8px 14px;
+    font-size:13px;
+    border-bottom:1px solid var(--border-color);
+  }
+  .checkbox-list .cl-head { position:sticky; top:0; background:var(--surface);
+    color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; z-index:1; }
+  .checkbox-list label { cursor:pointer; }
+  .checkbox-list label:last-child { border-bottom:none; }
+  .checkbox-list label:hover { background:var(--primary-dim); }
+  .checkbox-list label input { margin:0; width:16px; height:16px; cursor:pointer; accent-color:var(--primary); }
+  .checkbox-list .cl-code { color:var(--muted); font-family:'DM Mono',monospace; font-size:12px; }
+  .checkbox-list .cl-name { color:var(--text); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .checkbox-list .cl-state { color:var(--muted); font-size:11px; font-family:'DM Mono',monospace; text-align:right; }
+  .checkbox-list label.checked { background:var(--primary-dim); }
+
+  .diff-row { display:grid; grid-template-columns:1fr 24px 1fr; gap:10px; padding:8px 12px;
+    border-bottom:1px solid var(--border-color); font-size:13px; align-items:center; }
+  .diff-row:last-child { border-bottom:none; }
+  .diff-row .old { color:var(--red); text-decoration:line-through; }
+  .diff-row .arr { color:var(--muted); text-align:center; }
+  .diff-row .new { color:var(--green); font-weight:600; }
+
+  .edit-btn { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:13px;
+    padding:4px 6px; border-radius:4px; opacity:0; transition:opacity .15s; }
+  .person:hover .edit-btn { opacity:1; }
+  .edit-btn:hover { color:var(--primary); background:var(--primary-dim); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img class="dark-only" src="assets/logo-white.svg" alt="SecureSpace" />
+    <img class="light-only" src="assets/logo-dark.svg" alt="SecureSpace" />
+    <h1><span class="dot">·</span> Call Directory<span class="sub">prototype</span></h1>
+  </div>
+  <div class="search"><input id="q" placeholder="Search store, person, email, phone, state…" autofocus /></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="stores">Stores</button>
+    <button class="tab-btn" data-tab="org">Org Chart</button>
+    <button class="tab-btn" data-tab="corp">Corporate</button>
+    <button class="tab-btn" data-tab="manage" id="tab-manage">Manage</button>
+  </div>
+  <span class="role-pill" title="Demo role switcher — production reads from SSO">
+    <span class="role-dot" id="roleDot"></span>
+    <select id="roleSel">
+      <option value="viewer">Viewer</option>
+      <option value="power">Power User</option>
+      <option value="admin">Admin</option>
+    </select>
+  </span>
+  <button class="theme-toggle" id="themeBtn" title="Toggle theme">◐</button>
+</header>
+<main>
+  <aside class="sidebar" id="sidebar"></aside>
+  <section class="content" id="content"><div class="empty">Select a store from the left, or start typing to search.</div></section>
+</main>
+<div class="modal-backdrop" id="modal"><div class="modal">
+  <div class="modal-head"><h3 id="modalTitle">Edit</h3><button class="close" id="modalClose">×</button></div>
+  <div class="modal-body" id="modalBody"></div>
+  <div class="modal-foot" id="modalFoot"></div>
+</div></div>
+
+<script>
+let STORES=[], CORP={}, PEOPLE=[];
+let currentTab='stores';
+let selectedStore=null;
+const collapsedGroups=new Set();   // sidebar groups
+const collapsedSections=new Set(); // profile sections (sticky via id)
+
+async function load() {
+  const [s,c,p] = await Promise.all([
+    fetch('data/stores.json').then(r=>r.json()),
+    fetch('data/corporate.json').then(r=>r.json()),
+    fetch('data/people.json').then(r=>r.json()),
+  ]);
+  STORES=s; CORP=c; PEOPLE=p;
+  renderSidebar();
+}
+
+const initials = n => (n||'??').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+
+function matchStore(s,q){
+  if(!q) return true;
+  q=q.toLowerCase();
+  const hay=[s.code,s.name,s.state,s.timezone,s.store_email,s.store_office_phone,s.store_cell_phone,s.address,
+    ...s.staff.map(p=>p.name+' '+p.email+' '+p.phone),
+    ...s.supervisors.map(p=>p.name+' '+p.email+' '+p.phone)].join(' ').toLowerCase();
+  return hay.includes(q);
+}
+
+function renderSidebar(){
+  const q=document.getElementById('q').value.trim();
+  const side=document.getElementById('sidebar');
+  if(currentTab==='stores'){
+    const byState={};
+    STORES.filter(s=>matchStore(s,q)).forEach(s=>{
+      (byState[s.state||'—']=byState[s.state||'—']||[]).push(s);
+    });
+    const toolbar=`<div class="toolbar">
+      <span class="label">${Object.keys(byState).length} states · ${STORES.filter(s=>matchStore(s,q)).length} stores</span>
+      <div class="actions">
+        <button class="mini-btn" id="sb-expand">Expand all</button>
+        <button class="mini-btn" id="sb-collapse">Collapse all</button>
+      </div></div>`;
+    side.innerHTML=toolbar+Object.keys(byState).sort().map(st=>{
+      const isCollapsed=collapsedGroups.has('state:'+st);
+      return `<div>
+        <div class="group ${isCollapsed?'collapsed':''}" data-group="state:${st}">
+          <div class="group-header"><span><span class="chev">▾</span> ${st}</span><span class="group-count">${byState[st].length}</span></div>
+        </div>
+        <div class="group-body">
+          ${byState[st].map(s=>`
+            <div class="row ${selectedStore===s.code?'active':''}" data-code="${s.code}">
+              <div><div>${s.name}</div><div class="meta">${s.timezone||''}</div></div>
+              <div class="code">${s.code}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    side.querySelector('#sb-expand').onclick=()=>{ collapsedGroups.clear(); renderSidebar(); };
+    side.querySelector('#sb-collapse').onclick=()=>{
+      Object.keys(byState).forEach(st=>collapsedGroups.add('state:'+st));
+      renderSidebar();
+    };
+    side.querySelectorAll('.group-header').forEach(h=>h.onclick=()=>{
+      const g=h.closest('.group'); const id=g.dataset.group;
+      if(collapsedGroups.has(id)) collapsedGroups.delete(id); else collapsedGroups.add(id);
+      renderSidebar();
+    });
+    side.querySelectorAll('.row').forEach(r=>r.onclick=()=>{
+      selectedStore=r.dataset.code; renderContent(); renderSidebar();
+    });
+  } else if(currentTab==='corp'){
+    side.innerHTML=`<div><div class="group"><div class="group-header"><span>Teams</span><span class="group-count">${Object.keys(CORP).length}</span></div></div><div class="group-body">
+      ${Object.keys(CORP).map(k=>`<div class="row" data-section="${k}"><div>${k}</div><div class="meta">${CORP[k].members.length} people</div></div>`).join('')}
+    </div></div>`;
+    side.querySelectorAll('.row').forEach(r=>r.onclick=()=>renderCorpSection(r.dataset.section));
+  } else {
+    side.innerHTML=`<div><div class="group"><div class="group-header"><span>Escalation Tiers</span></div></div><div class="group-body">
+      <div class="row">Store Managers</div>
+      <div class="row">Area Managers</div>
+      <div class="row">District Managers</div>
+      <div class="row">Regional Manager</div>
+    </div></div>`;
+  }
+  if(currentTab==='stores') renderContent();
+  if(currentTab==='org') renderOrg();
+}
+
+function personCard(p,tags=[]){
+  const cls=['person']; if(tags.includes('temp'))cls.push('tag-temp'); if(tags.includes('multi'))cls.push('tag-multi');
+  const editBtn=canEdit()?`<button class="edit-btn" onclick="event.stopPropagation();editPerson(${JSON.stringify(p.name||'').replace(/"/g,'&quot;')})" title="Edit">✎</button>`:'';
+  return `<div class="${cls.join(' ')}" style="position:relative">
+    ${editBtn?`<div style="position:absolute;top:6px;right:6px">${editBtn}</div>`:''}
+    <div class="avatar">${initials(p.name)}</div>
+    <div>
+      <div class="name">${p.name||'<i style="color:var(--muted)">vacant</i>'}
+        ${tags.includes('temp')?'<span class="badge temp">Temp</span>':''}
+        ${tags.includes('multi')?'<span class="badge multi">Multi-store</span>':''}
+      </div>
+      <div class="role">${p.role||''}</div>
+      <div class="contact">
+        ${p.phone?`<a href="tel:${p.phone}">📞 ${p.phone}</a>`:''}
+        ${p.email?`<a href="mailto:${p.email}">✉ ${p.email}</a>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function section(id,title,count,bodyHtml,defaultOpen=true){
+  const open=defaultOpen && !collapsedSections.has(id);
+  return `<details class="section" data-sid="${id}" ${open?'open':''}>
+    <summary><h3><span class="chev">▸</span> ${title}</h3><span class="count">${count}</span></summary>
+    <div class="section-body">${bodyHtml}</div>
+  </details>`;
+}
+
+function renderContent(){
+  const c=document.getElementById('content');
+  if(currentTab!=='stores') return;
+  if(!selectedStore){ c.innerHTML=`<div class="empty">Select a store from the left, or start typing to search.</div>`; return; }
+  const s=STORES.find(x=>x.code===selectedStore);
+  if(!s) return;
+  const tag=p=>{const t=[]; if(/temp coverage/i.test(p.name)||/temp coverage/i.test(p.role)) t.push('temp'); if(/multi[- ]?store/i.test(p.role)) t.push('multi'); return t;};
+  const sids=['staff-'+s.code,'sup-'+s.code,'rep-'+s.code];
+  c.innerHTML=`<div class="profile">
+    <div class="profile-toolbar">
+      <button class="mini-btn" data-profile-action="expand">Expand all</button>
+      <button class="mini-btn" data-profile-action="collapse">Collapse all</button>
+    </div>
+    <h2>${s.name}<span class="code-inline">${s.code}</span></h2>
+    <div class="subtitle">${[s.state,s.timezone,s.address].filter(Boolean).join(' · ')||'—'}</div>
+    <div class="cards">
+      <div class="card"><h4>Store Email</h4><div class="big">${s.store_email?`<a href="mailto:${s.store_email}">${s.store_email}</a>`:'—'}</div></div>
+      <div class="card"><h4>Office</h4><div class="big">${s.store_office_phone?`<a href="tel:${s.store_office_phone}">${s.store_office_phone}</a>`:'—'}</div></div>
+      <div class="card"><h4>Cell</h4><div class="big">${s.store_cell_phone?`<a href="tel:${s.store_cell_phone}">${s.store_cell_phone}</a>`:'—'}</div></div>
+      <div class="card"><h4>Computers Onsite</h4><div class="big">${s.computers_onsite||'—'}</div></div>
+      <div class="card" style="grid-column:span 2"><h4>Manager Hours</h4><div class="hours">${s.hours_raw||'—'}</div></div>
+    </div>
+    ${section('staff-'+s.code,'Store Team',s.staff.length,`<div class="people">${s.staff.map(p=>personCard(p,tag(p))).join('')||'<div class="empty" style="margin-top:0">No staff on file.</div>'}</div>`)}
+    ${section('sup-'+s.code,'Escalation · Supervisors',s.supervisors.length,`<div class="people">${s.supervisors.map(p=>personCard(p,tag(p))).join('')}</div>`)}
+    ${s.account_rep?section('rep-'+s.code,'Account Representative',1,`<div class="people">${personCard(s.account_rep)}</div>`,false):''}
+  </div>`;
+  bindDetailsToggles(c);
+}
+
+function renderCorpSection(name){
+  const d=CORP[name];
+  document.getElementById('content').innerHTML=`<div class="profile">
+    <div class="profile-toolbar">
+      <button class="mini-btn" data-profile-action="expand">Expand all</button>
+      <button class="mini-btn" data-profile-action="collapse">Collapse all</button>
+    </div>
+    <h2>${name}</h2>
+    <div class="subtitle">${d.team_email?`<a href="mailto:${d.team_email}" style="color:var(--info)">${d.team_email}</a>`:''}</div>
+    ${section('corp-'+name,'Members',d.members.length,`<div class="people">${d.members.map(p=>personCard(p)).join('')}</div>`)}
+  </div>`;
+  bindDetailsToggles(document.getElementById('content'));
+}
+
+function renderOrg(){
+  const roleSet=rx=>{const seen=new Set(),list=[];
+    STORES.forEach(s=>s.supervisors.concat(s.staff).forEach(p=>{
+      if(rx.test(p.role)&&p.name&&!seen.has(p.name)){seen.add(p.name);list.push({...p,stores:[]});}
+    }));
+    list.forEach(x=>{x.stores=STORES.filter(s=>[...s.supervisors,...s.staff].some(p=>p.name===x.name)).map(s=>s.code);});
+    return list;
+  };
+  const regionals=roleSet(/regional/i);
+  const dms=roleSet(/^dm$|district manager/i);
+  const ams=roleSet(/^am$|area manager/i);
+  const msms=roleSet(/multi[- ]?store/i);
+  const tier=(id,title,arr,openDefault=true)=>{
+    const open=openDefault&&!collapsedSections.has(id);
+    return `<details class="tier" data-sid="${id}" ${open?'open':''}>
+      <summary><h3><span class="chev">▸</span> ${title}</h3><span class="count" style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">${arr.length}</span></summary>
+      <div class="tier-body"><div class="nodes">${arr.map(p=>`<div class="node">${p.name}<span class="sm">· ${p.stores.length} store${p.stores.length===1?'':'s'}</span></div>`).join('')||'<div class="empty" style="margin-top:0">None</div>'}</div></div>
+    </details>`;
+  };
+  document.getElementById('content').innerHTML=`
+    <div class="profile-toolbar">
+      <button class="mini-btn" data-profile-action="expand">Expand all</button>
+      <button class="mini-btn" data-profile-action="collapse">Collapse all</button>
+    </div>
+    <div class="org">
+    ${tier('t-reg','Regional Managers',regionals)}
+    ${tier('t-dm','District Managers',dms)}
+    ${tier('t-am','Area Managers',ams)}
+    ${tier('t-msm','Multi-Store Managers',msms)}
+  </div>`;
+  bindDetailsToggles(document.getElementById('content'));
+}
+
+function bindDetailsToggles(root){
+  root.querySelectorAll('details[data-sid]').forEach(d=>{
+    d.addEventListener('toggle',()=>{
+      const id=d.dataset.sid;
+      if(d.open) collapsedSections.delete(id); else collapsedSections.add(id);
+    });
+  });
+  root.querySelectorAll('[data-profile-action]').forEach(b=>{
+    b.onclick=()=>{
+      const act=b.dataset.profileAction;
+      root.querySelectorAll('details[data-sid]').forEach(d=>{
+        d.open=(act==='expand');
+        const id=d.dataset.sid;
+        if(act==='expand') collapsedSections.delete(id); else collapsedSections.add(id);
+      });
+    };
+  });
+}
+
+/* ─── Role gating — embedded mode reads from URL (?role=admin|power|viewer)
+       set by the parent Transitions Dashboard from SSO. Admins impersonate
+       lower tiers via the global UserBadge dropdown in the app shell (not here).
+       In embedded mode the pill is always locked; standalone mode allows local
+       role switching for development preview. */
+const _urlRole=new URLSearchParams(location.search).get('role');
+const _embedded=_urlRole!==null;
+let ROLE=_urlRole || localStorage.getItem('ss_role') || 'viewer';
+const canEdit=()=>ROLE==='power'||ROLE==='admin';
+function applyRole(){
+  const sel=document.getElementById('roleSel');
+  sel.value=ROLE;
+  sel.disabled=_embedded;
+  sel.title=_embedded ? 'Role assigned by Transitions Dashboard · switch via the user menu' : 'Switch role';
+  const dot=document.getElementById('roleDot');
+  dot.className='role-dot '+(ROLE==='admin'?'admin':ROLE==='power'?'power':'viewer');
+  document.getElementById('tab-manage').style.display=canEdit()?'':'none';
+  if(!canEdit() && currentTab==='manage'){
+    currentTab='stores';
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active',x.dataset.tab==='stores'));
+    document.getElementById('content').innerHTML='';
+    renderSidebar();
+  }
+}
+document.getElementById('roleSel').onchange=e=>{
+  if(_embedded) return;
+  ROLE=e.target.value;
+  localStorage.setItem('ss_role',ROLE);
+  applyRole();
+  if(currentTab==='manage') renderManage(); else renderSidebar();
+};
+
+/* ─── Manage tab ─── */
+function renderManage(){
+  if(!canEdit()){
+    document.getElementById('content').innerHTML=`<div class="locked-notice">🔒 This section requires <b style="margin:0 4px">Power User</b> or <b style="margin:0 4px">Admin</b> permissions. Contact IT or your manager to request elevated access.</div>`;
+    document.getElementById('sidebar').innerHTML='';
+    return;
+  }
+  document.getElementById('sidebar').innerHTML=`<div><div class="group"><div class="group-header"><span>Bulk Tools</span></div></div><div class="group-body">
+    <div class="row" data-tool="replace">Replace Person</div>
+    <div class="row" data-tool="reassign">Reassign Stores</div>
+    <div class="row" data-tool="vacancies">Fill Vacancies</div>
+    <div class="row" data-tool="import">CSV Import</div>
+    <div class="row" data-tool="export">CSV Export</div>
+    <div class="row" data-tool="audit">Audit Log</div>
+  </div></div>`;
+  document.getElementById('sidebar').querySelectorAll('.row').forEach(r=>r.onclick=()=>openTool(r.dataset.tool));
+  document.getElementById('content').innerHTML=`
+    <div class="profile-toolbar"><span style="color:var(--muted);font-size:12px">Signed in as <b style="color:var(--text)">${ROLE.toUpperCase()}</b></span></div>
+    <h2 style="margin:0 0 4px">Bulk Management</h2>
+    <div class="subtitle" style="color:var(--muted);margin-bottom:20px">Update staff assignments in bulk when people move stores, roles, or leave the company. All changes are logged.</div>
+    <div class="manage-grid">
+      ${tool('replace','🔄','Replace Person','Replace one person with another across every store assignment (e.g., DM change covering 20 stores in one click).')}
+      ${tool('reassign','📍','Reassign Stores','Pick one person and update the list of stores they cover — adds, removes, or swaps multiple assignments at once.')}
+      ${tool('vacancies','🚩','Fill Vacancies','Show every store with a vacant Store Manager / ASM / AM / DM and bulk-assign replacements.')}
+      ${tool('import','📥','CSV Import','Upload an updated call list CSV. Shows a diff preview of adds / removes / changes before you apply.')}
+      ${tool('export','📤','CSV Export','Download the current directory as CSV (people + assignments) for offline editing or backup.')}
+      ${tool('audit','📜','Audit Log','See who changed what and when. Required for SOX / SOP-IT-AI-001 compliance.')}
+    </div>`;
+  document.querySelectorAll('.tool-card').forEach(c=>c.onclick=()=>openTool(c.dataset.tool));
+}
+const tool=(id,icon,title,desc)=>`<div class="tool-card" data-tool="${id}"><div class="icon">${icon}</div><h3>${title}</h3><div class="desc">${desc}</div></div>`;
+
+/* ─── Modal plumbing ─── */
+const modal=document.getElementById('modal');
+function openModal(title,bodyHtml,footHtml=''){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=bodyHtml;
+  document.getElementById('modalFoot').innerHTML=footHtml;
+  modal.classList.add('open');
+}
+function closeModal(){ modal.classList.remove('open'); }
+document.getElementById('modalClose').onclick=closeModal;
+modal.onclick=e=>{ if(e.target===modal) closeModal(); };
+
+function allPeopleNames(){
+  const s=new Set();
+  STORES.forEach(st=>[...st.staff,...st.supervisors,st.account_rep].filter(Boolean).forEach(p=>p.name && s.add(p.name)));
+  return [...s].sort();
+}
+
+function denyViewer(action='edit'){
+  if(!canEdit()){
+    openModal('Read-only access',
+      `<div class="locked-notice" style="margin:0">🔒 Your role is <b style="margin:0 4px">${ROLE.toUpperCase()}</b>. Viewers cannot ${action}. Request Power User or Admin access from IT.</div>`,
+      `<button class="btn primary" onclick="closeModal()">OK</button>`);
+    return true;
+  }
+  return false;
+}
+
+function openTool(id){
+  if(denyViewer('use bulk tools')) return;
+  if(id==='replace'){
+    const names=allPeopleNames();
+    openModal('Replace Person Across All Stores',`
+      <div class="form-row"><label>Find</label><select id="r-find"><option value="">— pick —</option>${names.map(n=>`<option>${n}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Replace with</label><input id="r-new-name" placeholder="New person's name" /></div>
+      <div class="form-row"><label>Email</label><input id="r-new-email" placeholder="new@securespace.com" /></div>
+      <div class="form-row"><label>Phone</label><input id="r-new-phone" placeholder="555-555-5555" /></div>
+      <div class="form-row"><label>Effective</label><input id="r-date" type="date" value="${new Date().toISOString().slice(0,10)}" /></div>
+      <div id="r-preview" style="margin-top:16px;color:var(--muted);font-size:12px"></div>
+    `,`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="r-apply" disabled>Preview changes</button>`);
+    const sel=document.getElementById('r-find');
+    sel.onchange=()=>{
+      const n=sel.value; if(!n) return;
+      const hits=[];
+      STORES.forEach(st=>[...st.staff,...st.supervisors].forEach(p=>{ if(p.name===n) hits.push({store:st.code,role:p.role}); }));
+      document.getElementById('r-preview').innerHTML=`Will update <b style="color:var(--text)">${hits.length} assignment${hits.length===1?'':'s'}</b>${hits.length?': '+hits.map(h=>h.store+' ('+h.role+')').join(', '):''}`;
+      document.getElementById('r-apply').disabled=hits.length===0;
+    };
+    document.getElementById('r-apply').onclick=()=>{
+      openModal('Confirm Replacement',`
+        <div class="diff-row"><div class="old">${sel.value}</div><div class="arr">→</div><div class="new">${document.getElementById('r-new-name').value||'(unnamed)'}</div></div>
+        <div style="color:var(--muted);font-size:12px;margin-top:12px">This change will be written to the audit log under your user ID.</div>`,
+        `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="alert('Prototype: would POST to /api/assignments/bulk-replace');closeModal()">Apply to all stores</button>`);
+    };
+  }
+  else if(id==='reassign'){
+    const names=allPeopleNames();
+    openModal('Reassign Stores',`
+      <div class="form-row"><label>Person</label><select id="ra-person"><option value="">— pick —</option>${names.map(n=>`<option>${n}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Role</label><select id="ra-role"><option>Store Manager</option><option>ASM</option><option>Multi-Store Manager</option><option>Area Manager</option><option>District Manager</option><option>Account Representative</option></select></div>
+      <div class="form-row" style="align-items:flex-start"><label>Stores</label>
+        <div style="flex:1">
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input id="ra-filter" placeholder="Filter stores…" style="flex:1;padding:6px 10px;background:var(--card);border:1px solid var(--border-color);border-radius:6px;color:var(--text);font-size:12px;outline:none" />
+            <button type="button" class="btn" style="padding:4px 10px;font-size:11px" id="ra-all">All</button>
+            <button type="button" class="btn" style="padding:4px 10px;font-size:11px" id="ra-none">None</button>
+          </div>
+          <div class="checkbox-list" id="ra-list">
+            <div class="cl-head"><span></span><span>Code</span><span>Store</span><span>State</span></div>
+            ${STORES.map(s=>`<label data-row><input type="checkbox" value="${s.code}" data-store /><span class="cl-code">${s.code}</span><span class="cl-name">${s.name}</span><span class="cl-state">${s.state||''}</span></label>`).join('')}
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:6px"><span id="ra-count">0</span> selected</div>
+        </div>
+      </div>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="alert('Prototype: would POST to /api/assignments/reassign');closeModal()">Save assignments</button>`);
+    const p=document.getElementById('ra-person');
+    const syncChecked=()=>{
+      document.querySelectorAll('#ra-list label[data-row]').forEach(l=>l.classList.toggle('checked', l.querySelector('input').checked));
+      document.getElementById('ra-count').textContent=document.querySelectorAll('[data-store]:checked').length;
+    };
+    p.onchange=()=>{
+      document.querySelectorAll('[data-store]').forEach(cb=>{
+        const st=STORES.find(s=>s.code===cb.value);
+        cb.checked=[...st.staff,...st.supervisors].some(x=>x.name===p.value);
+      });
+      syncChecked();
+    };
+    document.querySelectorAll('[data-store]').forEach(cb=>cb.onchange=syncChecked);
+    document.getElementById('ra-filter').oninput=e=>{
+      const q=e.target.value.toLowerCase();
+      document.querySelectorAll('#ra-list label[data-row]').forEach(l=>{
+        l.style.display=l.textContent.toLowerCase().includes(q)?'':'none';
+      });
+    };
+    document.getElementById('ra-all').onclick=()=>{ document.querySelectorAll('#ra-list label[data-row]:not([style*="none"]) [data-store]').forEach(cb=>cb.checked=true); syncChecked(); };
+    document.getElementById('ra-none').onclick=()=>{ document.querySelectorAll('[data-store]').forEach(cb=>cb.checked=false); syncChecked(); };
+  }
+  else if(id==='vacancies'){
+    const vac=[];
+    STORES.forEach(s=>{
+      const hasSM=s.staff.some(p=>/store manager/i.test(p.role)&&!/temp|acting/i.test(p.role)&&p.name);
+      const hasASM=s.staff.some(p=>/^asm$|assistant/i.test(p.role)&&p.name);
+      if(!hasSM) vac.push({store:s,role:'Store Manager'});
+      if(!hasASM) vac.push({store:s,role:'ASM'});
+    });
+    openModal('Stores With Vacancies',
+      vac.length?vac.map(v=>`<div class="diff-row" style="grid-template-columns:1fr 1fr 120px"><div><b>${v.store.name}</b> <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">${v.store.code}</span></div><div style="color:var(--orange)">Vacant: ${v.role}</div><button class="btn" style="padding:4px 10px;font-size:11px">Assign…</button></div>`).join(''):'<div class="empty" style="margin-top:0">No vacancies detected.</div>',
+      `<button class="btn" onclick="closeModal()">Close</button>`);
+  }
+  else if(id==='import'){
+    openModal('CSV Import',`
+      <div style="color:var(--muted);font-size:13px;margin-bottom:12px">Upload an updated call list CSV. You'll see a side-by-side diff before anything is saved.</div>
+      <input type="file" accept=".csv" style="padding:20px;border:2px dashed var(--border-color);border-radius:8px;width:100%;background:var(--card);color:var(--muted)" />
+      <div style="margin-top:14px;font-size:12px;color:var(--muted)">Expected columns: <code style="color:var(--info);font-family:'DM Mono',monospace">store_code, person_name, role, phone, email, effective_date</code></div>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" disabled>Preview diff</button>`);
+  }
+  else if(id==='export'){
+    const rows=[['store_code','store_name','person_name','role','phone','email']];
+    STORES.forEach(s=>[...s.staff,...s.supervisors,s.account_rep].filter(Boolean).forEach(p=>{
+      rows.push([s.code,s.name,p.name,p.role,p.phone,p.email]);
+    }));
+    const csv=rows.map(r=>r.map(c=>`"${(c||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='securespace-call-list.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  else if(id==='audit'){
+    openModal('Audit Log (last 20 changes)',
+      `<div style="color:var(--muted);font-size:13px;margin-bottom:12px">Prototype — production will read from <code style="color:var(--info)">audit_log</code> table.</div>
+      <div class="diff-row"><div>2026-04-15 · <b>tvt0002</b></div><div class="arr">—</div><div>Replaced John Doe → Jane Smith at L012, L018</div></div>
+      <div class="diff-row"><div>2026-04-14 · <b>rhillman</b></div><div class="arr">—</div><div>Reassigned Burney Campbell to L016, L018, L026, L031</div></div>
+      <div class="diff-row"><div>2026-04-12 · <b>hr@insitepg</b></div><div class="arr">—</div><div>CSV import · 47 rows (12 added, 3 removed, 32 unchanged)</div></div>`,
+      `<button class="btn" onclick="closeModal()">Close</button>`);
+  }
+}
+
+/* ─── Inline edit on person cards (added to existing render) ─── */
+function editPerson(name){
+  if(denyViewer('edit person records')) return;
+  openModal('Edit Person — '+name,`
+    <div class="form-row"><label>Name</label><input id="ep-name" value="${name}" /></div>
+    <div class="form-row"><label>Email</label><input id="ep-email" /></div>
+    <div class="form-row"><label>Phone</label><input id="ep-phone" /></div>
+    <div class="form-row"><label>Status</label><select id="ep-status"><option>Active</option><option>On Leave</option><option>Do Not Contact</option><option>Terminated</option></select></div>
+    <div class="form-row" style="align-items:flex-start"><label>Notes</label><textarea placeholder="e.g. 'On leave until 2026-06-01'"></textarea></div>`,
+    `<button class="btn danger" onclick="alert('Prototype: would soft-delete with confirmation');closeModal()">Mark Terminated</button>
+     <button class="btn" onclick="closeModal()">Cancel</button>
+     <button class="btn primary" onclick="alert('Prototype: would POST /api/people/upsert');closeModal()">Save</button>`);
+}
+window.editPerson=editPerson;
+
+document.getElementById('q').addEventListener('input',renderSidebar);
+document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{
+  if(b.dataset.tab==='manage' && !canEdit()){ alert('You need Power User or Admin permissions for this section.'); return; }
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); currentTab=b.dataset.tab;
+  document.getElementById('content').innerHTML='';
+  if(currentTab==='manage'){ renderManage(); return; }
+  renderSidebar();
+});
+
+document.getElementById('themeBtn').onclick=()=>{
+  const cur=document.documentElement.getAttribute('data-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark');
+};
+
+applyRole();
+load();
+</script>
+</body>
+</html>

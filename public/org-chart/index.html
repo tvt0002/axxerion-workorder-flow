@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecureSpace — Operations Org Chart</title>
+<style>
+/* ---------- Theme Variables (matches dashboard shell) ---------- */
+:root {
+  --bg-primary: #0c1120;
+  --bg-secondary: #111827;
+  --bg-card: #1a2235;
+  --bg-card-hover: #1f2a3f;
+  --bg-input: #1a2235;
+  --border-color: #283044;
+  --border-light: #1f2a3f;
+  --text-primary: #e8eaf0;
+  --text-secondary: #8893a7;
+  --text-muted: #6b7280;
+  --accent: #1f4a9a;
+  --accent-hover: #163d80;
+  --accent-dim: rgba(31, 74, 154, 0.15);
+  --green: #5ec28f;
+  --green-dim: rgba(94, 194, 143, 0.12);
+  --red: #c34141;
+  --yellow: #ffd600;
+  --orange: #fb923c;
+  --purple: #a78bfa;
+  --shadow: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f6fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f8fa;
+  --bg-input: #f5f6fa;
+  --border-color: #d5dae3;
+  --border-light: #e8eaef;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --accent: #1f4a9a;
+  --accent-hover: #163d80;
+  --accent-dim: rgba(31, 74, 154, 0.1);
+  --green: #22a331;
+  --green-dim: rgba(34, 163, 49, 0.08);
+  --red: #c34141;
+  --yellow: #ca8a04;
+  --orange: #ea580c;
+  --purple: #7c3aed;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ---------- Reset & Base ---------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- Header ---------- */
+.page-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.page-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.page-header h1 span { color: var(--accent); }
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 13px;
+  width: 260px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus {
+  border-color: var(--accent);
+}
+
+.search-box::placeholder {
+  color: var(--text-muted);
+}
+
+.btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  padding: 10px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 14px;
+  font-family: 'SF Mono', 'Consolas', monospace;
+}
+
+.stat-value.blue { color: var(--accent); }
+.stat-value.green { color: var(--green); }
+.stat-value.orange { color: var(--orange); }
+.stat-value.purple { color: var(--purple); }
+
+/* ---------- Tree Container ---------- */
+.tree-container {
+  padding: 20px 24px 40px;
+  overflow-y: auto;
+}
+
+/* ---------- Tree Node ---------- */
+.tree-node {
+  margin-left: 0;
+}
+
+.tree-node .children {
+  margin-left: 24px;
+  border-left: 1px solid var(--border-light);
+  padding-left: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.tree-node .children.collapsed {
+  max-height: 0 !important;
+  overflow: hidden;
+}
+
+.node-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+}
+
+.node-row:hover {
+  background: var(--bg-card-hover);
+}
+
+.node-row.highlighted {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+}
+
+.node-row.search-match {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid var(--yellow);
+}
+
+.node-row.search-match-parent {
+  background: rgba(251, 191, 36, 0.06);
+}
+
+/* Connector line from border-left to node */
+.tree-node .children > .tree-node > .node-row::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  width: 16px;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.toggle-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.15s;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.toggle-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.toggle-icon.no-children {
+  visibility: hidden;
+}
+
+.toggle-icon:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Role badges */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.role-badge.executive { background: rgba(74, 158, 255, 0.15); color: var(--accent); }
+.role-badge.director { background: rgba(167, 139, 250, 0.15); color: var(--purple); }
+.role-badge.regional { background: rgba(52, 211, 153, 0.15); color: var(--green); }
+.role-badge.district { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
+.role-badge.area { background: rgba(251, 146, 60, 0.15); color: var(--orange); }
+.role-badge.specialist { background: rgba(248, 113, 113, 0.15); color: var(--red); }
+.role-badge.support { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+.node-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.node-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.node-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Consolas', monospace;
+  margin-left: auto;
+  white-space: nowrap;
+  padding-right: 8px;
+}
+
+.node-temp {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Location nodes */
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 30px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+
+.location-row:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
+}
+
+.location-row.search-match {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--text-primary);
+}
+
+.location-code {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  min-width: 36px;
+}
+
+.location-name {
+  color: var(--text-secondary);
+}
+
+.location-state {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: auto;
+  padding-right: 8px;
+}
+
+/* ---------- Detail Panel (click a person) ---------- */
+.detail-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  height: 100vh;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.detail-panel.open {
+  transform: translateX(0);
+}
+
+.detail-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.detail-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0 4px;
+}
+
+.detail-close:hover { color: var(--text-primary); }
+
+.detail-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.detail-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.detail-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.detail-section {
+  margin-bottom: 16px;
+}
+
+.detail-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.detail-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.detail-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.detail-stat-card .value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Consolas', monospace;
+}
+
+.detail-stat-card .label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.detail-list {
+  list-style: none;
+}
+
+.detail-list li {
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.detail-list li:last-child { border-bottom: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .search-box { width: 160px; }
+  .detail-panel { width: 100%; }
+  .stats-bar { gap: 12px; padding: 8px 16px; }
+  .page-header { padding: 12px 16px; }
+  .tree-container { padding: 12px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <h1><span>Operations</span> Org Chart</h1>
+  <div class="header-controls">
+    <input type="text" class="search-box" id="search" placeholder="Search people or locations..." oninput="handleSearch(this.value)">
+    <button class="btn" onclick="expandAll()">Expand All</button>
+    <button class="btn" onclick="collapseAll()">Collapse All</button>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-value blue">32</span> Team Members</div>
+  <div class="stat"><span class="stat-value green">88</span> Locations (Field Ops)</div>
+  <div class="stat"><span class="stat-value orange">6</span> Regions</div>
+  <div class="stat"><span class="stat-value purple">3</span> Districts</div>
+</div>
+
+<!-- Tree -->
+<div class="tree-container" id="tree-container"></div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-name" id="detail-name"></div>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <button class="detail-close" onclick="closePanel()">&times;</button>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<script>
+// ============================================================
+// ORG DATA — SecureSpace Operations Team (March 2026)
+// ============================================================
+const orgData = {
+  name: "Chris Runckel", title: "President of Operations", role: "executive", email: "chris@securespace.com", dept: "GSA Management",
+  children: [
+    {
+      name: "Emily Hyun", title: "Dir of Operations", role: "director", email: "emily@securespace.com", dept: "GSA Management",
+      children: [
+        {
+          name: "Piya Futerman", title: "Sr Operations Manager", role: "regional", email: "pfuterman@securespace.com", dept: "Property Management",
+          children: [
+            {
+              name: "Ana Sanchez", title: "Ops Project Manager", role: "support", email: "asanchez@securespace.com", dept: "Property Management",
+              children: [
+                { name: "Taylor Dariarow", title: "Ops Project Assistant", role: "support", email: "tdariarow@securespace.com" },
+                { name: "April Choy-Wu", title: "Ops Project Assistant", role: "support", email: "achoywu@securespace.com" }
+              ]
+            },
+            { name: "Vincent McMahon", title: "Transition Manager", role: "support", email: "vmcmahon@securespace.com", dept: "Property Management" }
+          ]
+        }
+      ]
+    },
+    {
+      name: "FM Team", title: "Facilities Management", role: "specialist",
+      children: [
+        { name: "Felipe Lopez", title: "Facilities Manager", role: "specialist", email: "felipe@insitepg.com", dept: "Facility Management" },
+        { name: "Tim Macvittie", title: "Facilities Manager", role: "specialist", email: "tmacvittie@securespace.com" },
+        { name: "Denise Nippard", title: "Axxerion Coordinator", role: "support", email: "denise@insitepg.com" }
+      ]
+    },
+    {
+      name: "Randy Hillman", title: "Regional Manager", role: "regional", count: 88, email: "rhillman@securespace.com", dept: "Property Management",
+      children: [
+        {
+          name: "Mike Broadus", title: "District Manager", role: "district", count: 27, email: "mbroadus@securespace.com", dept: "Property Management",
+          children: [
+            {
+              name: "Dana McClintock", title: "PNW 1 Area Manager", role: "area", count: 10, email: "dmcclintock@securespace.com",
+              locations: [
+                { code: "L011", name: "Centennial", state: "OR" },
+                { code: "L012", name: "NE Portland", state: "OR" },
+                { code: "L042", name: "Portland 16th", state: "OR" },
+                { code: "L015", name: "Waipahu", state: "HI" },
+                { code: "L023", name: "Mililani", state: "HI" },
+                { code: "L072", name: "Kapolei", state: "HI" },
+                { code: "L016", name: "Parkland", state: "WA" },
+                { code: "L018", name: "Lakewood", state: "WA" },
+                { code: "L026", name: "Federal Way", state: "WA" },
+                { code: "L031", name: "Nalley Valley", state: "WA" }
+              ]
+            },
+            {
+              name: "Bart Mays", title: "PNW 2 Area Manager", role: "area", count: 11, email: "bartholomew.mays@securespace.com",
+              locations: [
+                { code: "L020", name: "Ballard", state: "WA" },
+                { code: "L024", name: "Everett", state: "WA" },
+                { code: "L050", name: "Lake City", state: "WA" },
+                { code: "L057", name: "Lynnwood", state: "WA" },
+                { code: "L059", name: "West Seattle", state: "WA" },
+                { code: "L063", name: "Seattle Greenwood", state: "WA" },
+                { code: "L078", name: "Magnolia", state: "WA" },
+                { code: "L081", name: "SeaTac", state: "WA" },
+                { code: "L083", name: "Corgiat", state: "WA" },
+                { code: "L091", name: "Tukwila", state: "WA" },
+                { code: "L092", name: "Auburn", state: "WA" }
+              ]
+            },
+            {
+              name: "Julio Gloria", title: "West Central Area Manager", role: "area", count: 6, email: "jgloria@securespace.com",
+              locations: [
+                { code: "L019", name: "Murray", state: "UT" },
+                { code: "L030", name: "Park Hill Denver", state: "CO" },
+                { code: "L032", name: "Austin Congress", state: "TX" },
+                { code: "L033", name: "Austin Service", state: "TX" },
+                { code: "L034", name: "Bee Cave", state: "TX" },
+                { code: "L048", name: "Surprise", state: "AZ" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "John McFadden", title: "District Manager", role: "district", count: 19, temp: "Temp Oversight", email: "jmcfadden@securespace.com", dept: "Property Management",
+          children: [
+            {
+              name: "Trevor Drummond", title: "NorCal Sr. Area Manager", role: "area", count: 9, email: "tdrummond@securespace.com",
+              locations: [
+                { code: "L035", name: "Milpitas", state: "CA" },
+                { code: "L039", name: "San Leandro", state: "CA" },
+                { code: "L040", name: "Berkeley", state: "CA" },
+                { code: "L041", name: "Antioch", state: "CA" },
+                { code: "L053", name: "Richmond", state: "CA" },
+                { code: "L071", name: "Martinez", state: "CA" },
+                { code: "L073", name: "Vallejo 1855", state: "CA" },
+                { code: "L082", name: "Fremont Mowry", state: "CA" },
+                { code: "L086", name: "Fremont Glenmoor", state: "CA" }
+              ]
+            },
+            {
+              name: "Zac Foreman", title: "SoCal 1 Area Manager", role: "area", count: 10, temp: "Temp Oversight", email: "zforeman@securespace.com",
+              locations: [
+                { code: "L003", name: "Camarillo", state: "CA" },
+                { code: "L006", name: "Torrance", state: "CA" },
+                { code: "L047", name: "Van Nuys", state: "CA" },
+                { code: "L051", name: "Firestone", state: "CA" },
+                { code: "L054", name: "Essex", state: "CA" },
+                { code: "L067", name: "L.A. Avalon", state: "CA" },
+                { code: "L068", name: "Long Beach", state: "CA" },
+                { code: "L075", name: "Signal Hill", state: "CA" },
+                { code: "L079", name: "San Pedro", state: "CA" },
+                { code: "L085", name: "Glendale", state: "CA" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "John McFadden", title: "District Manager", role: "district", count: 23, email: "jmcfadden@securespace.com", dept: "Property Management",
+          children: [
+            {
+              name: "Zach Foreman", title: "SoCal 2 Area Manager", role: "area", count: 9, email: "zforeman@securespace.com",
+              locations: [
+                { code: "L008", name: "Spring Valley", state: "CA" },
+                { code: "L014", name: "Rialto", state: "CA" },
+                { code: "L025", name: "Rancho Penasquitos", state: "CA" },
+                { code: "L027", name: "Vista", state: "CA" },
+                { code: "L046", name: "Brea", state: "CA" },
+                { code: "L064", name: "San Bernardino", state: "CA" },
+                { code: "L069", name: "Santa Fe Springs", state: "CA" },
+                { code: "L070", name: "Rosemead", state: "CA" },
+                { code: "L077", name: "Palm Springs", state: "CA" }
+              ]
+            },
+            {
+              name: "Nicholas Kan", title: "San Jose Area Manager", role: "area", count: 6, email: "nicholas.kan@securespace.com",
+              locations: [
+                { code: "L036", name: "San Jose Hedding", state: "CA" },
+                { code: "L037", name: "San Jose Lonus", state: "CA" },
+                { code: "L038", name: "San Jose Teresa", state: "CA" },
+                { code: "L043", name: "Los Gatos Farley", state: "CA" },
+                { code: "L044", name: "Los Gatos University", state: "CA" },
+                { code: "L065", name: "San Jose Winfield", state: "CA" }
+              ]
+            },
+            {
+              name: "Alonzo Lewis", title: "FL Area Manager", role: "area", count: 8, email: "alewis@securespace.com", dept: "Property Management",
+              locations: [
+                { code: "L002", name: "Titusville", state: "FL" },
+                { code: "L007", name: "Clearwater", state: "FL" },
+                { code: "L010", name: "Palm Harbor", state: "FL" },
+                { code: "L017", name: "Riverview", state: "FL" },
+                { code: "L021", name: "Homestead", state: "FL" },
+                { code: "L022", name: "Atlantic Beach", state: "FL" },
+                { code: "L045", name: "Coral Way", state: "FL" },
+                { code: "L076", name: "Coral Gables", state: "FL" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Larain Geathers", title: "District Manager", role: "district", count: 19, email: "lgeathers@securespace.com", dept: "Property Management",
+          children: [
+            {
+              name: "Steve Obney", title: "NE2 Area Manager", role: "area", count: 9, email: "sobney@securespace.com", dept: "Property Management",
+              locations: [
+                { code: "L009", name: "Lanham", state: "MD" },
+                { code: "L066", name: "Odenton", state: "MD" },
+                { code: "L013", name: "Stelton", state: "NJ" },
+                { code: "L052", name: "Livingston", state: "NJ" },
+                { code: "L074", name: "North Plainfield", state: "NJ" },
+                { code: "L029", name: "North Wales", state: "PA" },
+                { code: "L049", name: "Blue Bell", state: "PA" },
+                { code: "L056", name: "Langhorne", state: "PA" },
+                { code: "L080", name: "Arlington", state: "VA" }
+              ]
+            },
+            {
+              name: "Chris Francisco", title: "NE1 Sr. Area Manager", role: "area", count: 10, email: "cfrancisco@securespace.com", dept: "Property Management",
+              locations: [
+                { code: "L005", name: "Brooklyn", state: "NY" },
+                { code: "L028", name: "Maspeth", state: "NY" },
+                { code: "L055", name: "Elmsford", state: "NY" },
+                { code: "L058", name: "College Point", state: "NY" },
+                { code: "L060", name: "Manhattan E90th St.", state: "NY" },
+                { code: "L061", name: "Philadelphia Glenwood", state: "PA" },
+                { code: "L062", name: "Philadelphia Grays Ferry", state: "PA" },
+                { code: "L084", name: "Sayerville South Amboy", state: "NJ" },
+                { code: "L087", name: "West Roxbury", state: "MA" },
+                { code: "L088", name: "Wakefield", state: "MA" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: "Stephanie Quilliams", title: "Learning Manager", role: "specialist", email: "squilliams@securespace.com", dept: "Property Management",
+      children: [
+        { name: "Saleena Barrera", title: "Training Coordinator", role: "support", email: "sbarrera@securespace.com", dept: "Property Management" }
+      ]
+    },
+    {
+      name: "Philip Giovanni", title: "Security Manager", role: "specialist", email: "pgiovanni@securespace.com", dept: "Property Management",
+      children: [
+        { name: "Grant Stanford", title: "Overnight Security Coordinator", role: "support", email: "gstanford@securespace.com", dept: "Property Management" }
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// RENDER TREE
+// ============================================================
+let nodeIndex = 0;
+let allNodes = [];
+
+function renderTree(node, depth = 0) {
+  const id = nodeIndex++;
+  const hasChildren = (node.children && node.children.length > 0) || (node.locations && node.locations.length > 0);
+  const startExpanded = depth < 2;
+
+  allNodes.push({ id, ...node, depth, hasChildren, email: node.email, dept: node.dept });
+
+  let html = `<div class="tree-node" data-id="${id}">`;
+
+  // Node row
+  html += `<div class="node-row" data-id="${id}" onclick="handleNodeClick(event, ${id})">`;
+  html += `<span class="toggle-icon ${hasChildren ? (startExpanded ? 'expanded' : '') : 'no-children'}" data-id="${id}">&#x25B6;</span>`;
+  html += `<span class="role-badge ${node.role}">${formatRole(node.role)}</span>`;
+  html += `<span class="node-name">${node.name}</span>`;
+  if (node.temp) html += `<span class="node-temp">${node.temp}</span>`;
+  html += `<span class="node-title">${node.title}</span>`;
+  if (node.count) html += `<span class="node-count">${node.count} locations</span>`;
+  html += `</div>`;
+
+  // Children
+  if (hasChildren) {
+    html += `<div class="children ${startExpanded ? '' : 'collapsed'}" data-parent="${id}" style="max-height: ${startExpanded ? '9999px' : '0'}">`;
+    if (node.children) {
+      node.children.forEach(child => { html += renderTree(child, depth + 1); });
+    }
+    if (node.locations) {
+      node.locations.forEach(loc => {
+        html += `<div class="location-row" data-location="${loc.code}">`;
+        html += `<span class="location-code">${loc.code}</span>`;
+        html += `<span class="location-name">${loc.name}</span>`;
+        html += `<span class="location-state">${loc.state}</span>`;
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function formatRole(role) {
+  const labels = {
+    executive: 'EXEC', director: 'DIR', regional: 'REGIONAL',
+    district: 'DISTRICT', area: 'AM', specialist: 'SPEC', support: 'SUPPORT'
+  };
+  return labels[role] || role.toUpperCase();
+}
+
+// Initial render
+document.getElementById('tree-container').innerHTML = renderTree(orgData);
+
+// ============================================================
+// TOGGLE EXPAND/COLLAPSE
+// ============================================================
+function handleNodeClick(event, id) {
+  event.stopPropagation();
+  const toggle = document.querySelector(`.toggle-icon[data-id="${id}"]`);
+  if (toggle.classList.contains('no-children')) {
+    showDetail(id);
+    return;
+  }
+
+  const children = document.querySelector(`.children[data-parent="${id}"]`);
+  if (!children) { showDetail(id); return; }
+
+  const isCollapsed = children.classList.contains('collapsed');
+  if (isCollapsed) {
+    children.classList.remove('collapsed');
+    children.style.maxHeight = children.scrollHeight + 'px';
+    toggle.classList.add('expanded');
+    // After transition, set to none for nested expansions
+    setTimeout(() => { if (!children.classList.contains('collapsed')) children.style.maxHeight = '9999px'; }, 300);
+  } else {
+    children.style.maxHeight = children.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      children.style.maxHeight = '0';
+      children.classList.add('collapsed');
+      toggle.classList.remove('expanded');
+    });
+  }
+
+  // Also show detail
+  showDetail(id);
+}
+
+function expandAll() {
+  document.querySelectorAll('.children.collapsed').forEach(el => {
+    el.classList.remove('collapsed');
+    el.style.maxHeight = '9999px';
+  });
+  document.querySelectorAll('.toggle-icon:not(.no-children)').forEach(el => el.classList.add('expanded'));
+}
+
+function collapseAll() {
+  document.querySelectorAll('.children').forEach(el => {
+    el.classList.add('collapsed');
+    el.style.maxHeight = '0';
+  });
+  document.querySelectorAll('.toggle-icon').forEach(el => el.classList.remove('expanded'));
+  // Keep root expanded
+  const rootChildren = document.querySelector('.children[data-parent="0"]');
+  const rootToggle = document.querySelector('.toggle-icon[data-id="0"]');
+  if (rootChildren) { rootChildren.classList.remove('collapsed'); rootChildren.style.maxHeight = '9999px'; }
+  if (rootToggle) rootToggle.classList.add('expanded');
+}
+
+// ============================================================
+// DETAIL PANEL
+// ============================================================
+function showDetail(id) {
+  const node = allNodes.find(n => n.id === id);
+  if (!node) return;
+
+  // Highlight
+  document.querySelectorAll('.node-row.highlighted').forEach(el => el.classList.remove('highlighted'));
+  document.querySelector(`.node-row[data-id="${id}"]`).classList.add('highlighted');
+
+  document.getElementById('detail-name').textContent = node.name;
+  document.getElementById('detail-title').textContent = node.title + (node.temp ? ` (${node.temp})` : '');
+
+  let body = '';
+
+  // Contact info
+  const dataNode = findInData(orgData, node.name, node.title);
+  if (dataNode && (dataNode.email || dataNode.dept)) {
+    body += '<div class="detail-section">';
+    if (dataNode.email) body += `<div style="margin-bottom:6px;"><span style="color:var(--text-muted);font-size:11px;">EMAIL</span><br><a href="mailto:${dataNode.email}" style="color:var(--accent);text-decoration:none;font-size:13px;">${dataNode.email}</a></div>`;
+    if (dataNode.dept) body += `<div><span style="color:var(--text-muted);font-size:11px;">DEPARTMENT</span><br><span style="font-size:13px;">${dataNode.dept}</span></div>`;
+    body += '</div>';
+  }
+
+  // Stats
+  const directReports = (node.children || []).length;
+  const totalLocations = countLocations(node);
+  const totalPeople = countPeople(node);
+
+  body += '<div class="detail-section"><div class="detail-stat-grid">';
+  body += `<div class="detail-stat-card"><div class="value" style="color: var(--accent);">${directReports}</div><div class="label">Direct Reports</div></div>`;
+  body += `<div class="detail-stat-card"><div class="value" style="color: var(--green);">${totalLocations}</div><div class="label">Total Locations</div></div>`;
+  body += `<div class="detail-stat-card"><div class="value" style="color: var(--orange);">${totalPeople}</div><div class="label">Total Team</div></div>`;
+  body += `<div class="detail-stat-card"><div class="value" style="color: var(--purple);">${node.depth}</div><div class="label">Org Depth</div></div>`;
+  body += '</div></div>';
+
+  // Direct reports list
+  if (node.children && node.children.length > 0) {
+    body += '<div class="detail-section"><div class="detail-section-title">Direct Reports</div><ul class="detail-list">';
+    node.children.forEach(c => {
+      const cn = allNodes.find(n => n.name === c.name && n.title === c.title);
+      body += `<li>${c.name} &mdash; <span style="color: var(--text-muted)">${c.title}</span></li>`;
+    });
+    body += '</ul></div>';
+  }
+
+  // Locations
+  if (node.locations && node.locations.length > 0) {
+    body += '<div class="detail-section"><div class="detail-section-title">Locations</div><ul class="detail-list">';
+    node.locations.forEach(loc => {
+      body += `<li><span style="color: var(--accent); font-family: monospace;">${loc.code}</span> ${loc.name} <span style="color: var(--text-muted)">(${loc.state})</span></li>`;
+    });
+    body += '</ul></div>';
+  }
+
+  document.getElementById('detail-body').innerHTML = body;
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.querySelectorAll('.node-row.highlighted').forEach(el => el.classList.remove('highlighted'));
+}
+
+function countLocations(node) {
+  let count = (node.locations || []).length;
+  (node.children || []).forEach(c => {
+    const childNode = allNodes.find(n => n.name === c.name && n.title === c.title);
+    // Recurse through original data
+    count += countLocationsData(c);
+  });
+  return count;
+}
+
+function countLocationsData(data) {
+  let count = (data.locations || []).length;
+  (data.children || []).forEach(c => { count += countLocationsData(c); });
+  return count;
+}
+
+function countPeople(node) {
+  let count = 0;
+  (node.children || []).forEach(c => { count += 1 + countPeopleData(c); });
+  return count;
+}
+
+function countPeopleData(data) {
+  let count = 0;
+  (data.children || []).forEach(c => { count += 1 + countPeopleData(c); });
+  return count;
+}
+
+// Helper — find a node in the original data tree
+function findInData(data, name, title) {
+  if (data.name === name && data.title === title) return data;
+  for (const c of (data.children || [])) {
+    const found = findInData(c, name, title);
+    if (found) return found;
+  }
+  return null;
+}
+
+// Rewrite countLocations to use data tree
+function countLocations(nodeInfo) {
+  const dataNode = findInData(orgData, nodeInfo.name, nodeInfo.title);
+  return dataNode ? countLocationsData(dataNode) : 0;
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+let searchTimeout;
+function handleSearch(query) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => performSearch(query), 200);
+}
+
+function performSearch(query) {
+  // Clear previous
+  document.querySelectorAll('.search-match, .search-match-parent').forEach(el => {
+    el.classList.remove('search-match', 'search-match-parent');
+  });
+
+  if (!query || query.length < 2) return;
+  const q = query.toLowerCase();
+
+  // Search people
+  allNodes.forEach(node => {
+    if (node.name.toLowerCase().includes(q) || node.title.toLowerCase().includes(q)) {
+      const row = document.querySelector(`.node-row[data-id="${node.id}"]`);
+      if (row) row.classList.add('search-match');
+      // Expand parents
+      expandToNode(node.id);
+    }
+  });
+
+  // Search locations
+  document.querySelectorAll('.location-row').forEach(el => {
+    const code = el.getAttribute('data-location') || '';
+    const text = el.textContent.toLowerCase();
+    if (text.includes(q) || code.toLowerCase().includes(q)) {
+      el.classList.add('search-match');
+      // Expand parent chain
+      let parent = el.closest('.children');
+      while (parent) {
+        const parentId = parent.getAttribute('data-parent');
+        if (parentId !== null) {
+          parent.classList.remove('collapsed');
+          parent.style.maxHeight = '9999px';
+          const toggle = document.querySelector(`.toggle-icon[data-id="${parentId}"]`);
+          if (toggle) toggle.classList.add('expanded');
+        }
+        parent = parent.parentElement ? parent.parentElement.closest('.children') : null;
+      }
+    }
+  });
+}
+
+function expandToNode(id) {
+  const nodeRow = document.querySelector(`.node-row[data-id="${id}"]`);
+  if (!nodeRow) return;
+  let parent = nodeRow.closest('.children');
+  while (parent) {
+    const parentId = parent.getAttribute('data-parent');
+    parent.classList.remove('collapsed');
+    parent.style.maxHeight = '9999px';
+    if (parentId !== null) {
+      const toggle = document.querySelector(`.toggle-icon[data-id="${parentId}"]`);
+      if (toggle) toggle.classList.add('expanded');
+      const parentRow = document.querySelector(`.node-row[data-id="${parentId}"]`);
+      if (parentRow) parentRow.classList.add('search-match-parent');
+    }
+    parent = parent.parentElement ? parent.parentElement.closest('.children') : null;
+  }
+}
+
+// ============================================================
+// THEME SYNC (from parent shell)
+// ============================================================
+// Listen for theme set by parent
+const observer = new MutationObserver(() => {});
+// Check parent theme on load
+try {
+  if (window.parent && window.parent.document) {
+    const parentTheme = window.parent.document.documentElement.getAttribute('data-theme');
+    if (parentTheme) document.documentElement.setAttribute('data-theme', parentTheme);
+  }
+} catch(e) {}
+
+// Close panel on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+});
+</script>
+</body>
+</html>
