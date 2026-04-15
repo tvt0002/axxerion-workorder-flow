@@ -35,7 +35,21 @@ body.sidebar-collapsed{margin-left:58px;}
 .sidebar.collapsed .sidebar-nav{padding:12px 6px;}
 .sidebar.collapsed .sidebar-nav .gtab{justify-content:center;padding:10px 0;}
 .sidebar.collapsed .sidebar-nav .gtab .nav-label{display:none;}
-.nav-ico{font-size:13px;width:18px;text-align:center;opacity:.85;flex-shrink:0;}
+.nav-ico{font-size:15px;width:18px;text-align:center;opacity:.85;flex-shrink:0;}
+/* ── Sidebar Search ── */
+.sidebar-search-wrap{position:relative;padding:10px 10px 4px;}
+.sidebar.collapsed .sidebar-search-wrap{padding:10px 6px 4px;}
+.sidebar-search-btn{width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;cursor:text;transition:all .15s;text-align:left;}
+.sidebar-search-btn:hover,.sidebar-search-btn:focus-within{border-color:var(--accent);color:var(--text);}
+.sidebar-search-btn .wo-search-icon{position:static;transform:none;font-size:13px;flex-shrink:0;}
+.sidebar-search-btn .wo-search-input{flex:1;min-width:0;width:100%;background:transparent;border:none;padding:0;font-family:'Inter',sans-serif;font-size:12px;color:var(--text);outline:none;box-shadow:none;}
+.sidebar-search-btn .wo-search-input:focus{box-shadow:none;border:none;width:100%;}
+.sidebar-search-btn .sidebar-kbd{margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;opacity:.6;border:1px solid var(--border);border-radius:3px;padding:1px 4px;flex-shrink:0;}
+.sidebar.collapsed .sidebar-search-btn{justify-content:center;padding:8px 0;}
+.sidebar.collapsed .sidebar-search-btn .wo-search-input,
+.sidebar.collapsed .sidebar-search-btn .sidebar-kbd{display:none;}
+.sidebar-search-wrap .wo-results{left:10px;right:10px;min-width:0;width:calc(100% - 20px);}
+.sidebar.collapsed .sidebar-search-wrap .wo-results{left:calc(100% + 6px);right:auto;width:360px;top:0;}
 .sidebar-footer{padding:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;}
 .sidebar-footer-btn{width:100%;text-align:left;padding:8px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.04em;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;transition:all .15s;white-space:nowrap;overflow:hidden;}
 .sidebar-footer-btn:hover{border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}
@@ -327,6 +341,14 @@ body.sidebar-collapsed{margin-left:58px;}
       <span class="sub">SecureSpace</span>
     </div>
   </div>
+  <div class="sidebar-search-wrap">
+    <label class="sidebar-search-btn" title="Search">
+      <span class="wo-search-icon">&#128269;</span>
+      <input type="text" class="wo-search-input" id="woSearch" placeholder="Search..." autocomplete="off">
+      <span class="sidebar-kbd">Ctrl+K</span>
+    </label>
+    <div class="wo-results" id="woResults"></div>
+  </div>
   <nav class="sidebar-nav">
     <button class="gtab active" onclick="switchView('dashboard',this)" title="Dashboard"><span class="nav-ico">&#9638;</span><span class="nav-label">Dashboard</span></button>
     <button class="gtab" onclick="switchView('opsqueue',this)" title="Ops Queue"><span class="nav-ico">&#9889;</span><span class="nav-label">Ops Queue</span></button>
@@ -352,12 +374,6 @@ body.sidebar-collapsed{margin-left:58px;}
 <!-- ══════════ TOP BAR (slim) ══════════ -->
 <div class="gnav">
   <h1 style="display:flex;align-items:center;">Axxerion Operations Dashboard<span class="status-tip-wrap" id="statusTipWrap"><span class="status-tip-icon">i</span><span class="status-tip-popup" id="statusTipPopup">Loading...</span></span></h1>
-  <div class="wo-search-wrap" style="margin-left:auto;">
-    <span class="wo-search-icon">&#128269;</span>
-    <input type="text" class="wo-search-input" id="woSearch" placeholder="Search anything — vendor, phone, FM, region..." autocomplete="off">
-    <div class="wo-results" id="woResults"></div>
-  </div>
-  <span class="gright" style="margin-left:0;">SecureSpace Self Storage</span>
 </div>
 <script>
 function toggleSidebar(){var s=document.getElementById('sidebar');if(s)s.classList.toggle('open');}
