@@ -546,6 +546,7 @@ function renderManage(){
     return;
   }
   document.getElementById('sidebar').innerHTML=`<div><div class="group"><div class="group-header"><span>Bulk Tools</span></div></div><div class="group-body">
+    <div class="row" data-tool="add-facility">Add Facility</div>
     <div class="row" data-tool="replace">Replace Person</div>
     <div class="row" data-tool="reassign">Reassign Stores</div>
     <div class="row" data-tool="vacancies">Fill Vacancies</div>
@@ -559,6 +560,7 @@ function renderManage(){
     <h2 style="margin:0 0 4px">Bulk Management</h2>
     <div class="subtitle" style="color:var(--muted);margin-bottom:20px">Update staff assignments in bulk when people move stores, roles, or leave the company. All changes are logged.</div>
     <div class="manage-grid">
+      ${tool('add-facility','➕','Add Facility','Guided form to onboard a new facility — captures identity, hours, contact, staff, supervisors, and account rep, pre-filled from patterns across the existing portfolio.')}
       ${tool('replace','🔄','Replace Person','Replace one person with another across every store assignment (e.g., DM change covering 20 stores in one click).')}
       ${tool('reassign','📍','Reassign Stores','Pick one person and update the list of stores they cover — adds, removes, or swaps multiple assignments at once.')}
       ${tool('vacancies','🚩','Fill Vacancies','Show every store with a vacant Store Manager / ASM / AM / DM and bulk-assign replacements.')}
@@ -600,6 +602,7 @@ function denyViewer(action='edit'){
 
 function openTool(id){
   if(denyViewer('use bulk tools')) return;
+  if(id==='add-facility'){ openAddFacility(); return; }
   if(id==='replace'){
     const names=allPeopleNames();
     openModal('Replace Person Across All Stores',`
@@ -705,6 +708,179 @@ function openTool(id){
       `<button class="btn" onclick="closeModal()">Close</button>`);
   }
 }
+
+/* ─── Add Facility — guided form mirroring existing facility shape ─── */
+function profileFacilities(){
+  const states=[...new Set(STORES.map(s=>s.state).filter(Boolean))].sort();
+  const tzs=[...new Set(STORES.map(s=>s.timezone).filter(Boolean))].sort();
+  const staffRoles=[...new Set(STORES.flatMap(s=>s.staff.map(p=>p.role)).filter(Boolean))].sort();
+  const supRoles=[...new Set(STORES.flatMap(s=>s.supervisors.map(p=>p.role)).filter(Boolean))].sort();
+  const repRoles=[...new Set(STORES.map(s=>s.account_rep&&s.account_rep.role).filter(Boolean))].sort();
+  const nums=STORES.map(s=>s.code).map(c=>{const m=/^L0*(\d+)$/.exec(c||'');return m?parseInt(m[1],10):null;}).filter(n=>n!=null);
+  const nextNum=(nums.length?Math.max(...nums)+1:1);
+  const nextCode='L'+String(nextNum).padStart(3,'0');
+  return {states,tzs,staffRoles,supRoles,repRoles,nextCode};
+}
+function personRow(kind,p){
+  p=p||{};
+  const listId=kind==='staff'?'af-staff-roles':kind==='sup'?'af-sup-roles':'af-rep-roles';
+  return `<div class="af-prow" data-kind="${kind}" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 24px;gap:6px;margin-bottom:6px;align-items:center">
+    <input placeholder="Name" data-f="name" value="${(p.name||'').replace(/"/g,'&quot;')}" style="padding:6px 8px;background:var(--card);border:1px solid var(--border-color);border-radius:4px;color:var(--text);font-size:12px;outline:none" />
+    <input placeholder="Role" list="${listId}" data-f="role" value="${(p.role||'').replace(/"/g,'&quot;')}" style="padding:6px 8px;background:var(--card);border:1px solid var(--border-color);border-radius:4px;color:var(--text);font-size:12px;outline:none" />
+    <input placeholder="Phone" data-f="phone" value="${(p.phone||'').replace(/"/g,'&quot;')}" style="padding:6px 8px;background:var(--card);border:1px solid var(--border-color);border-radius:4px;color:var(--text);font-size:12px;outline:none" />
+    <input placeholder="Email" data-f="email" value="${(p.email||'').replace(/"/g,'&quot;')}" style="padding:6px 8px;background:var(--card);border:1px solid var(--border-color);border-radius:4px;color:var(--text);font-size:12px;outline:none" />
+    <button type="button" class="af-rm" title="Remove" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0">×</button>
+  </div>`;
+}
+function openAddFacility(){
+  const {states,tzs,staffRoles,supRoles,repRoles,nextCode}=profileFacilities();
+  const sectionH=(t,sub)=>`<h4 style="margin:18px 0 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700">${t}${sub?` <span style="text-transform:none;font-weight:400;letter-spacing:0;color:var(--muted-dark)">${sub}</span>`:''}</h4>`;
+  openModal('Add New Facility',
+    `<div style="color:var(--muted);font-size:12px;margin-bottom:14px;padding:10px 12px;background:var(--primary-dim);border:1px solid var(--primary);border-radius:6px">
+       Portfolio profile: <b style="color:var(--text)">${STORES.length}</b> facilities across <b style="color:var(--text)">${states.length}</b> states. Fields below mirror the existing schema — required fields marked <b style="color:var(--text)">*</b>.
+     </div>
+     ${sectionH('Identity')}
+     <div class="form-row"><label>Facility Code *</label><input id="af-code" value="${nextCode}" placeholder="L###" /></div>
+     <div class="form-row"><label>Facility Name *</label><input id="af-name" placeholder="e.g. Titusville" /></div>
+     <div class="form-row"><label>State *</label><input id="af-state" list="af-states" placeholder="2-letter, e.g. FL" maxlength="2" style="text-transform:uppercase" /></div>
+     <div class="form-row"><label>Timezone</label><input id="af-tz" list="af-tzs" placeholder="EST / CST / MST / PST" /></div>
+     <div class="form-row"><label>Address</label><input id="af-address" placeholder="123 Main St, City, ST 00000" /></div>
+     <datalist id="af-states">${states.map(s=>`<option value="${s}">`).join('')}</datalist>
+     <datalist id="af-tzs">${tzs.map(t=>`<option value="${t}">`).join('')}</datalist>
+
+     ${sectionH('Hours','one line per day; copy format from existing records')}
+     <div class="form-row" style="align-items:flex-start"><label>Manager Hours</label>
+       <textarea id="af-hours" placeholder="Mon-Fri 9:30am-6pm&#10;Sat 10am-4:00pm&#10;Closed Sun"></textarea></div>
+
+     ${sectionH('Contact')}
+     <div class="form-row"><label>Store Email</label><input id="af-email" placeholder="cityname@securespace.com" /></div>
+     <div class="form-row"><label>Office Phone</label><input id="af-office" placeholder="555-555-5555" /></div>
+     <div class="form-row"><label>Cell Phone</label><input id="af-cell" placeholder="555-555-5555" /></div>
+     <div class="form-row"><label>Computers Onsite</label><input id="af-comps" placeholder="2" /></div>
+
+     ${sectionH('Store Team','typically Store Manager + Assistant Store Manager')}
+     <div id="af-staff-wrap"></div>
+     <button type="button" class="btn" id="af-staff-add" style="padding:6px 12px;font-size:12px;margin-top:2px">+ Add Staff Member</button>
+     <datalist id="af-staff-roles">${staffRoles.map(r=>`<option value="${r}">`).join('')}</datalist>
+
+     ${sectionH('Escalation · Supervisors','typically AM, DM, Regional Manager')}
+     <div id="af-sup-wrap"></div>
+     <button type="button" class="btn" id="af-sup-add" style="padding:6px 12px;font-size:12px;margin-top:2px">+ Add Supervisor</button>
+     <datalist id="af-sup-roles">${supRoles.map(r=>`<option value="${r}">`).join('')}</datalist>
+
+     ${sectionH('Account Representative','optional — leave blank if none')}
+     <div id="af-rep-wrap"></div>
+     <datalist id="af-rep-roles">${repRoles.map(r=>`<option value="${r}">`).join('')}</datalist>
+
+     <div id="af-errors" style="color:var(--red);font-size:12px;margin-top:14px;min-height:14px"></div>`,
+    `<button class="btn" onclick="closeModal()">Cancel</button>
+     <button class="btn" id="af-preview">Preview</button>
+     <button class="btn primary" id="af-save">Save Facility</button>`);
+
+  const staffWrap=document.getElementById('af-staff-wrap');
+  const supWrap=document.getElementById('af-sup-wrap');
+  const repWrap=document.getElementById('af-rep-wrap');
+  staffWrap.innerHTML=personRow('staff',{role:'Store Manager'})+personRow('staff',{role:'Assistant Store Manager'});
+  supWrap.innerHTML=personRow('sup',{role:'AM'})+personRow('sup',{role:'DM'});
+  repWrap.innerHTML=personRow('rep',{role:'Account Representative'});
+
+  function bindRemovers(){
+    document.querySelectorAll('.af-rm').forEach(b=>b.onclick=()=>{
+      const row=b.closest('.af-prow');
+      const wrap=row.parentElement;
+      if(wrap.children.length<=1 && wrap!==repWrap) return;
+      row.remove();
+    });
+  }
+  bindRemovers();
+  document.getElementById('af-staff-add').onclick=()=>{staffWrap.insertAdjacentHTML('beforeend',personRow('staff'));bindRemovers();};
+  document.getElementById('af-sup-add').onclick=()=>{supWrap.insertAdjacentHTML('beforeend',personRow('sup'));bindRemovers();};
+
+  const nameInput=document.getElementById('af-name');
+  const emailInput=document.getElementById('af-email');
+  nameInput.addEventListener('input',()=>{
+    if(emailInput.dataset.touched) return;
+    const slug=(nameInput.value||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+    emailInput.placeholder=slug?`${slug}@securespace.com`:'cityname@securespace.com';
+  });
+  emailInput.addEventListener('input',()=>{emailInput.dataset.touched='1';});
+  const stateInput=document.getElementById('af-state');
+  stateInput.addEventListener('input',()=>{stateInput.value=stateInput.value.toUpperCase();});
+
+  function collectPeople(wrap){
+    return [...wrap.querySelectorAll('.af-prow')].map(r=>({
+      name:r.querySelector('[data-f=name]').value.trim(),
+      role:r.querySelector('[data-f=role]').value.trim(),
+      store_code_ref:'',
+      phone:r.querySelector('[data-f=phone]').value.trim(),
+      email:r.querySelector('[data-f=email]').value.trim(),
+    })).filter(p=>p.name||p.role||p.phone||p.email);
+  }
+  function collectStore(){
+    const rep=collectPeople(repWrap)[0]||null;
+    return {
+      code:document.getElementById('af-code').value.trim(),
+      name:document.getElementById('af-name').value.trim(),
+      state:document.getElementById('af-state').value.trim().toUpperCase(),
+      timezone:document.getElementById('af-tz').value.trim(),
+      address:document.getElementById('af-address').value.trim(),
+      hours_raw:document.getElementById('af-hours').value.trim(),
+      store_email:document.getElementById('af-email').value.trim(),
+      store_office_phone:document.getElementById('af-office').value.trim(),
+      store_cell_phone:document.getElementById('af-cell').value.trim(),
+      computers_onsite:document.getElementById('af-comps').value.trim(),
+      staff:collectPeople(staffWrap),
+      supervisors:collectPeople(supWrap),
+      account_rep:rep,
+    };
+  }
+  function validate(s){
+    const errs=[];
+    if(!s.code) errs.push('Facility code is required');
+    else if(STORES.some(x=>x.code.toLowerCase()===s.code.toLowerCase())) errs.push(`Code "${s.code}" already exists`);
+    if(!s.name) errs.push('Facility name is required');
+    if(!s.state) errs.push('State is required');
+    return errs;
+  }
+
+  document.getElementById('af-preview').onclick=()=>{
+    const s=collectStore(); const errs=validate(s);
+    const err=document.getElementById('af-errors');
+    if(errs.length){ err.innerHTML=errs.map(e=>'• '+e).join('<br>'); return; }
+    err.innerHTML='';
+    const pretty=JSON.stringify(s,null,2);
+    openModal('Preview — '+s.name+' ('+s.code+')',
+      `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">This is the JSON record that will be appended to <code style="color:var(--info)">stores.json</code>.</div>
+       <pre style="background:var(--card);border:1px solid var(--border-color);border-radius:6px;padding:12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);overflow:auto;max-height:45vh;margin:0">${pretty.replace(/</g,'&lt;')}</pre>`,
+      `<button class="btn" onclick="closeModal()">Back</button>
+       <button class="btn primary" id="af-preview-save">Confirm & Save</button>`);
+    document.getElementById('af-preview-save').onclick=()=>commitFacility(s);
+  };
+  document.getElementById('af-save').onclick=()=>{
+    const s=collectStore(); const errs=validate(s);
+    const err=document.getElementById('af-errors');
+    if(errs.length){ err.innerHTML=errs.map(e=>'• '+e).join('<br>'); return; }
+    err.innerHTML=''; commitFacility(s);
+  };
+}
+function commitFacility(s){
+  STORES.push(s);
+  const pretty=JSON.stringify(STORES,null,2);
+  const blob=new Blob([pretty],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  openModal('Facility Added — '+s.name,
+    `<div style="color:var(--cta);font-size:13px;margin-bottom:14px;padding:10px 12px;background:var(--cta-dim);border:1px solid var(--cta);border-radius:6px">
+       ✓ <b>${s.name}</b> (${s.code}) added in-memory. It now appears under <b>${s.state||'—'}</b> in the sidebar.
+     </div>
+     <div style="color:var(--muted);font-size:12px;line-height:1.55">
+       This demo writes to an in-memory copy of the directory. To persist the change across reloads, download the updated <code style="color:var(--info);font-family:'DM Mono',monospace">stores.json</code> below and commit it to the repo at
+       <code style="color:var(--info);font-family:'DM Mono',monospace;display:block;margin-top:4px;word-break:break-all">public/_static/call-directory/data/stores.json</code>
+     </div>
+     <div style="margin-top:14px;font-size:12px;color:var(--muted)">In production this will POST to <code style="color:var(--info)">/api/facilities</code> and write to the audit log under your user ID.</div>`,
+    `<a class="btn" href="${url}" download="stores.json">⬇ Download stores.json</a>
+     <button class="btn primary" onclick="closeModal();currentTab='stores';document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active',x.dataset.tab==='stores'));selectedStore='${s.code}';renderSidebar();">View Facility</button>`);
+}
+window.openAddFacility=openAddFacility;
 
 /* ─── Inline edit on person cards (added to existing render) ─── */
 function editPerson(name){
