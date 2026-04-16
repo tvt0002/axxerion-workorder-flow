@@ -2593,6 +2593,10 @@ function openWODetail(r){
 .chat-loading-bubble .dots span:nth-child(3){animation-delay:.3s;}
 .chat-loading-bubble .label{font-size:13px;color:var(--muted);}
 @keyframes chatDot{0%,60%,100%{opacity:.3;transform:scale(.8);}30%{opacity:1;transform:scale(1);}}
+.chat-show-more{margin:8px 0;}
+.chat-show-more-btn{background:rgba(var(--accent-rgb),.1);color:var(--accent2);border:1px solid rgba(var(--accent-rgb),.2);border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+.chat-show-more-btn:hover{background:rgba(var(--accent-rgb),.2);border-color:rgba(var(--accent-rgb),.4);}
+.chat-show-more-hint{font-size:11px;color:var(--muted);font-style:italic;margin:4px 0;}
 .chat-input-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
 .chat-input-row{display:flex;gap:8px;align-items:flex-end;}
 .chat-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;outline:none;min-height:38px;max-height:120px;transition:border-color .15s;}
@@ -2737,9 +2741,14 @@ function openWODetail(r){
 
   function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // Very lightweight markdown: **bold**, *italic*, `code`, tables, line breaks
+  // Very lightweight markdown: **bold**, *italic*, `code`, tables, line breaks, expandable sections
   function renderMarkdown(text){
     text = escapeHtml(text);
+    // Expandable "show more" sections: :::more:N::: ... :::endmore:::
+    var moreId = 'more_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    text = text.replace(/:::more:(\d+):::([\s\S]*?):::endmore:::/g, function(_, count, content){
+      return '<div class="chat-show-more"><button class="chat-show-more-btn" onclick="this.parentElement.querySelector(\'.chat-more-content\').style.display=\'block\';this.style.display=\'none\';">Show all ' + count + ' more ▾</button><div class="chat-more-content" style="display:none;">' + content + '</div></div>';
+    });
     // Tables
     text = text.replace(/(\|[^\n]+\|\n)+/g, function(block){
       var rows = block.trim().split('\n').filter(r=>r.trim());
@@ -2751,6 +2760,10 @@ function openWODetail(r){
       var html = '<table><thead><tr>' + header.map(h=>'<th>'+h+'</th>').join('') + '</tr></thead><tbody>';
       html += body.map(row => '<tr>' + row.map(c=>'<td>'+c+'</td>').join('') + '</tr>').join('');
       return html + '</tbody></table>';
+    });
+    // Also catch Claude's "...and X more" text and make it a prompt to show all
+    text = text.replace(/\.\.\.and (\d+) more\.[^\n]*/g, function(_, count){
+      return '<div class="chat-show-more-hint">...and ' + count + ' more results available.</div>';
     });
     text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
