@@ -2560,8 +2560,8 @@ function openWODetail(r){
 .chat-msg.user{background:var(--accent);color:white;align-self:flex-end;max-width:88%;}
 .chat-msg.assistant{background:rgba(var(--accent2-rgb),.08);color:var(--text);align-self:flex-start;border:1px solid rgba(var(--accent2-rgb),.15);overflow-x:auto;}
 .chat-msg.error{background:rgba(var(--red-rgb),.08);color:var(--red);align-self:flex-start;border:1px solid rgba(var(--red-rgb),.2);}
-.chat-msg table{border-collapse:collapse;margin:8px 0;font-size:10px;width:100%;table-layout:auto;}
-.chat-msg th,.chat-msg td{border:1px solid var(--border);padding:3px 6px;text-align:left;white-space:nowrap;}
+.chat-msg table{border-collapse:collapse;margin:8px 0;font-size:10px;width:100%;table-layout:fixed;}
+.chat-msg th,.chat-msg td{border:1px solid var(--border);padding:3px 6px;text-align:left;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word;}
 .chat-msg th{background:rgba(var(--accent-rgb),.06);font-weight:500;}
 .chat-msg code{background:rgba(var(--accent-rgb),.1);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;}
 .chat-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
@@ -2619,8 +2619,46 @@ function openWODetail(r){
   var budgetText = document.getElementById('chatBudgetText');
   var budgetFill = document.getElementById('chatBudgetFill');
   var adminLink = document.getElementById('chatAdminLink');
+  var CHAT_KEY = 'ax_chat_history';
+  var CHAT_DISPLAY_KEY = 'ax_chat_display';
   var history = [];
   var loading = false;
+
+  // Restore chat from sessionStorage (survives refresh, clears on tab close / logout)
+  function saveChat(){
+    try{
+      sessionStorage.setItem(CHAT_KEY, JSON.stringify(history));
+      // Save displayed message HTML so we can restore rendered markdown
+      var msgs = messagesEl.querySelectorAll('.chat-msg');
+      var display = [];
+      msgs.forEach(function(m){
+        display.push({ class: m.className, html: m.innerHTML });
+      });
+      sessionStorage.setItem(CHAT_DISPLAY_KEY, JSON.stringify(display));
+    }catch(e){}
+  }
+  function restoreChat(){
+    try{
+      var h = sessionStorage.getItem(CHAT_KEY);
+      var d = sessionStorage.getItem(CHAT_DISPLAY_KEY);
+      if(h) history = JSON.parse(h);
+      if(d && history.length > 0){
+        var display = JSON.parse(d);
+        if(display.length > 0){
+          var welcome = messagesEl.querySelector('.chat-welcome');
+          if(welcome) welcome.remove();
+          display.forEach(function(item){
+            var div = document.createElement('div');
+            div.className = item.class;
+            div.innerHTML = item.html;
+            messagesEl.appendChild(div);
+          });
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      }
+    }catch(e){}
+  }
+  restoreChat();
 
   var expandBtn = panel.querySelector('.chat-expand');
   var expandSvg = '<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>';
@@ -2703,6 +2741,7 @@ function openWODetail(r){
     }
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
+    saveChat();
   }
 
   function showLoading(){

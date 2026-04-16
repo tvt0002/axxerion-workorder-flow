@@ -32,6 +32,8 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:8p
 (function(){
   var saved = localStorage.getItem('ax_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  // Clear chat history on sign-out
+  try{ sessionStorage.removeItem('ax_chat_history'); sessionStorage.removeItem('ax_chat_display'); }catch(e){}
 })();
 function toggleTheme(){
   var current = document.documentElement.getAttribute('data-theme') || 'dark';
