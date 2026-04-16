@@ -8,6 +8,7 @@ const { Pool } = require("pg");
 require("dotenv").config();
 const { sendChatMessage } = require("./lib/chat");
 const chatUsage = require("./lib/chat-usage");
+const { buildCache, tryCache } = require("./lib/chat-cache");
 
 const app = express();
 app.use(express.json());
@@ -276,7 +277,7 @@ function fetchWorkOrders() {
   lastFetchStartTime = Date.now();
   fetchReport(AX_REPORT_WO, "Work Orders", (data) => {
     fetchWOInProgress = false;
-    if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); saveToDB("workorders", data); }
+    if (data) { cachedWO = data; cacheWOTimestamp = Date.now(); saveToDB("workorders", data); buildCache(() => ({ workOrders: cachedWO || [], requests: cachedReq || [] })); }
   });
 }
 
@@ -313,6 +314,7 @@ function fetchWorkOrdersIncremental() {
       cacheWOTimestamp = Date.now(); // mark data as fresh
       console.log(`[Cache] Incremental merge: ${data.length} records — ${updated} updated, ${added} new (total: ${cachedWO.length})`);
       saveToDB("workorders", cachedWO);
+      buildCache(() => ({ workOrders: cachedWO || [], requests: cachedReq || [] }));
     }
   });
 }
@@ -327,7 +329,7 @@ function fetchRequests() {
   fetchReqInProgress = true;
   fetchReport(AX_REPORT_REQ, "Requests", (data) => {
     fetchReqInProgress = false;
-    if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); saveToDB("requests", data); }
+    if (data) { cachedReq = data; cacheReqTimestamp = Date.now(); saveToDB("requests", data); buildCache(() => ({ workOrders: cachedWO || [], requests: cachedReq || [] })); }
   });
 }
 
@@ -542,6 +544,20 @@ app.post("/api/chat", async (req, res) => {
   if (!u) return res.status(401).json({ error: "Unauthorized" });
   const { messages } = req.body || {};
   if (!Array.isArray(messages) || !messages.length) return res.status(400).json({ error: "messages required" });
+
+  // Check FAQ cache first — only for single-turn questions (first message or last message is standalone)
+  const lastMsg = messages[messages.length - 1];
+  if (lastMsg && lastMsg.role === "user" && messages.filter(m => m.role === "user").length === 1) {
+    const cached = tryCache(lastMsg.content);
+    if (cached.hit) {
+      console.log(`[Chat] Cache hit: "${cached.cacheKey}" for "${lastMsg.content.slice(0, 60)}"`);
+      try {
+        const budget = await chatUsage.checkBudget(pool, u.email, u.name);
+        return res.json({ reply: cached.reply, budget, toolCalls: [{ name: "cache", input: {}, summary: "instant · no API cost" }] });
+      } catch (e) {}
+    }
+  }
+
   try {
     const result = await sendChatMessage({
       user: u,
@@ -631,7 +647,10 @@ app.listen(PORT, async () => {
   await initDB();
   await chatUsage.initChatTables(pool);
   await loadFromDB();
-  if (cachedWO) console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
+  if (cachedWO) {
+    console.log("[Startup] Dashboard ready with " + cachedWO.length + " WOs from DB cache");
+    buildCache(() => ({ workOrders: cachedWO || [], requests: cachedReq || [] }));
+  }
   // 2. Fetch fresh data — full WO pull on startup + every 4h, incremental every 10m, requests every 10m
   fetchWorkOrders();
   fetchRequests();
