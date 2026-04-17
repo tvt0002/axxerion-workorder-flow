@@ -540,6 +540,7 @@ document.addEventListener('keydown', function(e){
 <div id="view-workflowguides" class="view">
 <div class="db" style="padding-top:20px">
   <div style="display:flex;align-items:center;gap:6px;margin-bottom:18px;">
+    <button class="gtab oq-tab" data-guide="opswalk" onclick="switchGuide('opswalk',this)">Ops Queue Walkthrough</button>
     <button class="gtab oq-tab active" data-guide="emailflow" onclick="switchGuide('emailflow',this)">Email Flow</button>
     <button class="gtab oq-tab" data-guide="statusguide" onclick="switchGuide('statusguide',this)">Status Guide</button>
     <button class="gtab oq-tab" data-guide="invoiceguide" onclick="switchGuide('invoiceguide',this)">Invoice Submission</button>
@@ -868,6 +869,368 @@ document.addEventListener('keydown', function(e){
 </div>
 </div><!-- /guide-invoiceguide -->
 
+<!-- ── Sub-guide: Ops Queue Walkthrough ── -->
+<style>
+.ow-wrap{display:grid;grid-template-columns:240px 1fr;gap:28px;padding:0 32px 48px;max-width:1200px;margin:0 auto;align-items:start;font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.ow-side{position:sticky;top:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px}
+.ow-side h4{margin:0 0 8px;font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted)}
+.ow-side a{display:block;padding:7px 10px;color:var(--text);text-decoration:none;border-radius:6px;margin-bottom:2px;transition:background .12s}
+.ow-side a:hover{background:rgba(var(--accent-rgb),0.09)}
+.ow-side a.active{background:rgba(var(--accent-rgb),0.15);color:var(--accent)}
+.ow-side .qn{display:inline-block;width:22px;height:22px;border-radius:4px;background:var(--accent);color:#fff;text-align:center;line-height:22px;font-size:11px;font-family:'DM Mono',monospace;margin-right:8px}
+.ow-side .qn.q1{background:#9b6bd1}.ow-side .qn.q2{background:#f08a3e}.ow-side .qn.q3{background:#4182c3}.ow-side .qn.q4{background:#5ec28f}.ow-side .qn.q5{background:#e6b732}
+.ow-main section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:24px;scroll-margin-top:16px}
+.ow-main h2{margin:0 0 6px;font-family:Syne,system-ui;font-size:24px;font-weight:600;letter-spacing:-0.3px}
+.ow-main h3{margin:20px 0 10px;font-family:Syne,system-ui;font-size:15px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.6px}
+.ow-main .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.ow-main p{font-size:14px;line-height:1.65;margin:0 0 12px}
+.ow-main ol{padding-left:20px;font-size:14px;line-height:1.75}
+.ow-main ol li{margin-bottom:8px}
+.ow-main ol li b{color:var(--accent)}
+.ow-main ul{padding-left:20px;font-size:14px;line-height:1.7}
+.ow-main code{background:rgba(var(--accent-rgb),0.1);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+.ow-tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-right:6px;vertical-align:middle}
+.ow-tag.purple{background:rgba(155,107,209,0.16);color:#9b6bd1}
+.ow-tag.orange{background:rgba(240,138,62,0.16);color:#f08a3e}
+.ow-tag.blue{background:rgba(65,130,195,0.16);color:#4182c3}
+.ow-tag.green{background:rgba(94,194,143,0.16);color:#5ec28f}
+.ow-tag.yellow{background:rgba(230,183,50,0.18);color:#c99a17}
+.ow-callout{border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),0.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13px;line-height:1.6}
+.ow-callout.critical{border-left-color:var(--red);background:rgba(195,65,65,0.08)}
+.ow-callout.critical b{color:var(--red)}
+.ow-callout.warning{border-left-color:#e6b732;background:rgba(230,183,50,0.1)}
+.ow-callout.warning b{color:#c99a17}
+.ow-callout.success{border-left-color:var(--green);background:rgba(94,194,143,0.08)}
+.ow-callout.success b{color:var(--green)}
+.ow-callout.info{border-left-color:var(--accent2);background:rgba(65,130,195,0.08)}
+.ow-callout.info b{color:var(--accent2)}
+.ow-pipeline{display:flex;gap:10px;margin:18px 0 6px;flex-wrap:wrap}
+.ow-pipeline .pipe-step{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;position:relative}
+.ow-pipeline .pipe-step .ps-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px}
+.ow-pipeline .pipe-step .ps-name{font-size:13px;font-weight:600;margin-top:4px}
+.ow-pipeline .pipe-step .ps-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.ow-fieldtable{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.ow-fieldtable th,.ow-fieldtable td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.ow-fieldtable th{background:var(--surface);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+.ow-fieldtable tr:last-child td{border-bottom:none}
+.ow-fieldtable code{font-size:11px}
+.ow-btn-jump{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;text-decoration:none;margin-right:8px;margin-top:8px}
+.ow-btn-jump:hover{border-color:var(--accent);color:var(--accent)}
+.ow-hero{background:linear-gradient(135deg,rgba(var(--accent-rgb),0.12),rgba(var(--accent-rgb),0.03));border:1px solid rgba(var(--accent-rgb),0.25)}
+.ow-intro-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:18px}
+.ow-intro-stats .ois{background:var(--surface);padding:12px 14px;border-radius:8px;border:1px solid var(--border)}
+.ow-intro-stats .ois .ois-val{font-family:Syne,system-ui;font-size:22px;font-weight:600;color:var(--accent)}
+.ow-intro-stats .ois .ois-lbl{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-top:4px}
+@media(max-width:900px){.ow-wrap{grid-template-columns:1fr}.ow-side{position:static}}
+</style>
+
+<div id="guide-opswalk" class="wg-panel">
+<div class="ow-wrap">
+
+  <!-- Sidebar -->
+  <nav class="ow-side" id="owSide">
+    <h4>Jump To</h4>
+    <a href="#ow-overview" class="active">Overview</a>
+    <a href="#ow-tour">Dashboard Tour</a>
+    <a href="#ow-q1"><span class="qn q1">Q1</span>Pending Requests</a>
+    <a href="#ow-q2"><span class="qn q2">Q2</span>Vendor Scheduling</a>
+    <a href="#ow-q3"><span class="qn q3">Q3</span>Day-of Appointments</a>
+    <a href="#ow-q4"><span class="qn q4">Q4</span>Invoice Follow-Up</a>
+    <a href="#ow-q5"><span class="qn q5">Q5</span>Email Log</a>
+    <a href="#ow-tips">Tips &amp; Gotchas</a>
+  </nav>
+
+  <!-- Main content -->
+  <div class="ow-main">
+
+    <!-- Overview -->
+    <section id="ow-overview" class="ow-hero">
+      <h2>Operations Queue — Complete Walkthrough</h2>
+      <p class="sub">A step-by-step guide for the FM team. If you're new to the dashboard, start here and work top to bottom — by the end, you'll know exactly what to click, when, and why.</p>
+      <p>The <b>Operations Queue</b> is where you spend most of your day. It's a 5-stage pipeline that takes a store's maintenance request from "someone reported something broken" all the way through to "we've booked the cost and closed the loop." Your job is to push each work order one step to the right until it lands in the Email Log.</p>
+
+      <h3>The 5-stage pipeline</h3>
+      <div class="ow-pipeline">
+        <div class="pipe-step"><div class="ps-num">Q1</div><div class="ps-name">Pending Requests</div><div class="ps-desc">Internal follow-up — get missing info from stores</div></div>
+        <div class="pipe-step"><div class="ps-num">Q2</div><div class="ps-name">Vendor Scheduling</div><div class="ps-desc">Vendor accepted — now schedule the visit</div></div>
+        <div class="pipe-step"><div class="ps-num">Q3</div><div class="ps-name">Day-of Appts</div><div class="ps-desc">Work happening today — confirm, arrive, complete</div></div>
+        <div class="pipe-step"><div class="ps-num">Q4</div><div class="ps-name">Invoice Follow-Up</div><div class="ps-desc">Capture cost + request invoice from vendor</div></div>
+        <div class="pipe-step"><div class="ps-num">Q5</div><div class="ps-name">Email Log</div><div class="ps-desc">Audit trail of sent emails</div></div>
+      </div>
+
+      <div class="ow-intro-stats">
+        <div class="ois"><div class="ois-val">~11K</div><div class="ois-lbl">Total Work Orders</div></div>
+        <div class="ois"><div class="ois-val">~1K</div><div class="ois-lbl">Open Requests</div></div>
+        <div class="ois"><div class="ois-val">Daily</div><div class="ois-lbl">Queue Review Cadence</div></div>
+        <div class="ois"><div class="ois-val">Month-End</div><div class="ois-lbl">Accrual Deadline</div></div>
+      </div>
+
+      <div class="ow-callout critical" style="margin-top:18px">
+        <b>Important limitation to know up front:</b> Axxerion does not currently support writing back from this dashboard. When you update a schedule, close a work order, or enter an invoice amount — you still need to <b>open the work order link</b> and update those same fields in Axxerion too. We log actions here so the team has a record; Axxerion is the source of truth.
+      </div>
+    </section>
+
+    <!-- Dashboard Tour -->
+    <section id="ow-tour">
+      <h2>Dashboard Tour</h2>
+      <p class="sub">Top-level tabs in the sidebar — what each one is for.</p>
+
+      <h3>Main Dashboard</h3>
+      <p>Live KPIs and charts for the FM team: total work orders, open vs. closed, status breakdown, priority, district managers, spend, NTE utilization. Good for a quick "how are we doing?" check. Every number is clickable — click a chart to open the underlying work orders.</p>
+
+      <h3>Ops Queue (where you spend most of your day)</h3>
+      <p>The 5 queues above. This is your daily driver. Each queue has a colored KPI card at the top — click a card to jump to that queue. Work items flow left to right.</p>
+
+      <h3>Org Chart</h3>
+      <p>If you need to know who's responsible for a store or department — this is where to look. Includes a <b>Call Directory</b> with store phone numbers and responsible managers. Requires login to view call directory details.</p>
+
+      <h3>Workflow Guides (you're here)</h3>
+      <p>Reference material: email triggers, status meanings, invoice submission, and this walkthrough. Come here when you're unsure what a status means or what happens when you send a particular email.</p>
+
+      <h3>Settings</h3>
+      <p>Snow Accruals, admin tools, and your own budget view. Most users won't touch this much.</p>
+    </section>
+
+    <!-- Q1 -->
+    <section id="ow-q1">
+      <h2><span class="ow-tag purple">Q1</span>Pending Requests</h2>
+      <p class="sub">Internal follow-up — the FM team needs more info from the store before a work order can be created.</p>
+
+      <h3>What these are</h3>
+      <p>These are requests the FM team (Tim, Felipe, Denise, and anyone else on the team) has flagged as <b>needing more information</b>. Maybe the store said "something's broken" but didn't say what, where, or how bad. Until we get that info, we can't create a proper work order for a vendor.</p>
+
+      <div class="ow-callout info">
+        <b>Q1 is internal.</b> You're not calling vendors here — you're calling <b>stores</b> to get them to finish or clarify their request.
+      </div>
+
+      <h3>Step-by-step</h3>
+      <ol>
+        <li>Open the <b>Ops Queue</b> tab and click the <b>Q1 · Requests</b> pill at the top.</li>
+        <li>Review each pending request. The <b>Subject</b> column tells you what they're asking for.</li>
+        <li>For each one: <b>call or email the store</b> to get whatever is missing (photos, exact location, severity, whether it's an emergency).</li>
+        <li>Log your action in-app: click the log icon to add a note like <code>Called store manager — waiting on photos</code>. This creates an audit trail.</li>
+        <li>Once the store comes back with info, it's pushed to the FM team (Tim/Felipe/Denise) to create the actual work order. It leaves Q1 and becomes a tracked WO.</li>
+      </ol>
+
+      <div class="ow-callout success">
+        <b>Outcome:</b> The request has enough info to become a real work order, gets assigned to a vendor, and eventually shows up in Q2 when the vendor accepts.
+      </div>
+    </section>
+
+    <!-- Q2 -->
+    <section id="ow-q2">
+      <h2><span class="ow-tag orange">Q2</span>Vendor Scheduling</h2>
+      <p class="sub">A vendor has accepted the job — now you schedule when they'll be onsite.</p>
+
+      <h3>What these are</h3>
+      <p>Work orders with status <b>Assigned</b> or <b>Accepted</b>. The vendor has confirmed they can do the job, but we haven't yet pinned down <b>when</b>. Your job is to call them, agree on a date/window, and record it.</p>
+
+      <h3>Step-by-step</h3>
+      <ol>
+        <li>Open <b>Q2 · Vendor Scheduling</b>. Sort by <b>Status</b> if needed to group Assigned and Accepted together.</li>
+        <li>For each WO: click to <b>open the work order</b> (opens the Axxerion link in a new tab) so you can see the full details.</li>
+        <li><b>Call the vendor</b> using the phone, mobile, or email on file (all three may be visible in the Vendor column or hover tooltip).</li>
+        <li>Ask <b>when they can be onsite</b>. Agree on a date and time window (e.g., Thursday 8am–12pm).</li>
+        <li>In the dashboard: <b>Save the appointment</b> using the scheduling button on that row — enter the date and time window.</li>
+        <li>Then <b>go into Axxerion</b> and update the same fields on the work order under the <b>Execution</b> tab:
+          <table class="ow-fieldtable">
+            <tr><th>Axxerion field</th><th>What to enter</th></tr>
+            <tr><td><code>Schedule Start</code></td><td>The planned start (date + time)</td></tr>
+            <tr><td><code>Schedule End</code></td><td>The end of the appointment window</td></tr>
+            <tr><td><code>Actual Start</code></td><td>Leave blank — fill after they arrive (Q3)</td></tr>
+            <tr><td><code>Actual End</code></td><td>Leave blank — fill after they leave (Q3)</td></tr>
+            <tr><td><code>Closed</code></td><td>Leave blank — fill after the job is done (Q3)</td></tr>
+          </table>
+        </li>
+        <li>Save. The WO now moves to <b>Q3 · Day-of Appts</b> when the scheduled date arrives.</li>
+      </ol>
+
+      <div class="ow-callout warning">
+        <b>Write-back limitation:</b> This dashboard can't update Axxerion fields for you yet. You must open the WO link and update Schedule Start/End directly in Axxerion, or the rest of the team won't see the appointment.
+      </div>
+    </section>
+
+    <!-- Q3 -->
+    <section id="ow-q3">
+      <h2><span class="ow-tag blue">Q3</span>Day-of Appointments</h2>
+      <p class="sub">Work that's happening today. Morning confirm → arrival check → completion + cost ask.</p>
+
+      <h3>What these are</h3>
+      <p>Any WO whose scheduled appointment is <b>today</b>. You actively manage these throughout the day — this is your highest-touch queue.</p>
+
+      <h3>Step-by-step (morning)</h3>
+      <ol>
+        <li>Open <b>Q3 · Day-of Appts</b> first thing in the morning.</li>
+        <li>For each appointment: <b>call the vendor</b> to confirm they're still coming today. This saves headaches later.</li>
+        <li>If they <b>can't</b> make it: reschedule. The WO goes back to Q2 with a new date.</li>
+        <li>If they <b>can</b>: log a note like <code>Confirmed morning call — 8-12 window still good</code>.</li>
+      </ol>
+
+      <h3>Step-by-step (during / after the appointment)</h3>
+      <ol>
+        <li>At the start of their window: check that they <b>actually arrived</b> at the site. Call if needed.</li>
+        <li>Once they've finished: <b>call the vendor back</b> to confirm the job is complete.</li>
+        <li><b>Critical — ask for the cost</b> during this call. Even a rough estimate works: <code>$1,545.27</code>.</li>
+        <li>If they say "I'll have to send the invoice later" — that's fine. Log it and move on. You'll get the number in Q4.</li>
+        <li>Move the WO status to <b>Completed Work</b> (or <b>Work Finish</b>) in the dashboard and in Axxerion.</li>
+      </ol>
+
+      <div class="ow-callout info">
+        <b>Tip:</b> The goal of the completion call isn't just to close the ticket — it's to get the cost captured <i>before they walk away</i>. Vendors are much more responsive when they're still onsite than a week later.
+      </div>
+
+      <div class="ow-callout success">
+        <b>Outcome:</b> Job is done, status is updated, and the WO moves to <b>Q4 · Invoice Follow-Up</b> so we can lock in the cost for accounting.
+      </div>
+    </section>
+
+    <!-- Q4 -->
+    <section id="ow-q4">
+      <h2><span class="ow-tag green">Q4</span>Invoice Follow-Up</h2>
+      <p class="sub">Capture the cost and request the invoice from the vendor. This is the accounting-critical step.</p>
+
+      <div class="ow-callout critical">
+        <b>Month-end deadline:</b> Every WO in Q4 must have a cost entered <b>before accounting closes the books</b> (typically end of month). If you did the job on Apr 3, we need the cost booked to April — not May when the invoice shows up. This is called an <b>accrual</b> and it's non-negotiable.
+      </div>
+
+      <h3>What these are</h3>
+      <p>All WOs with status <b>Invoice Status</b>, <b>Work Finish</b>, or <b>Completed Work</b> that don't yet have a cost captured. The job is done; we just need the dollar amount and the actual invoice file.</p>
+
+      <h3>Step-by-step</h3>
+      <ol>
+        <li>Open <b>Q4 · Invoice Follow-Up</b>.</li>
+        <li>For each WO: call or email the vendor if you don't already have the cost. (If they gave you the number during the Q3 completion call, you can skip ahead.)</li>
+        <li><b>Enter the cost</b> in the <code>Vendor Estimated Cost</code> field on the row. Use the real amount with cents — e.g., <code>1545.27</code>.</li>
+        <li><b>Save</b>.</li>
+        <li><b>Add a note</b> using the log button: <code>Cost confirmed via phone — $1,545.27</code>. Timestamped log entry = audit trail.</li>
+        <li>Now get the vendor's email (if not already populated in the Vendor column). Example: <code>billing@examplevendor.com</code>.</li>
+        <li>Click <b>Open email</b> / <b>Log as sent</b> — this opens your mail client with a pre-drafted email asking the vendor to upload their invoice via the provided link.</li>
+        <li>Review the draft, hit <b>Send</b> in your mail client, then click <b>Log as sent</b> in the dashboard to record it.</li>
+      </ol>
+
+      <h3>Why we don't auto-send the email</h3>
+      <p>Two reasons:</p>
+      <ul>
+        <li><b>You can personalize</b> if needed (e.g., "per our call earlier today").</li>
+        <li><b>You track which ones you've personally handled</b>. If the dashboard auto-sent 50 emails, you'd have no idea which were yours vs. someone else's. Manual send = clearer ownership.</li>
+      </ul>
+
+      <div class="ow-callout info">
+        <b>Even though we're accruing:</b> We still need the real invoice file. The accrual books the expense to the right month; the invoice becomes the source document for audit and AP payment. Both matter.
+      </div>
+
+      <div class="ow-callout success">
+        <b>Outcome:</b> Cost is booked to the correct month, email is sent and logged, and the WO moves to <b>Q5 · Email Log</b> as a completed audit trail.
+      </div>
+    </section>
+
+    <!-- Q5 -->
+    <section id="ow-q5">
+      <h2><span class="ow-tag yellow">Q5</span>Email Log</h2>
+      <p class="sub">Audit trail of every invoice-request email you've sent.</p>
+
+      <h3>What this is</h3>
+      <p>A read-mostly list of emails that have been sent out from the dashboard. If a vendor claims they never got a request, or if accounting wants proof of follow-up, this is where you look.</p>
+
+      <h3>Step-by-step</h3>
+      <ol>
+        <li>Open <b>Q5 · Email Log</b>.</li>
+        <li>Filter by vendor, property, or date if you're investigating a specific one.</li>
+        <li>Click a row to see the email's recipient, subject, and timestamp.</li>
+      </ol>
+
+      <div class="ow-callout info">
+        <b>Tip:</b> This queue is usually just for reference. You won't take action here — it's the closed loop confirming your Q4 work landed.
+      </div>
+    </section>
+
+    <!-- Tips -->
+    <section id="ow-tips">
+      <h2>Tips &amp; Gotchas</h2>
+      <p class="sub">Things that will trip you up if you don't know them.</p>
+
+      <h3>Why the same field in two places?</h3>
+      <p>You log things in this dashboard AND in Axxerion. It feels redundant but the dashboard is where the <b>ops team sees at-a-glance status</b>; Axxerion is the <b>system of record</b>. Until write-back is enabled (pending from vendor Spacewell), both need updates.</p>
+
+      <h3>What if a vendor is non-responsive?</h3>
+      <p>After 2 attempts to reach a vendor with no response: escalate to the FM team (Tim or Felipe) via note or Slack. Don't let a WO sit silently in Q2 or Q4.</p>
+
+      <h3>What if the job spans multiple days?</h3>
+      <p>Log an appointment for each day. After day 1, re-schedule the WO for day 2 (it goes back to Q2 briefly, then reappears in Q3 the next morning).</p>
+
+      <h3>What if the cost changes between Q3 and the actual invoice?</h3>
+      <p>Update the <code>Vendor Estimated Cost</code> field with the new number and add a note explaining the delta. Accounting will reconcile when the actual invoice posts.</p>
+
+      <h3>Daily checklist</h3>
+      <ul>
+        <li><b>Morning:</b> Q3 confirms (call every appt scheduled today)</li>
+        <li><b>Midday:</b> Q1 follow-ups (chase stores for missing info)</li>
+        <li><b>Afternoon:</b> Q3 arrival checks + Q4 cost captures</li>
+        <li><b>End of day:</b> Q2 scheduling (call vendors for tomorrow/next week)</li>
+        <li><b>Month-end week:</b> sweep Q4 — zero out the uncaptured costs</li>
+      </ul>
+
+      <div class="ow-callout success" style="margin-top:16px">
+        <b>You got this.</b> Work left to right, Q1 → Q5. If you're ever unsure, come back to this page and re-read the relevant queue section.
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  // Sidebar active-section highlight on scroll
+  var sideLinks = document.querySelectorAll('#owSide a');
+  var sections = [];
+  sideLinks.forEach(function(a){
+    var id = a.getAttribute('href').replace('#','');
+    var el = document.getElementById(id);
+    if(el) sections.push({link:a,el:el,id:id});
+  });
+  function setActive(id){
+    sideLinks.forEach(function(l){ l.classList.toggle('active', l.getAttribute('href')==='#'+id); });
+  }
+  var mainEl = document.querySelector('.ow-main');
+  if(mainEl){
+    // Use window scroll — the whole panel scrolls with page
+    window.addEventListener('scroll', function(){
+      if(document.getElementById('guide-opswalk').classList.contains('active') === false) return;
+      var best = null, bestDist = Infinity;
+      var scrollTop = window.pageYOffset + 100;
+      sections.forEach(function(s){
+        var top = s.el.offsetTop;
+        var dist = Math.abs(scrollTop - top);
+        if(dist < bestDist){ bestDist = dist; best = s; }
+      });
+      if(best) setActive(best.id);
+    }, {passive:true});
+  }
+  // Smooth scroll on click
+  sideLinks.forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var id = a.getAttribute('href').replace('#','');
+      var el = document.getElementById(id);
+      if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); setActive(id); }
+    });
+  });
+  // Expose a helper so Ops Queue "?" buttons can deep-link
+  window.openOpsWalkthrough = function(queueId){
+    // Switch to Workflow Guides view + Ops Walkthrough sub-tab, then scroll to queue section
+    var navBtn = document.querySelector('.gtab[onclick*="workflowguides"]');
+    if(navBtn) navBtn.click();
+    var guideBtn = document.querySelector('[data-guide="opswalk"]');
+    if(guideBtn) guideBtn.click();
+    setTimeout(function(){
+      var target = document.getElementById('ow-'+queueId) || document.getElementById('ow-overview');
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 120);
+  };
+})();
+</script>
+</div><!-- /guide-opswalk -->
+
 </div><!-- /view-workflowguides -->
 
 <!-- ══════════ VIEW 2: DASHBOARD ══════════ -->
@@ -1061,6 +1424,7 @@ document.addEventListener('keydown', function(e){
     <button class="gtab oq-tab" data-queue="q4" onclick="switchQueue('q4',this)">Q4 · Invoice Follow-Up</button>
     <button class="gtab oq-tab" data-queue="q5" onclick="switchQueue('q5',this)">Q5 · Email Log</button>
     <button class="oq-sort-reset" id="oqSortReset" style="display:none" onclick="OQ_SORT={col:null,dir:1};document.getElementById('oqSortReset').style.display='none';renderQueue();">Reset Sort</button>
+    <button class="oq-sort-reset" id="oqHelpBtn" style="margin-left:auto;color:var(--accent);border-color:rgba(var(--accent-rgb),0.3)" title="Open the walkthrough for this queue" onclick="window.openOpsWalkthrough && window.openOpsWalkthrough(document.querySelector('.oq-tab.active')?.dataset.queue || 'overview')">? How this queue works</button>
   </div>
 
   <!-- Queue Content -->
