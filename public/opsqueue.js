@@ -4,6 +4,34 @@ var OPS_QUEUE = 'q1';
 var OPS_LOADED = false;
 var OQ_SORT = { col: null, dir: 1 }; // current sort state
 
+/* ── Store directory lookup (from /call-directory/data/stores.json) ── */
+var STORE_LOOKUP = null;
+function loadStoreDirectory() {
+  fetch('/call-directory/data/stores.json')
+    .then(function(r){ return r.json(); })
+    .then(function(stores){
+      var map = {};
+      stores.forEach(function(s){
+        if (s.name) map[s.name.toLowerCase().trim()] = s;
+        if (s.code) map[s.code.toLowerCase().trim()] = s;
+      });
+      STORE_LOOKUP = map;
+      if (OPS_LOADED && typeof renderQueue === 'function') renderQueue();
+    })
+    .catch(function(e){ console.error('[Store] Load error:', e); STORE_LOOKUP = {}; });
+}
+function getStoreInfo(property) {
+  if (!STORE_LOOKUP || !property) return null;
+  var p = String(property).toLowerCase().trim();
+  if (STORE_LOOKUP[p]) return STORE_LOOKUP[p];
+  // Partial match: property contains store name (e.g. "Titusville FL" matches "titusville")
+  for (var k in STORE_LOOKUP) {
+    if (k.length < 4) continue;
+    if (p.indexOf(k) !== -1) return STORE_LOOKUP[k];
+  }
+  return null;
+}
+
 function oqSortVal(item, col) {
   var v = item[col];
   if (v === undefined || v === null || v === '') return null;
@@ -119,7 +147,8 @@ function getQ1Data() {
     var ref = r[10] || '';
     var logs = OPS_DATA.logs[ref] || [];
     var note = OPS_DATA.notes[ref] || {};
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', subject: r[3], created: r[12], requestor: r[16] || r[8], bookmark: r[14], logs: logs, note: note.text || '', age: daysAgo(r[12]), lastAction: logs.length ? logs[0] : null };
+    var store = getStoreInfo(r[0]);
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', subject: r[3], created: r[12], requestor: r[16] || r[8], bookmark: r[14], logs: logs, note: note.text || '', age: daysAgo(r[12]), lastAction: logs.length ? logs[0] : null, storeCode: store ? (store.code || '') : '', storePhone: store ? (store.store_office_phone || '') : '', storeCellPhone: store ? (store.store_cell_phone || '') : '' };
   }).sort(function(a, b) { return b.age - a.age; });
 }
 
@@ -303,16 +332,27 @@ function renderQueue() {
 
   if (OPS_QUEUE === 'q1') {
     items = getQ1Data();
-    headHTML = '<tr>' + oqSortHeader('Age','age') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Subject','subject') + oqSortHeader('Requestor','requestor') + '<th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Age','age') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Store #','storeCode') + oqSortHeader('Store Phone','storePhone') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Subject','subject') + oqSortHeader('Requestor','requestor') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var ageClass = d.age >= 3 ? 'color:var(--red)' : d.age >= 1 ? 'color:var(--orange)' : 'color:var(--green)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastAct = d.lastAction ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastAction.date) + ' · ' + d.lastAction.action + '</span>' : '<span style="font-size:10px;color:var(--red)">No action yet</span>';
+      var codeCell = d.storeCode ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">' + d.storeCode + '</span>' : '<span style="color:var(--muted);font-size:10px">—</span>';
+      var phoneCell;
+      if (d.storePhone) {
+        var tel = d.storePhone.replace(/\D/g,'');
+        var cellTitle = d.storeCellPhone ? ' title="Cell: ' + d.storeCellPhone + '"' : '';
+        phoneCell = '<a href="tel:' + tel + '"' + cellTitle + ' style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;text-decoration:none">' + d.storePhone + '</a>';
+      } else {
+        phoneCell = '<span style="color:var(--muted);font-size:10px">—</span>';
+      }
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + ageClass + '">' + d.age + 'd</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
+        + '<td>' + codeCell + '</td>'
+        + '<td>' + phoneCell + '</td>'
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + priColor(d.priority) + '">' + d.priority + '</td>'
         + '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.subject + '</td>'
@@ -600,6 +640,7 @@ function logEmailOnly(ref, vendorName) {
 // ── Init ──
 function initOpsQueue(hashQueue) {
   var savedQ = hashQueue || localStorage.getItem('ax_active_queue') || 'q1';
+  loadStoreDirectory();
   loadOpsData(function() {
     switchQueue(savedQ, document.querySelector('.oq-tab[data-queue="' + savedQ + '"]'));
   });
