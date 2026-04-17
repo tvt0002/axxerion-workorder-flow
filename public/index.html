@@ -921,6 +921,7 @@ document.addEventListener('keydown', function(e){
 .ow-intro-stats .ois{background:var(--surface);padding:12px 14px;border-radius:8px;border:1px solid var(--border)}
 .ow-intro-stats .ois .ois-val{font-family:Syne,system-ui;font-size:22px;font-weight:600;color:var(--accent)}
 .ow-intro-stats .ois .ois-lbl{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-top:4px}
+.ow-vid{width:100%;max-width:720px;display:block;border-radius:10px;margin:0 0 20px;background:#000;box-shadow:0 4px 16px rgba(0,0,0,0.18)}
 @media(max-width:900px){.ow-wrap{grid-template-columns:1fr}.ow-side{position:static}}
 </style>
 
@@ -947,6 +948,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-overview" class="ow-hero">
       <h2>Operations Queue — Complete Walkthrough</h2>
       <p class="sub">A step-by-step guide for the FM team. If you're new to the dashboard, start here and work top to bottom — by the end, you'll know exactly what to click, when, and why.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/00_overview.mp4" type="video/mp4"></video>
       <p>The <b>Operations Queue</b> is where you spend most of your day. It's a 5-stage pipeline that takes a store's maintenance request from "someone reported something broken" all the way through to "we've booked the cost and closed the loop." Your job is to push each work order one step to the right until it lands in the Email Log.</p>
 
       <h3>The 5-stage pipeline</h3>
@@ -974,6 +976,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-tour">
       <h2>Dashboard Tour</h2>
       <p class="sub">Top-level tabs in the sidebar — what each one is for.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/01_tour.mp4" type="video/mp4"></video>
 
       <h3>Main Dashboard</h3>
       <p>Live KPIs and charts for the FM team: total work orders, open vs. closed, status breakdown, priority, district managers, spend, NTE utilization. Good for a quick "how are we doing?" check. Every number is clickable — click a chart to open the underlying work orders.</p>
@@ -995,6 +998,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-q1">
       <h2><span class="ow-tag purple">Q1</span>Pending Requests</h2>
       <p class="sub">Internal follow-up — the FM team needs more info from the store before a work order can be created.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/02_q1.mp4" type="video/mp4"></video>
 
       <h3>What these are</h3>
       <p>These are requests the FM team (Tim, Felipe, Denise, and anyone else on the team) has flagged as <b>needing more information</b>. Maybe the store said "something's broken" but didn't say what, where, or how bad. Until we get that info, we can't create a proper work order for a vendor.</p>
@@ -1021,6 +1025,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-q2">
       <h2><span class="ow-tag orange">Q2</span>Vendor Scheduling</h2>
       <p class="sub">A vendor has accepted the job — now you schedule when they'll be onsite.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/03_q2.mp4" type="video/mp4"></video>
 
       <h3>What these are</h3>
       <p>Work orders with status <b>Assigned</b> or <b>Accepted</b>. The vendor has confirmed they can do the job, but we haven't yet pinned down <b>when</b>. Your job is to call them, agree on a date/window, and record it.</p>
@@ -1054,6 +1059,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-q3">
       <h2><span class="ow-tag blue">Q3</span>Day-of Appointments</h2>
       <p class="sub">Work that's happening today. Morning confirm → arrival check → completion + cost ask.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/04_q3.mp4" type="video/mp4"></video>
 
       <h3>What these are</h3>
       <p>Any WO whose scheduled appointment is <b>today</b>. You actively manage these throughout the day — this is your highest-touch queue.</p>
@@ -1088,6 +1094,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-q4">
       <h2><span class="ow-tag green">Q4</span>Invoice Follow-Up</h2>
       <p class="sub">Capture the cost and request the invoice from the vendor. This is the accounting-critical step.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/05_q4.mp4" type="video/mp4"></video>
 
       <div class="ow-callout critical">
         <b>Month-end deadline:</b> Every WO in Q4 must have a cost entered <b>before accounting closes the books</b> (typically end of month). If you did the job on Apr 3, we need the cost booked to April — not May when the invoice shows up. This is called an <b>accrual</b> and it's non-negotiable.
@@ -1128,6 +1135,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-q5">
       <h2><span class="ow-tag yellow">Q5</span>Email Log</h2>
       <p class="sub">Audit trail of every invoice-request email you've sent.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/06_q5.mp4" type="video/mp4"></video>
 
       <h3>What this is</h3>
       <p>A read-mostly list of emails that have been sent out from the dashboard. If a vendor claims they never got a request, or if accounting wants proof of follow-up, this is where you look.</p>
@@ -1148,6 +1156,7 @@ document.addEventListener('keydown', function(e){
     <section id="ow-tips">
       <h2>Tips &amp; Gotchas</h2>
       <p class="sub">Things that will trip you up if you don't know them.</p>
+      <video class="ow-vid" controls preload="none" playsinline><source src="/videos/opswalk/07_recap.mp4" type="video/mp4"></video>
 
       <h3>Why the same field in two places?</h3>
       <p>You log things in this dashboard AND in Axxerion. It feels redundant but the dashboard is where the <b>ops team sees at-a-glance status</b>; Axxerion is the <b>system of record</b>. Until write-back is enabled (pending from vendor Spacewell), both need updates.</p>
