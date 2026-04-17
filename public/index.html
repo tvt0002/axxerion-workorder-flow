@@ -345,6 +345,8 @@ body.sidebar-collapsed{margin-left:58px;}
 .ig-valid-statuses .ig-vs{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(79,142,247,.08);color:var(--accent);border:1px solid rgba(79,142,247,.25);}
 .ig-filename{font-family:'DM Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px 10px;color:var(--green);display:inline-block;margin-top:6px;}
 .ig-filename .placeholder{color:var(--muted);}
+.wg-panel{display:none;}
+.wg-panel.active{display:block;}
 .ig-screenshots{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;}
 .ig-screenshot{border-radius:8px;border:1px solid var(--border);overflow:hidden;background:#f8f9fa;display:inline-block;max-width:100%;box-shadow:0 4px 16px rgba(0,0,0,.35);}
 .ig-screenshot img{display:block;max-width:100%;height:auto;}
@@ -394,9 +396,7 @@ body.sidebar-collapsed{margin-left:58px;}
     <button class="gtab active" onclick="switchView('dashboard',this)" title="Dashboard"><span class="nav-ico">&#9638;</span><span class="nav-label">Dashboard</span></button>
     <button class="gtab" onclick="switchView('opsqueue',this)" title="Ops Queue"><span class="nav-ico">&#9889;</span><span class="nav-label">Ops Queue</span></button>
     <button class="gtab" onclick="switchView('orgchart',this)" title="Org Chart"><span class="nav-ico">&#127970;</span><span class="nav-label">Org Chart</span></button>
-    <button class="gtab" onclick="switchView('workflow',this)" title="Workflow"><span class="nav-ico">&#8644;</span><span class="nav-label">Workflow</span></button>
-    <button class="gtab" onclick="switchView('statusguide',this)" title="Status Guide"><span class="nav-ico">&#9432;</span><span class="nav-label">Status Guide</span></button>
-    <button class="gtab" onclick="switchView('invoiceguide',this)" title="Invoice Guide"><span class="nav-ico">&#128196;</span><span class="nav-label">Invoice Guide</span></button>
+    <button class="gtab" onclick="switchView('workflowguides',this)" title="Workflow Guides"><span class="nav-ico">&#128218;</span><span class="nav-label">Workflow Guides</span></button>
   </nav>
   <div class="sidebar-footer">
     <button class="sidebar-footer-btn ai" onclick="toggleChatPanel()" title="Ask the AI assistant (Ctrl+J)">&#9733;<span class="sidebar-btn-label"> Ask AI</span><span class="sidebar-kbd">Ctrl+J</span></button>
@@ -471,8 +471,18 @@ document.addEventListener('keydown', function(e){
 });
 </script>
 
-<!-- ══════════ VIEW 1: WORKFLOW ══════════ -->
-<div id="view-workflow" class="view" style="zoom:1.55;">
+<!-- ══════════ VIEW: WORKFLOW GUIDES ══════════ -->
+<div id="view-workflowguides" class="view">
+<div class="db" style="padding-top:20px">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:18px;">
+    <button class="gtab oq-tab active" data-guide="emailflow" onclick="switchGuide('emailflow',this)">Email Flow</button>
+    <button class="gtab oq-tab" data-guide="statusguide" onclick="switchGuide('statusguide',this)">Status Guide</button>
+    <button class="gtab oq-tab" data-guide="invoiceguide" onclick="switchGuide('invoiceguide',this)">Invoice Submission</button>
+  </div>
+</div>
+
+<!-- ── Sub-guide: Email Flow ── -->
+<div id="guide-emailflow" class="wg-panel active" style="zoom:1.55;">
 
 <div class="hdr">
   <div style="display:flex;gap:7px">
@@ -578,10 +588,10 @@ document.addEventListener('keydown', function(e){
   </div>
 </div>
 
-</div><!-- /view-workflow -->
+</div><!-- /guide-emailflow -->
 
-<!-- ══════════ VIEW 5: STATUS GUIDE ══════════ -->
-<div id="view-statusguide" class="view">
+<!-- ── Sub-guide: Status Guide ── -->
+<div id="guide-statusguide" class="wg-panel">
 <div class="db" style="padding-top:20px">
 
   <div class="db-section-title">Work Request Statuses <div class="phl"></div></div>
@@ -615,10 +625,10 @@ document.addEventListener('keydown', function(e){
   </div>
 
 </div>
-</div><!-- /view-statusguide -->
+</div><!-- /guide-statusguide -->
 
-<!-- ══════════ VIEW: INVOICE GUIDE (CALL CENTER) ══════════ -->
-<div id="view-invoiceguide" class="view">
+<!-- ── Sub-guide: Invoice Submission ── -->
+<div id="guide-invoiceguide" class="wg-panel">
 <div class="db" style="padding-top:20px;max-width:1100px;margin:0 auto;">
 
   <div class="db-section-title">Invoice Submission Guide &mdash; Call Center <div class="phl"></div>
@@ -791,7 +801,9 @@ document.addEventListener('keydown', function(e){
   </div>
 
 </div>
-</div><!-- /view-invoiceguide -->
+</div><!-- /guide-invoiceguide -->
+
+</div><!-- /view-workflowguides -->
 
 <!-- ══════════ VIEW 2: DASHBOARD ══════════ -->
 <div id="view-dashboard" class="view active">
@@ -1112,10 +1124,20 @@ function switchView(view, btn, skipHash) {
   if(!skipHash) window.location.hash = view === 'dashboard' ? '' : view;
   if(view==='dashboard' && !window._dbInit){ window._dbInit=true; setTimeout(initDashboard,50); }
   if(view==='opsqueue'){ if(!window._oqInit){window._oqInit=true;setTimeout(initOpsQueue,50);}else{loadOpsData(renderQueue);} }
-  if(view==='statusguide'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
+  if(view==='workflowguides'){ if(!window._sgInit){window._sgInit=true;setTimeout(renderStatusGuide,50);} }
   if(view==='snow' && typeof initSnow==='function'){ if(!window._snowInit){window._snowInit=true;setTimeout(initSnow,50);}else if(typeof loadSnowContracts==='function'){loadSnowContracts(renderSnow);} }
   if(view==='orgchart'){ syncOrgChartTheme(); }
   if(typeof sizeKPIs==='function') setTimeout(sizeKPIs,100);
+}
+
+/* ── Workflow Guides sub-tabs ── */
+function switchGuide(guide, btn) {
+  document.querySelectorAll('.wg-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('[data-guide]').forEach(function(b){ b.classList.remove('active'); });
+  var panel = document.getElementById('guide-' + guide);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(guide === 'statusguide' && !window._sgInit){ window._sgInit=true; setTimeout(renderStatusGuide,50); }
 }
 
 /* ── Org Chart sub-tabs ── */
@@ -2379,6 +2401,7 @@ function parseHash(){
 }
 var _hashInfo=parseHash();
 var _savedView=_hashInfo.view || localStorage.getItem('ax_active_view') || 'dashboard';
+if(_savedView==='workflow'||_savedView==='statusguide'||_savedView==='invoiceguide') _savedView='workflowguides';
 var _hashQueue=_hashInfo.queue||null;
 if(_savedView!=='dashboard'){
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
@@ -2387,7 +2410,7 @@ if(_savedView!=='dashboard'){
   if(targetView){
     targetView.classList.add('active');
     var tabs=document.querySelectorAll('.gtab');
-    var _tabMatch=_savedView==='opsqueue'?'ops':_savedView==='statusguide'?'status guide':_savedView;
+    var _tabMatch=_savedView==='opsqueue'?'ops':_savedView==='workflowguides'?'workflow guides':_savedView;
     tabs.forEach(function(t){if(t.textContent.toLowerCase().indexOf(_tabMatch)!==-1)t.classList.add('active');});
   }
 }
@@ -2397,7 +2420,7 @@ window.addEventListener('hashchange',function(){
   var view=info.view||'dashboard';
   var tab=null;
   document.querySelectorAll('.gtab').forEach(function(b){
-    var match=view==='opsqueue'?'ops':view==='statusguide'?'status guide':view;
+    var match=view==='opsqueue'?'ops':view==='workflowguides'?'workflow guides':view;
     if(b.textContent.toLowerCase().indexOf(match)!==-1) tab=b;
   });
   switchView(view,tab,true);
@@ -2413,7 +2436,7 @@ setTimeout(loadLiveData,100);
 if(_savedView==='opsqueue'){
   var _oqWait=setInterval(function(){if(ALLDATA&&ALLDATA.length){clearInterval(_oqWait);window._oqInit=true;initOpsQueue(_hashQueue);}},500);
 }
-if(_savedView==='statusguide'){
+if(_savedView==='workflowguides'){
   window._sgInit=true;
   setTimeout(renderStatusGuide,200);
 }
