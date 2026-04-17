@@ -345,6 +345,14 @@ body.sidebar-collapsed{margin-left:58px;}
 .ig-valid-statuses .ig-vs{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(79,142,247,.08);color:var(--accent);border:1px solid rgba(79,142,247,.25);}
 .ig-filename{font-family:'DM Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px 10px;color:var(--green);display:inline-block;margin-top:6px;}
 .ig-filename .placeholder{color:var(--muted);}
+.ig-screenshots{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;}
+.ig-screenshot{border-radius:8px;border:1px solid var(--border);overflow:hidden;background:#f8f9fa;display:inline-block;max-width:100%;box-shadow:0 4px 16px rgba(0,0,0,.35);}
+.ig-screenshot img{display:block;max-width:100%;height:auto;}
+.ig-screenshot-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:10px;margin-bottom:4px;}
+.ig-screenshot-full{width:100%;}
+.ig-screenshot-sm{max-width:320px;}
+.ig-screenshot-md{max-width:500px;}
+.ig-screenshot-lg{max-width:700px;}
 
 /* ── Status Tooltip ── */
 .status-tip{position:relative;cursor:help;border-bottom:1px dotted var(--muted);}
@@ -632,6 +640,16 @@ document.addEventListener('keydown', function(e){
         <li>Enter the <b>Vendor Name</b> &rarr; click <span class="ig-btn-chip">OK</span></li>
         <li>All assigned work orders for that vendor will appear</li>
       </ul>
+      <div class="ig-screenshots">
+        <div>
+          <div class="ig-screenshot-label">Search &rarr; Advanced Search</div>
+          <div class="ig-screenshot ig-screenshot-sm"><img src="/images/invoice-guide/step1_2.png" alt="Advanced Search button"></div>
+        </div>
+        <div>
+          <div class="ig-screenshot-label">Work Order Filter &mdash; Enter Vendor Name</div>
+          <div class="ig-screenshot ig-screenshot-md"><img src="/images/invoice-guide/step1_3.png" alt="Work Order Filter dialog"></div>
+        </div>
+      </div>
 
       <div class="ig-callout">
         <div class="ig-callout-title">Check for Duplicates First</div>
@@ -641,6 +659,8 @@ document.addEventListener('keydown', function(e){
           <li><b>If not submitted:</b> match to the correct work order using store site/number, scope of work, or approximate service date</li>
           <li>Tip: sort the search report by <b>Status</b> and then <b>Property</b></li>
         </ul>
+        <div class="ig-screenshot-label" style="margin-top:8px">Use the top-right filter to search by invoice number</div>
+        <div class="ig-screenshot ig-screenshot-full"><img src="/images/invoice-guide/step1_4.png" alt="Search results with invoice filter"></div>
       </div>
 
       <div class="ig-note">
@@ -676,6 +696,8 @@ document.addEventListener('keydown', function(e){
         </li>
         <li>Scroll down and click <span class="ig-btn-chip">Start Work</span></li>
       </ul>
+      <div class="ig-screenshot-label">Click Confirm Assignment</div>
+      <div class="ig-screenshot ig-screenshot-md"><img src="/images/invoice-guide/step2_1.jpeg" alt="Confirm Assignment button bar"></div>
     </div>
   </div>
 
@@ -711,6 +733,8 @@ document.addEventListener('keydown', function(e){
           </ul>
         </li>
       </ul>
+      <div class="ig-screenshot-label">Invoice fields &mdash; highlighted in yellow</div>
+      <div class="ig-screenshot ig-screenshot-md"><img src="/images/invoice-guide/step3_1.png" alt="Invoice form with highlighted fields"></div>
     </div>
   </div>
 
@@ -726,6 +750,8 @@ document.addEventListener('keydown', function(e){
         <li>Click <span class="ig-btn-chip neutral">Add</span> for additional line items</li>
         <li>Enter <b>tax as a separate line</b> if applicable</li>
       </ul>
+      <div class="ig-screenshot-label">Items section &mdash; line items with tax on separate row</div>
+      <div class="ig-screenshot ig-screenshot-lg"><img src="/images/invoice-guide/step3_2.png" alt="Items section with line items"></div>
     </div>
   </div>
 
@@ -738,6 +764,8 @@ document.addEventListener('keydown', function(e){
         <li>Click <span class="ig-btn-chip">Recalculate</span> and verify the totals match the invoice exactly</li>
         <li>Click <span class="ig-btn-chip">End Work</span> to submit</li>
       </ul>
+      <div class="ig-screenshot-label">Click Recalculate, then End Work</div>
+      <div class="ig-screenshot ig-screenshot-md"><img src="/images/invoice-guide/step4_1.png" alt="End Work and Recalculate buttons"></div>
       <div class="ig-note">
         <b>Totals must match.</b> If the recalculated total differs from the invoice, go back and correct the Items section before ending work.
       </div>
@@ -753,9 +781,8 @@ document.addEventListener('keydown', function(e){
         <li>Rename the invoice file in the source folder to:</li>
       </ul>
       <div class="ig-filename">Submitted &ndash; <span class="placeholder">Vendor Name</span> &ndash; <span class="placeholder">Invoice Number</span></div>
-      <div class="ig-note" style="margin-top:12px">
-        <b>Example:</b> <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green)">Submitted &ndash; Signal Serv &ndash; R0426.462</span>
-      </div>
+      <div class="ig-screenshot-label" style="margin-top:12px">File naming example</div>
+      <div class="ig-screenshot ig-screenshot-sm"><img src="/images/invoice-guide/step4_2.png" alt="File naming example"></div>
     </div>
   </div>
 
