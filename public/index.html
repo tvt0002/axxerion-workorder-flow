@@ -280,6 +280,72 @@ body.sidebar-collapsed{margin-left:58px;}
 .wo-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
 .wo-results{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;max-height:360px;overflow-y:auto;z-index:400;box-shadow:0 12px 32px rgba(0,0,0,var(--shadow-strength));min-width:380px;}
 .wo-results.open{display:block;}
+
+/* ── Global Search Palette (Ctrl+K) ── */
+.wo-palette-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding-top:min(14vh,120px);}
+.wo-palette-overlay.open{display:flex;}
+.wo-palette-overlay.fullscreen{align-items:center;padding-top:0;}
+.wo-palette{position:relative;z-index:901;width:100%;max-width:780px;margin:0 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.55);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 140px);}
+.wo-palette-overlay.fullscreen .wo-palette{max-width:min(96vw,1400px);max-height:min(92vh,900px);width:100%;height:100%;border-radius:16px;box-shadow:0 32px 96px rgba(0,0,0,.6);}
+.wo-pal-input-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+.wo-pal-input-icon{color:var(--accent);font-size:20px;flex-shrink:0;line-height:1;}
+.wo-pal-input{flex:1;background:transparent;border:none;font-family:'Inter',sans-serif;font-size:19px;font-weight:500;color:var(--text);outline:none;padding:0;}
+.wo-pal-input::placeholder{color:var(--muted);}
+.wo-pal-spinner{display:flex;gap:4px;}
+.wo-pal-spinner span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:wo-bounce 1s infinite;}
+.wo-pal-spinner span:nth-child(2){animation-delay:.12s;}
+.wo-pal-spinner span:nth-child(3){animation-delay:.24s;}
+@keyframes wo-bounce{0%,80%,100%{transform:translateY(0);opacity:.4;}40%{transform:translateY(-5px);opacity:1;}}
+.wo-pal-action{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.wo-pal-action:hover{color:var(--text);background:var(--surface);}
+.wo-pal-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.wo-pal-kbd{display:inline-flex;align-items:center;padding:4px 8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:4px;}
+.wo-pal-chips{display:flex;align-items:center;gap:6px;padding:10px 20px;border-bottom:1px solid var(--border);overflow-x:auto;background:var(--surface);flex-shrink:0;}
+.wo-pal-chip{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;padding:4px 10px;border-radius:100px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--card);color:var(--text);}
+.wo-pal-chip:hover{border-color:var(--accent);}
+.wo-pal-chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.wo-pal-chip-count{font-family:'DM Mono',monospace;font-size:10px;padding:0 4px;border-radius:3px;background:var(--surface);color:var(--muted);}
+.wo-pal-chip.active .wo-pal-chip-count{background:rgba(255,255,255,.22);color:#fff;}
+.wo-pal-body{flex:1;min-height:0;overflow-y:auto;}
+.wo-pal-empty{padding:24px 20px;}
+.wo-pal-empty-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.wo-pal-recent{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.wo-pal-recent-chip{padding:6px 12px;font-size:13px;font-family:'Inter',sans-serif;border-radius:100px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;transition:all .15s;}
+.wo-pal-recent-chip:hover{border-color:var(--accent);color:var(--accent);}
+.wo-pal-field-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.wo-pal-field-card{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;color:var(--text);}
+.wo-pal-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.7;}
+.wo-pal-hint .wo-pal-kbd{padding:2px 6px;font-size:10px;margin:0 2px;}
+.wo-pal-loading, .wo-pal-no-results{padding:40px 20px;text-align:center;font-family:'Inter',sans-serif;}
+.wo-pal-no-results-icon{font-size:32px;opacity:.5;margin-bottom:8px;}
+.wo-pal-no-results-title{font-size:14px;color:var(--text);font-weight:500;margin-bottom:4px;}
+.wo-pal-no-results-hint{font-size:12px;color:var(--muted);}
+.wo-pal-loading{font-size:13px;color:var(--muted);}
+.wo-pal-group-hdr{position:sticky;top:0;z-index:10;padding:8px 20px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;color:var(--accent);}
+.wo-pal-group-hdr-count{color:var(--muted);font-family:'DM Mono',monospace;font-weight:400;}
+.wo-pal-result{display:flex;align-items:flex-start;gap:12px;padding:12px 20px;cursor:pointer;transition:background .1s;border-left:3px solid transparent;}
+.wo-pal-result:hover, .wo-pal-result.kb-active{background:rgba(var(--accent-rgb),.08);border-left-color:var(--accent);}
+.wo-pal-result-icon{flex-shrink:0;width:32px;height:32px;border-radius:8px;background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.24);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--accent);}
+.wo-pal-result-icon.req{background:rgba(var(--orange-rgb,234,88,12),.12);border-color:rgba(var(--orange-rgb,234,88,12),.24);color:var(--orange);}
+.wo-pal-result-main{flex:1;min-width:0;}
+.wo-pal-result-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--text);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wo-pal-result-title .wo-pal-ref{font-family:'DM Mono',monospace;color:var(--accent);margin-right:6px;font-size:12px;}
+.wo-pal-result-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wo-pal-result-status{flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface);color:var(--muted);}
+.wo-pal-result-open{flex-shrink:0;display:none;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);}
+.wo-pal-result.kb-active .wo-pal-result-open{display:inline-flex;}
+.wo-pal-mark{background:rgba(var(--accent-rgb),.22);color:var(--text);border-radius:3px;padding:0 2px;}
+.wo-pal-related-hdr{padding:8px 20px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--text);background:rgba(var(--accent-rgb),.05);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;}
+.wo-pal-related-hdr:hover{background:rgba(var(--accent-rgb),.12);}
+.wo-pal-related-hdr-count{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;background:var(--card);color:var(--muted);}
+.wo-pal-related-hdr-view{font-family:'Inter',sans-serif;font-size:11px;color:var(--accent);}
+.wo-pal-result.nested{padding-left:52px;}
+.wo-pal-footer{padding:10px 20px;border-top:1px solid var(--border);background:var(--bg);font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;}
+.wo-pal-footer-hints{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.wo-pal-footer-hints span{display:flex;align-items:center;gap:4px;}
+.wo-pal-footer-count{color:var(--muted);}
+.wo-pal-footer-count b{font-family:'DM Mono',monospace;color:var(--text);font-weight:600;}
+.wo-pal-context{color:var(--muted);font-size:11px;}
 .wo-result{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:12px;transition:background .12s;border-bottom:1px solid rgba(var(--border-rgb),.5);}
 .wo-result:last-child{border-bottom:none;}
 .wo-result:hover{background:rgba(var(--accent-rgb),.08);}
@@ -385,12 +451,11 @@ body.sidebar-collapsed{margin-left:58px;}
     </div>
   </div>
   <div class="sidebar-search-wrap">
-    <label class="sidebar-search-btn" title="Search">
+    <button type="button" class="sidebar-search-btn" id="woSearchTrigger" title="Search (Ctrl+K)">
       <span class="wo-search-icon">&#128269;</span>
-      <input type="text" class="wo-search-input" id="woSearch" placeholder="Search..." autocomplete="off">
+      <span class="wo-search-input" aria-hidden="true">Search...</span>
       <span class="sidebar-kbd">Ctrl+K</span>
-    </label>
-    <div class="wo-results" id="woResults"></div>
+    </button>
   </div>
   <nav class="sidebar-nav">
     <button class="gtab active" onclick="switchView('dashboard',this)" title="Dashboard"><span class="nav-ico">&#9638;</span><span class="nav-label">Dashboard</span></button>
@@ -2555,38 +2620,156 @@ function openWODetail(r){
   $('panel').classList.add('open');
 }
 
-/* ── Work Order Search ── */
-(function(){
-  var input=$('woSearch'), box=$('woResults');
-  var debounce=null;
+/* ── Global Search Palette (Ctrl+K) ── */
+window.openSearchPalette = function(){};
+window.closeSearchPalette = function(){};
+function __initWoPalette(){
+  var overlay=$('woPaletteOverlay'), paletteInput=$('woPalInput');
+  var body=$('woPalBody'), chipsBar=$('woPalChips');
+  var countEl=$('woPalCount'), clearBtn=$('woPalClear');
+  var spinner=$('woPalSpinner'), trigger=$('woSearchTrigger');
+  if(!overlay||!paletteInput||!trigger){ return; }
+  var fsBtn=$('woPalFullscreen'), fsExpand=$('woPalFsIconExpand'), fsCollapse=$('woPalFsIconCollapse');
+  var debounce=null, currentFilter='all', currentMatches=[], currentQuery='';
+  var RECENT_KEY='axx:recent-searches', RECENT_LIMIT=6;
 
-  input.addEventListener('input',function(){
+  function loadRecent(){
+    try{var raw=localStorage.getItem(RECENT_KEY);return raw?JSON.parse(raw):[];}catch(_){return [];}
+  }
+  function saveRecent(q){
+    var t=(q||'').trim(); if(t.length<2) return;
+    try{
+      var list=loadRecent().filter(function(x){return x.toLowerCase()!==t.toLowerCase();});
+      list.unshift(t);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0,RECENT_LIMIT)));
+    }catch(_){}
+  }
+
+  function openPalette(prefill){
+    overlay.classList.add('open');
+    paletteInput.value = prefill || '';
+    currentFilter='all'; currentMatches=[]; currentQuery='';
+    clearBtn.style.display='none';
+    spinner.style.display='none';
+    renderEmpty();
+    setTimeout(function(){ paletteInput.focus(); paletteInput.select(); }, 30);
+    if(prefill && prefill.length>=2){ paletteInput.dispatchEvent(new Event('input')); }
+  }
+  function closePalette(){
+    overlay.classList.remove('open');
+    overlay.classList.remove('fullscreen');
+    fsExpand.style.display=''; fsCollapse.style.display='none';
+    paletteInput.value=''; currentQuery=''; body.innerHTML='';
+    chipsBar.style.display='none'; chipsBar.innerHTML='';
+    countEl.textContent='';
+  }
+  window.openSearchPalette = openPalette;
+  window.closeSearchPalette = closePalette;
+
+  trigger.addEventListener('click', function(){ openPalette(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) closePalette(); });
+  clearBtn.addEventListener('click', function(){ paletteInput.value=''; paletteInput.focus(); paletteInput.dispatchEvent(new Event('input')); });
+  fsBtn.addEventListener('click', function(){
+    var fs=overlay.classList.toggle('fullscreen');
+    fsExpand.style.display=fs?'none':'';
+    fsCollapse.style.display=fs?'':'none';
+  });
+
+  paletteInput.addEventListener('input', function(){
+    var v=paletteInput.value;
+    clearBtn.style.display=v?'':'none';
     clearTimeout(debounce);
-    debounce=setTimeout(doSearch,150);
+    if(v.trim().length<2){ spinner.style.display='none'; renderEmpty(); return; }
+    spinner.style.display='';
+    debounce=setTimeout(doSearch, 150);
   });
 
-  input.addEventListener('focus',function(){
-    if(input.value.trim().length>=2) doSearch();
-  });
-
-  // Close on click outside
-  document.addEventListener('click',function(e){
-    if(!e.target.closest('.wo-search-wrap')){box.classList.remove('open');}
-  });
-
-  // Keyboard navigation
-  input.addEventListener('keydown',function(e){
-    var items=box.querySelectorAll('.wo-result');
-    var active=box.querySelector('.wo-result:hover, .wo-result.kb-active');
+  paletteInput.addEventListener('keydown', function(e){
+    var items=body.querySelectorAll('.wo-pal-result');
     var idx=-1;
-    items.forEach(function(el,i){if(el.classList.contains('kb-active'))idx=i;});
-    if(e.key==='ArrowDown'){e.preventDefault();items.forEach(function(el){el.classList.remove('kb-active');});idx=Math.min(idx+1,items.length-1);if(items[idx])items[idx].classList.add('kb-active');}
-    else if(e.key==='ArrowUp'){e.preventDefault();items.forEach(function(el){el.classList.remove('kb-active');});idx=Math.max(idx-1,0);if(items[idx])items[idx].classList.add('kb-active');}
-    else if(e.key==='Enter'){e.preventDefault();var sel=box.querySelector('.wo-result.kb-active')||items[0];if(sel)sel.click();}
-    else if(e.key==='Escape'){box.classList.remove('open');input.blur();}
+    items.forEach(function(el,i){ if(el.classList.contains('kb-active')) idx=i; });
+    if(e.key==='Escape'){
+      e.preventDefault();
+      if(overlay.classList.contains('fullscreen')){ overlay.classList.remove('fullscreen'); fsExpand.style.display=''; fsCollapse.style.display='none'; }
+      else closePalette();
+    } else if(e.key==='ArrowDown'){
+      e.preventDefault();
+      items.forEach(function(el){ el.classList.remove('kb-active'); });
+      idx=Math.min(idx+1, items.length-1);
+      if(items[idx]){ items[idx].classList.add('kb-active'); items[idx].scrollIntoView({block:'nearest'}); }
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      items.forEach(function(el){ el.classList.remove('kb-active'); });
+      idx=Math.max(idx-1, 0);
+      if(items[idx]){ items[idx].classList.add('kb-active'); items[idx].scrollIntoView({block:'nearest'}); }
+    } else if(e.key==='Enter'){
+      e.preventDefault();
+      var sel=body.querySelector('.wo-pal-result.kb-active')||items[0];
+      if(sel) sel.click();
+    } else if(e.key==='Tab'){
+      if(chipsBar.style.display!=='none'){
+        e.preventDefault();
+        var chips=chipsBar.querySelectorAll('.wo-pal-chip');
+        var activeIdx=-1;
+        chips.forEach(function(el,i){ if(el.classList.contains('active')) activeIdx=i; });
+        var next=e.shiftKey ? (activeIdx-1+chips.length)%chips.length : (activeIdx+1)%chips.length;
+        chips[next].click();
+      }
+    }
   });
 
-  // Find all WOs sharing the same Request number (e.g. Request 0009275 → WRK-261615, WRK-2510344)
+  /* ── HTML escape + highlight ── */
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function highlight(text, q){
+    if(!text) return '';
+    var t=String(text);
+    if(!q||q.length<2) return esc(t);
+    var safe=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    var re=new RegExp('('+safe+')','ig');
+    var out='', lastIdx=0, m;
+    while((m=re.exec(t))!==null){
+      out+=esc(t.slice(lastIdx, m.index));
+      out+='<mark class="wo-pal-mark">'+esc(m[0])+'</mark>';
+      lastIdx=m.index+m[0].length;
+      if(m.index===re.lastIndex) re.lastIndex++;
+    }
+    out+=esc(t.slice(lastIdx));
+    return out;
+  }
+
+  /* ── Empty state ── */
+  function renderEmpty(){
+    chipsBar.style.display='none'; chipsBar.innerHTML=''; countEl.textContent='';
+    var recent=loadRecent();
+    var html='<div class="wo-pal-empty">';
+    if(recent.length){
+      html+='<div class="wo-pal-empty-label">&#128337; Recent searches</div>';
+      html+='<div class="wo-pal-recent">';
+      recent.forEach(function(r){ html+='<button class="wo-pal-recent-chip" data-q="'+esc(r)+'">'+esc(r)+'</button>'; });
+      html+='</div>';
+    }
+    html+='<div class="wo-pal-empty-label">What you can search</div>';
+    html+='<div class="wo-pal-field-grid">';
+    [['&#128205;','Property'],['&#128203;','Reference / WRK-'],['&#127760;','Request #'],
+     ['&#128188;','Vendor'],['&#128100;','People (DM, FM, Exec)'],['&#128222;','Phone'],
+     ['&#9993;','Email'],['&#128176;','Invoice #'],['&#128736;','Service Type']
+    ].forEach(function(f){
+      html+='<div class="wo-pal-field-card"><span>'+f[0]+'</span><span>'+f[1]+'</span></div>';
+    });
+    html+='</div>';
+    html+='<div class="wo-pal-hint">Type at least 2 characters. Use <span class="wo-pal-kbd">Tab</span> to filter, <span class="wo-pal-kbd">&uarr;&darr;</span> navigate, <span class="wo-pal-kbd">&crarr;</span> open.</div>';
+    html+='</div>';
+    body.innerHTML=html;
+    body.querySelectorAll('.wo-pal-recent-chip').forEach(function(el){
+      el.addEventListener('click', function(){
+        paletteInput.value=el.getAttribute('data-q');
+        paletteInput.focus();
+        paletteInput.dispatchEvent(new Event('input'));
+      });
+    });
+  }
+
+  /* ── Related-by-request helper ── */
   function findRelatedByRequest(reqNum){
     if(!reqNum) return [];
     var related=[];
@@ -2596,183 +2779,213 @@ function openWODetail(r){
     return related;
   }
 
-  // Global search field definitions: [index, label]
+  /* ── Search field definitions (index, label, categoryKey) ── */
   var SEARCH_FIELDS=[
-    [10,'Reference'],[0,'Property'],[11,'Subject'],[6,'Vendor'],
-    [13,'Address'],[1,'Status'],[33,'Request #'],
-    [2,'Priority'],[3,'Service Type'],[7,'Region'],
-    [8,'DM'],[17,'Facility Mgr'],[18,'Executor'],[24,'Assignee'],
-    [27,'Vendor Phone'],[28,'Vendor Mobile'],[29,'Vendor Email'],
-    [30,'Floor/Unit'],[32,'Secondary Contact'],[26,'Invoice #'],
-    [16,'Requestor']
+    [10,'Reference','ref'],[0,'Property','property'],[11,'Subject','subject'],[6,'Vendor','vendor'],
+    [13,'Address','property'],[1,'Status','status'],[33,'Request #','request'],
+    [2,'Priority','priority'],[3,'Service Type','service'],[7,'Region','region'],
+    [8,'DM','people'],[17,'Facility Mgr','people'],[18,'Executor','people'],[24,'Assignee','people'],
+    [27,'Vendor Phone','contact'],[28,'Vendor Mobile','contact'],[29,'Vendor Email','contact'],
+    [30,'Floor/Unit','property'],[32,'Secondary Contact','people'],[26,'Invoice #','invoice'],
+    [16,'Requestor','people']
   ];
+  var CATEGORY_META={
+    ref:{label:'Reference',icon:'&#128203;'},
+    property:{label:'Property',icon:'&#128205;'},
+    subject:{label:'Subject',icon:'&#128221;'},
+    vendor:{label:'Vendor',icon:'&#128188;'},
+    status:{label:'Status',icon:'&#128279;'},
+    request:{label:'Request',icon:'&#127760;'},
+    priority:{label:'Priority',icon:'&#128680;'},
+    service:{label:'Service',icon:'&#128736;'},
+    region:{label:'Region',icon:'&#127758;'},
+    people:{label:'People',icon:'&#128100;'},
+    contact:{label:'Contact',icon:'&#128222;'},
+    invoice:{label:'Invoice',icon:'&#128176;'},
+    other:{label:'Other',icon:'&#128269;'}
+  };
 
-  // Strip non-digits for phone matching (so "555-1234" matches "(555) 555-1234")
   function stripPhone(s){return s.replace(/\D/g,'');}
 
   function doSearch(){
-    var q=input.value.trim().toLowerCase();
-    if(q.length<2||!ALLDATA.length){box.classList.remove('open');box.innerHTML='';return;}
+    var q=paletteInput.value.trim().toLowerCase();
+    currentQuery=q;
+    if(q.length<2||!ALLDATA.length){ spinner.style.display='none'; renderEmpty(); return; }
 
-    // Pre-compute: is query likely a phone number? (mostly digits after stripping)
     var qDigits=stripPhone(q);
     var isPhoneQuery=qDigits.length>=3 && qDigits.length>=q.replace(/[\s\-\(\)\.]/g,'').length*0.6;
 
-    // Search across all global fields + OPS_DATA vendor contacts
     var matches=[];
     for(var i=0;i<ALLDATA.length;i++){
       var r=ALLDATA[i];
-      var matchLabel='';
+      var matchLabel='', matchCategory='other', matchedFieldIdx=-1;
 
-      // Check each search field
       for(var f=0;f<SEARCH_FIELDS.length;f++){
-        var fi=SEARCH_FIELDS[f][0], fl=SEARCH_FIELDS[f][1];
+        var fi=SEARCH_FIELDS[f][0], fl=SEARCH_FIELDS[f][1], fc=SEARCH_FIELDS[f][2];
         var val=r[fi];
         if(!val) continue;
         var vs=String(val).toLowerCase();
 
-        // Phone fields get digit-only matching too
         if((fi===27||fi===28)&&isPhoneQuery&&qDigits.length>=4){
-          if(stripPhone(vs).indexOf(qDigits)!==-1){matchLabel=fl+': '+val;break;}
+          if(stripPhone(vs).indexOf(qDigits)!==-1){ matchLabel=fl+': '+val; matchCategory=fc; matchedFieldIdx=fi; break; }
         }
         if(vs.indexOf(q)!==-1){
-          // For the original 7 fields, don't show a label (keeps results clean for common searches)
-          if(fi===10||fi===0||fi===11||fi===6||fi===13||fi===1||fi===33){matchLabel='';break;}
-          matchLabel=fl+': '+val;
+          matchCategory=fc; matchedFieldIdx=fi;
+          if(fi===10||fi===0||fi===11||fi===6||fi===13||fi===1||fi===33){ matchLabel=''; }
+          else { matchLabel=fl+': '+val; }
           break;
         }
       }
 
-      // If no record field matched, check OPS_DATA vendor fallback contacts
-      if(matchLabel==='' && f>=SEARCH_FIELDS.length){
-        // No match in record fields — check OPS_DATA.vendors fallback
+      if(matchedFieldIdx===-1){
         var vName=r[6];
         if(vName && typeof OPS_DATA!=='undefined' && OPS_DATA.vendors && OPS_DATA.vendors[vName]){
           var vi=OPS_DATA.vendors[vName];
           if(vi.phone){
             var vp=vi.phone.toLowerCase();
             if(vp.indexOf(q)!==-1||(isPhoneQuery&&qDigits.length>=4&&stripPhone(vp).indexOf(qDigits)!==-1)){
-              matchLabel='Vendor Phone: '+vi.phone;
+              matchLabel='Vendor Phone: '+vi.phone; matchCategory='contact'; matchedFieldIdx=27;
             }
           }
-          if(!matchLabel&&vi.email&&vi.email.toLowerCase().indexOf(q)!==-1){
-            matchLabel='Vendor Email: '+vi.email;
+          if(matchedFieldIdx===-1 && vi.email && vi.email.toLowerCase().indexOf(q)!==-1){
+            matchLabel='Vendor Email: '+vi.email; matchCategory='contact'; matchedFieldIdx=29;
           }
         }
       }
 
-      // f < SEARCH_FIELDS.length means the inner loop broke early (match found)
-      if(f<SEARCH_FIELDS.length||matchLabel){
-        matches.push({row:r,idx:i,matchLabel:matchLabel||''});
+      if(matchedFieldIdx!==-1){
+        matches.push({row:r,idx:i,matchLabel:matchLabel||'',category:matchCategory});
       }
     }
 
-    if(!matches.length){
-      box.innerHTML='<div class="wo-no-results">No results for "'+q.replace(/</g,'&lt;')+'" across all fields</div>';
-      box.classList.add('open');
+    currentMatches=matches;
+    spinner.style.display='none';
+    renderChips();
+    renderMatches();
+  }
+
+  function renderChips(){
+    var counts={}; currentMatches.forEach(function(m){ counts[m.category]=(counts[m.category]||0)+1; });
+    var cats=Object.keys(counts);
+    if(!cats.length){ chipsBar.style.display='none'; return; }
+    chipsBar.style.display='';
+    var html='<button class="wo-pal-chip'+(currentFilter==='all'?' active':'')+'" data-cat="all">All <span class="wo-pal-chip-count">'+currentMatches.length+'</span></button>';
+    var order=['ref','property','subject','vendor','request','status','priority','service','region','people','contact','invoice','other'];
+    order.forEach(function(c){
+      if(!counts[c]) return;
+      var meta=CATEGORY_META[c]||CATEGORY_META.other;
+      html+='<button class="wo-pal-chip'+(currentFilter===c?' active':'')+'" data-cat="'+c+'"><span>'+meta.icon+'</span><span>'+meta.label+'</span><span class="wo-pal-chip-count">'+counts[c]+'</span></button>';
+    });
+    chipsBar.innerHTML=html;
+    chipsBar.querySelectorAll('.wo-pal-chip').forEach(function(el){
+      el.addEventListener('click', function(){ currentFilter=el.getAttribute('data-cat'); renderChips(); renderMatches(); });
+    });
+  }
+
+  function renderMatches(){
+    var filtered = currentFilter==='all' ? currentMatches : currentMatches.filter(function(m){ return m.category===currentFilter; });
+
+    if(!filtered.length){
+      body.innerHTML='<div class="wo-pal-no-results"><div class="wo-pal-no-results-icon">&#128269;</div><div class="wo-pal-no-results-title">No results for "'+esc(currentQuery)+'"</div><div class="wo-pal-no-results-hint">Try fewer characters, different keywords, or clear the category filter.</div></div>';
+      countEl.innerHTML='';
       return;
     }
 
-    // Build a map of Request# → all related WOs (across ALL data, not just matches)
+    // Group related by Request #
     var relatedMap={};
-    matches.forEach(function(m){
+    filtered.forEach(function(m){
       var rn=m.row[33]||'';
       if(rn && !relatedMap[rn]) relatedMap[rn]=findRelatedByRequest(rn);
     });
 
-    // Deduplicate: if multiple matches share a Request#, group them
     var rendered=new Set();
     var html='';
-    matches.forEach(function(m){
+    filtered.forEach(function(m){
       var reqNum=m.row[33]||'';
       var related=reqNum?relatedMap[reqNum]:null;
       var hasFamily=related&&related.length>1;
-
-      // If this WO is part of a family and we already rendered that family, skip
       if(hasFamily && rendered.has(reqNum)) return;
 
       if(hasFamily){
         rendered.add(reqNum);
-        // Render "Related WOs" group header with Request number
         var shortReq=reqNum.replace(/^0+/,'');
-        html+='<div class="wo-related-header" data-reqnum="'+reqNum+'">'
-          +'&#128279; Request #'+shortReq+' — '+related.length+' Work Orders'
-          +'<span class="wo-rh-count">'+related.length+'</span>'
-          +'<span class="wo-rh-view">View all &#8599;</span>'
+        html+='<div class="wo-pal-related-hdr" data-reqnum="'+esc(reqNum)+'">'
+          +'&#128279; Request #'+highlight(shortReq,currentQuery)+' — '+related.length+' Work Orders'
+          +'<span class="wo-pal-related-hdr-count">'+related.length+'</span>'
+          +'<span class="wo-pal-related-hdr-view">View all &#8599;</span>'
           +'</div>';
-        // Render each related WO (show ALL related, not just matches — surfaces completed/closed siblings)
         related.forEach(function(rel){
-          var rr=rel.row;
-          var isReq=(rr[15]==='Request');
-          var typeColor=isReq?'color:var(--orange)':'color:var(--accent)';
-          var typeLabel=isReq?'REQ':'WO';
-          var rRef=rr[10]||'—';
-          var rProp=rr[0]||'';
-          var rStatus=rr[1]||'';
-          var rSubj=rr[11]||'';
-          var truncSubj=rSubj.length>35?rSubj.substring(0,35)+'…':rSubj;
-          html+='<div class="wo-result" data-idx="'+rel.idx+'" data-ref="'+rRef.replace(/"/g,'&quot;')+'" data-reqnum="'+reqNum+'" title="'+rSubj.replace(/"/g,'&quot;')+'" style="padding-left:28px;">'
-            +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
-            +'<span class="wo-result-ref">'+rRef+'</span>'
-            +'<span class="wo-result-prop">'+rProp+(truncSubj?' · '+truncSubj:'')+'</span>'
-            +'<span class="wo-result-status">'+rStatus+'</span>'
-            +'</div>';
+          html+=buildResultRow(rel.row, rel.idx, '', true);
         });
       } else {
-        // Single WO, no family
-        var ref=m.row[10]||'—';
-        var isReq=(m.row[15]==='Request');
-        var typeColor=isReq?'color:var(--orange)':'color:var(--accent)';
-        var typeLabel=isReq?'REQ':'WO';
-        var prop=m.row[0]||'';
-        var status=m.row[1]||'';
-        var subj=m.row[11]||'';
-        var truncSubj=subj.length>40?subj.substring(0,40)+'…':subj;
-        var reqBadge=(m.row[33])?'<span class="wo-result-related">Req #'+m.row[33].replace(/^0+/,'')+'</span>':'';
-        // Show match context when the match came from a non-obvious field
-        var contextHtml='';
-        if(m.matchLabel){
-          var ml=m.matchLabel.replace(/</g,'&lt;');
-          contextHtml='<span class="wo-result-context">'+ml+'</span>';
-        }
-        html+='<div class="wo-result" data-idx="'+m.idx+'" data-ref="'+ref.replace(/"/g,'&quot;')+'" title="'+subj.replace(/"/g,'&quot;')+'">'
-          +'<span class="wo-result-type" style="'+typeColor+'">'+typeLabel+'</span>'
-          +'<span class="wo-result-ref">'+ref+'</span>'
-          +'<span class="wo-result-prop">'+prop+(contextHtml?' · '+contextHtml:(truncSubj?' · '+truncSubj:''))+'</span>'
-          +reqBadge
-          +'<span class="wo-result-status">'+status+'</span>'
-          +'</div>';
+        html+=buildResultRow(m.row, m.idx, m.matchLabel, false);
       }
     });
 
-    box.innerHTML=html;
-    box.classList.add('open');
+    body.innerHTML=html;
+    countEl.innerHTML='<b>'+filtered.length+'</b> result'+(filtered.length!==1?'s':'')+(currentFilter!=='all'?' in '+(CATEGORY_META[currentFilter]?CATEGORY_META[currentFilter].label:currentFilter):'');
 
-    // Click handler for group header — open raw data showing ALL related WOs
-    box.querySelectorAll('.wo-related-header').forEach(function(el){
-      el.addEventListener('click',function(){
+    // First result becomes keyboard-active for instant Enter
+    var first=body.querySelector('.wo-pal-result');
+    if(first) first.classList.add('kb-active');
+
+    // Group header click → open related WOs list
+    body.querySelectorAll('.wo-pal-related-hdr').forEach(function(el){
+      el.addEventListener('click', function(){
         var rn=el.getAttribute('data-reqnum');
-        var related=findRelatedByRequest(rn);
-        if(related.length){
+        var rel=findRelatedByRequest(rn);
+        if(rel.length){
           var shortReq=rn.replace(/^0+/,'');
-          openRawData({relatedWOs:related.map(function(r){return r.row;}),relatedBase:'Request #'+shortReq});
+          saveRecent(currentQuery);
+          openRawData({relatedWOs:rel.map(function(r){return r.row;}),relatedBase:'Request #'+shortReq});
+          closePalette();
         }
-        box.classList.remove('open');
-        input.value='';
       });
     });
 
-    // Click handler for individual result — open single record
-    box.querySelectorAll('.wo-result').forEach(function(el){
-      el.addEventListener('click',function(){
+    // Individual result click → open record
+    body.querySelectorAll('.wo-pal-result').forEach(function(el){
+      el.addEventListener('mouseenter', function(){
+        body.querySelectorAll('.wo-pal-result').forEach(function(x){x.classList.remove('kb-active');});
+        el.classList.add('kb-active');
+      });
+      el.addEventListener('click', function(){
         var idx=parseInt(el.getAttribute('data-idx'),10);
-        if(!isNaN(idx)) openRawData({singleRecord:ALLDATA[idx]});
-        box.classList.remove('open');
-        input.value='';
+        if(!isNaN(idx)){
+          saveRecent(currentQuery);
+          openRawData({singleRecord:ALLDATA[idx]});
+        }
+        closePalette();
       });
     });
   }
-})();
+
+  function buildResultRow(row, idx, matchLabel, nested){
+    var ref=row[10]||'—';
+    var isReq=(row[15]==='Request');
+    var typeLabel=isReq?'REQ':'WO';
+    var prop=row[0]||'';
+    var status=row[1]||'';
+    var subj=row[11]||'';
+    var reqNum=row[33]||'';
+    var q=currentQuery;
+    var titleHtml='<span class="wo-pal-ref">'+highlight(ref,q)+'</span>'+highlight(prop||subj||'—',q);
+    var subParts=[];
+    if(prop && subj) subParts.push(highlight(subj,q));
+    if(matchLabel) subParts.push('<span class="wo-pal-context">'+highlight(matchLabel,q)+'</span>');
+    if(reqNum) subParts.push('Req #'+reqNum.replace(/^0+/,''));
+    var subHtml=subParts.join(' · ');
+    return '<div class="wo-pal-result'+(nested?' nested':'')+'" data-idx="'+idx+'">'
+      +'<div class="wo-pal-result-icon'+(isReq?' req':'')+'">'+typeLabel+'</div>'
+      +'<div class="wo-pal-result-main"><div class="wo-pal-result-title">'+titleHtml+'</div>'
+      +(subHtml?'<div class="wo-pal-result-sub">'+subHtml+'</div>':'')+'</div>'
+      +(status?'<span class="wo-pal-result-status">'+esc(status)+'</span>':'')
+      +'<span class="wo-pal-result-open">Open &crarr;</span>'
+      +'</div>';
+  }
+}
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', __initWoPalette); }
+else { __initWoPalette(); }
 </script>
 
 <!-- ══════════ AI CHAT PANEL ══════════ -->
@@ -3145,12 +3358,11 @@ function openWODetail(r){
     inputEl.focus();
   };
 
-  // Global keyboard shortcuts: Ctrl+K focus search, Ctrl+J toggle chat
+  // Global keyboard shortcuts: Ctrl+K open search palette, Ctrl+J toggle chat
   document.addEventListener('keydown', function(e){
     if((e.ctrlKey || e.metaKey) && e.key === 'k'){
       e.preventDefault();
-      var search = document.getElementById('woSearch');
-      if(search){ search.focus(); search.select(); }
+      if(typeof window.openSearchPalette==='function') window.openSearchPalette();
     } else if((e.ctrlKey || e.metaKey) && e.key === 'j'){
       e.preventDefault();
       toggleChatPanel();
@@ -3161,5 +3373,36 @@ function openWODetail(r){
   loadBudget();
 })();
 </script>
+
+<!-- ══════════ GLOBAL SEARCH PALETTE (Ctrl+K) ══════════ -->
+<div class="wo-palette-overlay" id="woPaletteOverlay" role="dialog" aria-modal="true" aria-label="Global search">
+  <div class="wo-palette" id="woPalette">
+    <div class="wo-pal-input-row">
+      <span class="wo-pal-input-icon">&#128269;</span>
+      <input type="text" class="wo-pal-input" id="woPalInput" placeholder="Search work orders, properties, vendors, requests, people..." autocomplete="off" spellcheck="false">
+      <div class="wo-pal-spinner" id="woPalSpinner" style="display:none;"><span></span><span></span><span></span></div>
+      <button class="wo-pal-action" id="woPalClear" title="Clear" style="display:none;">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="wo-pal-action" id="woPalFullscreen" title="Toggle fullscreen">
+        <svg viewBox="0 0 24 24" id="woPalFsIconExpand"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        <svg viewBox="0 0 24 24" id="woPalFsIconCollapse" style="display:none;"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <span class="wo-pal-kbd">ESC</span>
+    </div>
+    <div class="wo-pal-chips" id="woPalChips" style="display:none;"></div>
+    <div class="wo-pal-body" id="woPalBody"></div>
+    <div class="wo-pal-footer">
+      <div class="wo-pal-footer-hints">
+        <span><span class="wo-pal-kbd">&uarr;&darr;</span> navigate</span>
+        <span><span class="wo-pal-kbd">Tab</span> filter</span>
+        <span><span class="wo-pal-kbd">&crarr;</span> open</span>
+        <span><span class="wo-pal-kbd">esc</span> close</span>
+      </div>
+      <div class="wo-pal-footer-count" id="woPalCount"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
