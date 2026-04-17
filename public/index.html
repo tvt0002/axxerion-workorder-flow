@@ -922,6 +922,15 @@ document.addEventListener('keydown', function(e){
 .ow-intro-stats .ois .ois-val{font-family:Syne,system-ui;font-size:22px;font-weight:600;color:var(--accent)}
 .ow-intro-stats .ois .ois-lbl{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-top:4px}
 .ow-vid{width:100%;max-width:720px;display:block;border-radius:10px;margin:0 0 20px;background:#000;box-shadow:0 4px 16px rgba(0,0,0,0.18)}
+.kpi-info{position:absolute;top:8px;right:10px;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px;color:var(--muted);cursor:help;transition:color .15s,background .15s;z-index:5}
+.kpi-info:hover,.kpi-info:focus{color:var(--accent);background:rgba(var(--accent-rgb),0.12);outline:none}
+.kpi-tip{display:none;position:absolute;top:28px;right:0;width:280px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.22);z-index:100;font-family:Inter,system-ui,sans-serif;text-align:left;white-space:normal;cursor:default}
+.kpi-info:hover .kpi-tip,.kpi-info:focus .kpi-tip{display:block}
+.kpi-tip b{display:block;font-size:13px;color:var(--text);margin-bottom:6px;font-family:Syne,system-ui;letter-spacing:-0.2px}
+.kpi-tip-body{display:block;font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:10px;font-weight:400}
+.kpi-tip-body b{display:inline;font-size:12px;color:var(--text);margin:0;font-family:inherit}
+.kpi-tip-link{display:inline-block;font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);text-decoration:none;padding:4px 0;cursor:pointer;font-weight:500}
+.kpi-tip-link:hover{text-decoration:underline}
 @media(max-width:900px){.ow-wrap{grid-template-columns:1fr}.ow-side{position:static}}
 </style>
 
@@ -1418,11 +1427,26 @@ document.addEventListener('keydown', function(e){
 
   <!-- Queue KPIs -->
   <div class="db-kpis" style="grid-template-columns:repeat(5,1fr);">
-    <div class="db-kpi kpi-purple oq-kpi" data-queue="q1" style="cursor:pointer"><div class="kpi-val" id="oqK1">--</div><div class="kpi-lbl">Requests Pending</div></div>
-    <div class="db-kpi kpi-orange oq-kpi" data-queue="q2" style="cursor:pointer"><div class="kpi-val" id="oqK2">--</div><div class="kpi-lbl">Need Scheduling</div></div>
-    <div class="db-kpi kpi-blue oq-kpi" data-queue="q3" style="cursor:pointer"><div class="kpi-val" id="oqK3">--</div><div class="kpi-lbl">Today's Appts</div></div>
-    <div class="db-kpi kpi-green oq-kpi" data-queue="q4" style="cursor:pointer"><div class="kpi-val" id="oqK4">--</div><div class="kpi-lbl">Awaiting Invoice</div></div>
-    <div class="db-kpi kpi-yellow oq-kpi" data-queue="q5" style="cursor:pointer"><div class="kpi-val" id="oqK5">--</div><div class="kpi-lbl">Emails Sent</div></div>
+    <div class="db-kpi kpi-purple oq-kpi" data-queue="q1" style="cursor:pointer;position:relative;overflow:visible">
+      <span class="kpi-info" tabindex="0" onclick="event.stopPropagation()">ⓘ<span class="kpi-tip"><b>Q1 · Pending Requests</b><span class="kpi-tip-body">Internal FM team follow-up. You're calling <b>stores</b> to get missing info before a work order can be created. No vendor contact in this queue.</span><a class="kpi-tip-link" onclick="event.stopPropagation(); window.openOpsWalkthrough('q1');">Open walkthrough →</a></span></span>
+      <div class="kpi-val" id="oqK1">--</div><div class="kpi-lbl">Requests Pending</div>
+    </div>
+    <div class="db-kpi kpi-orange oq-kpi" data-queue="q2" style="cursor:pointer;position:relative;overflow:visible">
+      <span class="kpi-info" tabindex="0" onclick="event.stopPropagation()">ⓘ<span class="kpi-tip"><b>Q2 · Vendor Scheduling</b><span class="kpi-tip-body">Vendor has accepted the job. Call them to agree on a date + time window, then save the appointment and update Axxerion's <b>Schedule Start/End</b> fields.</span><a class="kpi-tip-link" onclick="event.stopPropagation(); window.openOpsWalkthrough('q2');">Open walkthrough →</a></span></span>
+      <div class="kpi-val" id="oqK2">--</div><div class="kpi-lbl">Need Scheduling</div>
+    </div>
+    <div class="db-kpi kpi-blue oq-kpi" data-queue="q3" style="cursor:pointer;position:relative;overflow:visible">
+      <span class="kpi-info" tabindex="0" onclick="event.stopPropagation()">ⓘ<span class="kpi-tip"><b>Q3 · Day-of Appointments</b><span class="kpi-tip-body">Work happening <b>today</b>. Morning call to confirm → check arrival at appt window → completion call + <b>ask for cost</b> while vendor is still onsite.</span><a class="kpi-tip-link" onclick="event.stopPropagation(); window.openOpsWalkthrough('q3');">Open walkthrough →</a></span></span>
+      <div class="kpi-val" id="oqK3">--</div><div class="kpi-lbl">Today's Appts</div>
+    </div>
+    <div class="db-kpi kpi-green oq-kpi" data-queue="q4" style="cursor:pointer;position:relative;overflow:visible">
+      <span class="kpi-info" tabindex="0" onclick="event.stopPropagation()">ⓘ<span class="kpi-tip"><b>Q4 · Invoice Follow-Up</b><span class="kpi-tip-body"><b>Accounting-critical.</b> Capture the vendor cost and send the invoice-upload email. Must be done before month-end accrual close — we book expense to the month the work happened, not when the invoice arrives.</span><a class="kpi-tip-link" onclick="event.stopPropagation(); window.openOpsWalkthrough('q4');">Open walkthrough →</a></span></span>
+      <div class="kpi-val" id="oqK4">--</div><div class="kpi-lbl">Awaiting Invoice</div>
+    </div>
+    <div class="db-kpi kpi-yellow oq-kpi" data-queue="q5" style="cursor:pointer;position:relative;overflow:visible">
+      <span class="kpi-info" tabindex="0" onclick="event.stopPropagation()">ⓘ<span class="kpi-tip"><b>Q5 · Email Log</b><span class="kpi-tip-body">Audit trail of every invoice-request email sent out. Reference only — use it to verify follow-ups happened or pull history for accounting.</span><a class="kpi-tip-link" onclick="event.stopPropagation(); window.openOpsWalkthrough('q5');">Open walkthrough →</a></span></span>
+      <div class="kpi-val" id="oqK5">--</div><div class="kpi-lbl">Emails Sent</div>
+    </div>
   </div>
 
   <!-- Queue Tabs -->
