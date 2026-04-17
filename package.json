@@ -8,6 +8,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
     "@azure/msal-node": "^5.1.0",
+    "@sentry/node": "^10.49.0",
     "dotenv": "^17.3.1",
     "express": "^4.21.0",
     "express-session": "^1.19.0",

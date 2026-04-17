@@ -1,3 +1,7 @@
+// Sentry must be first — before any other import
+require("./instrument.js");
+const Sentry = require("@sentry/node");
+
 const express = require("express");
 const session = require("express-session");
 const msal = require("@azure/msal-node");
@@ -73,9 +77,11 @@ app.get("/auth/callback", async (req, res) => {
       name: tokenResponse.account.name,
       email: tokenResponse.account.username,
     };
+    Sentry.setUser({ email: req.session.user.email, username: req.session.user.name });
     req.session.save(() => res.redirect("/"));
   } catch (err) {
     console.error("[Auth] Callback error:", err.message);
+    Sentry.withScope((scope) => { scope.setTag("where", "auth.callback"); Sentry.captureException(err); });
     // Show the error instead of redirecting to prevent infinite loops
     res.status(500).send("Authentication failed — " + err.message);
   }
@@ -126,7 +132,10 @@ app.use((req, res, next) => {
   if (LOCAL_DEV) { req.session.user = req.session.user || { name: "Local Dev", email: "dev@localhost" }; return next(); }
   if (req.path.startsWith("/auth/")) return next();
   if (req.path === "/api/health") return next();
-  if (req.session && req.session.user) return next();
+  if (req.session && req.session.user) {
+    Sentry.setUser({ email: req.session.user.email, username: req.session.user.name });
+    return next();
+  }
   res.redirect("/auth/login-page");
 });
 
@@ -227,6 +236,14 @@ function fetchReport(reference, label, onSuccess) {
       // ── Unauthorized: stop all future fetches immediately ──
       if (res.statusCode === 401 || raw.trim().toLowerCase() === "unauthorized") {
         console.error(`[Cache] ⛔ ${label}: UNAUTHORIZED (HTTP ${res.statusCode}) — halting all API fetches. Update credentials and restart.`);
+        Sentry.withScope((scope) => {
+          scope.setTag("where", "axxerion.fetchReport");
+          scope.setTag("severity", "critical");
+          scope.setExtra("label", label);
+          scope.setExtra("reference", reference);
+          scope.setExtra("statusCode", res.statusCode);
+          Sentry.captureMessage(`Axxerion API unauthorized — credentials rejected (${label})`, "error");
+        });
         authFailed = true;
         if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
         onSuccess(null);
@@ -246,6 +263,12 @@ function fetchReport(reference, label, onSuccess) {
         }
       } catch (e) {
         console.error(`[Cache] ${label} parse error in ${elapsed}s:`, e.message);
+        Sentry.withScope((scope) => {
+          scope.setTag("where", "axxerion.fetchReport.parse");
+          scope.setExtra("label", label);
+          scope.setExtra("reference", reference);
+          Sentry.captureException(e);
+        });
         onSuccess(null);
       }
     });
@@ -568,6 +591,12 @@ app.post("/api/chat", async (req, res) => {
     res.json(result);
   } catch (e) {
     console.error("[/api/chat] error:", e.message);
+    Sentry.withScope((scope) => {
+      scope.setTag("where", "api.chat");
+      scope.setUser({ email: u.email, username: u.name });
+      scope.setExtra("messageCount", messages.length);
+      Sentry.captureException(e);
+    });
     res.status(500).json({ error: "Something went wrong with the AI assistant. Please reach out to IT support." });
   }
 });
@@ -640,6 +669,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
+// Sentry error handler must be registered AFTER all controllers and BEFORE any other error middleware
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
