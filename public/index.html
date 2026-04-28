@@ -2699,7 +2699,7 @@ function fetchRequests(source){
   return fetch(AX_API,{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
-    body:JSON.stringify({reference:'IPG-REP-087'})
+    body:JSON.stringify({reference:'IPG-REP-110'})
   }).then(function(res){return res.json();}).then(function(json){
     if(json.data && json.data.length){
       var reqRows=mapRequestRows(json.data);
@@ -2780,7 +2780,7 @@ function loadDirectFromAPI(){
     fetch(AX_API,{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':AX_AUTH},
-      body:JSON.stringify({reference:'IPG-REP-087'})
+      body:JSON.stringify({reference:'IPG-REP-110'})
     }).then(function(res){return res.json();}).catch(function(){return{data:[]};})
   ]).then(function(results){
     var woJson=results[0], reqJson=results[1];

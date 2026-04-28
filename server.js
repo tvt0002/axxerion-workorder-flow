@@ -191,7 +191,7 @@ const AX_URL = "https://ipg.axxerion.us/webservices/ipg/rest/functions/completer
 const AX_AUTH = "Basic " + Buffer.from((process.env.AX_USER || "iapiuser") + ":" + (process.env.AX_PASS || "")).toString("base64");
 const AX_REPORT_WO = "IPG-REP-085";
 const AX_REPORT_WO_INCR = "IPG-REP-101"; // incremental: updateTime >= -2 days
-const AX_REPORT_REQ = "IPG-REP-087";
+const AX_REPORT_REQ = "IPG-REP-110";
 const REFRESH_INTERVAL_WO_FULL = 4 * 60 * 60 * 1000; // 4 hours for full WO pull (11K+ records)
 const REFRESH_INTERVAL_WO_INCR = 10 * 60 * 1000; // 10 minutes for incremental WO pull
 const REFRESH_INTERVAL_REQ = 10 * 60 * 1000; // 10 minutes for requests (small dataset)

@@ -83,6 +83,7 @@ function isInfoNeeded(val) {
 }
 var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
 var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
+var TERMINAL_STATUSES = new Set(['Closed', 'Cancelled', 'Invoiced', 'Completed']);
 
 function loadOpsData(cb) {
   fetch('/api/ops').then(function(r) { return r.json(); }).then(function(d) {
@@ -139,6 +140,7 @@ function getQ1Data() {
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] !== 'Request') return false;
+    if (TERMINAL_STATUSES.has(r[1])) return false;
     if (!isInfoNeeded(r[2]) && !isInfoNeeded(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q1) return false;
