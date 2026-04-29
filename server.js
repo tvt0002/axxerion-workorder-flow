@@ -152,7 +152,22 @@ async function initDB() {
       data JSONB NOT NULL,
       fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
-    console.log("[DB] Cache table ready");
+    await pool.query(`CREATE TABLE IF NOT EXISTS wo_writes (
+      id SERIAL PRIMARY KEY,
+      wo_ref TEXT NOT NULL,
+      wo_id TEXT,
+      field_name TEXT NOT NULL,
+      old_value TEXT,
+      new_value TEXT,
+      user_email TEXT,
+      mode TEXT NOT NULL,
+      status TEXT NOT NULL,
+      error_message TEXT,
+      attempted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_wo_writes_ref ON wo_writes(wo_ref)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_wo_writes_attempted_at ON wo_writes(attempted_at DESC)`);
+    console.log("[DB] Cache + audit tables ready");
   } catch (e) { console.error("[DB] Init error:", e.message); }
 }
 
@@ -397,6 +412,187 @@ app.post("/api/refresh", (req, res) => {
   }
   fetchRequests();
   res.json({ ok: true, message: full ? "Full refresh triggered" : "Incremental refresh triggered" });
+});
+
+// ── Axxerion Write Proxy ──
+// Feature-flagged. When AXXERION_WRITE_ENABLED !== 'true', runs in dry-run mode:
+// audits the attempt + updates in-memory cache, but never calls Axxerion.
+// Endpoint pattern (from API Manual V2.1):
+//   PUT /webservices/ipg/rest/functions/update/WorkOrder/{id}
+//   Body: { "<internalFieldCode>": "<value>", ... }
+// Date format per manual: dd-MM-yy HH:mm. Field codes are case sensitive.
+// Workflow status transitions go through executefunction/{objectName}/{id}/{functionName} —
+// requires explicit workflow perms (separate ask to San).
+const AX_WRITE_ENABLED = process.env.AXXERION_WRITE_ENABLED === "true";
+const AX_WRITE_URL = process.env.AXXERION_WRITE_URL ||
+  "https://ipg.axxerion.us/webservices/ipg/rest/functions/update/WorkOrder";
+
+// Display label → internal field code (from IPG-REP-085 schema CSV pulled 2026-04-29).
+// Adding to this map alone is NOT enough — also add to AX_WRITABLE_FIELDS below.
+const AX_FIELD_CODES = {
+  "Scheduled from":   "scheduledStartTime",
+  "Scheduled until":  "scheduledEndTime",
+  "Actual start date": "actualStartDate",
+  "Actual end date":   "actualEndDate",
+};
+
+// Whitelist of fields Ops can write to.
+// Status changes intentionally excluded — workflow-controlled, separate permission flow.
+const AX_WRITABLE_FIELDS = new Set(Object.keys(AX_FIELD_CODES));
+
+// Subset of writable fields that are datetimes — these get dd-MM-yy HH:mm formatting.
+const AX_DATETIME_FIELDS = new Set([
+  "Scheduled from",
+  "Scheduled until",
+  "Actual start date",
+  "Actual end date",
+]);
+
+function formatAxDateTime(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return String(value); // unparseable — pass through unchanged
+  const pad = (n) => String(n).padStart(2, "0");
+  return pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + String(d.getFullYear()).slice(-2)
+    + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
+async function logWrite(entry) {
+  if (!pool) return;
+  try {
+    await pool.query(
+      `INSERT INTO wo_writes (wo_ref, wo_id, field_name, old_value, new_value, user_email, mode, status, error_message)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [entry.ref, entry.id, entry.field, entry.oldValue, entry.newValue, entry.user, entry.mode, entry.status, entry.error]
+    );
+  } catch (e) { console.error("[WriteLog] Insert failed:", e.message); }
+}
+
+function findCachedWO(ref) {
+  if (!cachedWO) return null;
+  return cachedWO.find((r) => r.Reference === ref) || null;
+}
+
+function applyCachedUpdate(ref, field, value) {
+  if (!cachedWO) return;
+  const wo = cachedWO.find((r) => r.Reference === ref);
+  if (wo) wo[field] = value;
+}
+
+async function callAxxerionWrite({ id, updates }) {
+  if (!id) throw new Error("WorkOrder id required for live write");
+
+  // Map display labels → internal field codes; format datetimes per API manual.
+  const body = {};
+  for (const [label, value] of Object.entries(updates)) {
+    const code = AX_FIELD_CODES[label];
+    if (!code) throw new Error("No internal field code mapped for: " + label);
+    body[code] = AX_DATETIME_FIELDS.has(label) ? formatAxDateTime(value) : value;
+  }
+
+  const url = AX_WRITE_URL.replace(/\/$/, "") + "/" + encodeURIComponent(id);
+  const resp = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: AX_AUTH, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error("Axxerion " + resp.status + ": " + text.slice(0, 300));
+  }
+  return resp.json().catch(() => ({}));
+}
+
+app.post("/api/axxerion/update-wo", async (req, res) => {
+  const { ref, id, updates, user } = req.body || {};
+  if (!ref || !updates || typeof updates !== "object") {
+    return res.status(400).json({ ok: false, error: "ref and updates object required" });
+  }
+
+  const fields = Object.keys(updates);
+  const invalid = fields.filter((f) => !AX_WRITABLE_FIELDS.has(f));
+  if (invalid.length) {
+    return res.status(400).json({ ok: false, error: "Field(s) not writable: " + invalid.join(", ") });
+  }
+  if (!fields.length) {
+    return res.status(400).json({ ok: false, error: "No fields to update" });
+  }
+
+  const cached = findCachedWO(ref);
+  const woId = id || (cached && cached.ID) || null;
+  const userEmail = user || (req.session && req.session.user && req.session.user.email) || "unknown";
+  const mode = AX_WRITE_ENABLED ? "live" : "dryrun";
+  const results = [];
+
+  const oldValues = {};
+  for (const field of fields) oldValues[field] = cached ? (cached[field] || "") : "";
+
+  if (mode === "dryrun") {
+    for (const field of fields) {
+      await logWrite({
+        ref, id: woId, field,
+        oldValue: oldValues[field],
+        newValue: String(updates[field] || ""),
+        user: userEmail, mode: "dryrun", status: "success", error: null,
+      });
+      applyCachedUpdate(ref, field, updates[field]);
+      results.push({ field, status: "dryrun", oldValue: oldValues[field], newValue: updates[field] });
+    }
+    return res.json({ ok: true, mode: "dryrun", message: "Dry-run: cache updated locally, Axxerion NOT called", results });
+  }
+
+  try {
+    await callAxxerionWrite({ id: woId, ref, updates });
+    for (const field of fields) {
+      await logWrite({
+        ref, id: woId, field,
+        oldValue: oldValues[field],
+        newValue: String(updates[field] || ""),
+        user: userEmail, mode: "live", status: "success", error: null,
+      });
+      applyCachedUpdate(ref, field, updates[field]);
+      results.push({ field, status: "success", oldValue: oldValues[field], newValue: updates[field] });
+    }
+    setTimeout(fetchWorkOrdersIncremental, 2000);
+    res.json({ ok: true, mode: "live", message: "Axxerion updated", results });
+  } catch (err) {
+    for (const field of fields) {
+      await logWrite({
+        ref, id: woId, field,
+        oldValue: oldValues[field],
+        newValue: String(updates[field] || ""),
+        user: userEmail, mode: "live", status: "error",
+        error: err.message || String(err),
+      });
+    }
+    res.status(502).json({ ok: false, mode: "live", error: err.message || String(err) });
+  }
+});
+
+app.get("/api/axxerion/write-history", async (req, res) => {
+  const ref = req.query.ref;
+  if (!pool) return res.json({ history: [] });
+  try {
+    const sql = ref
+      ? `SELECT * FROM wo_writes WHERE wo_ref = $1 ORDER BY attempted_at DESC LIMIT 100`
+      : `SELECT * FROM wo_writes ORDER BY attempted_at DESC LIMIT 100`;
+    const result = ref ? await pool.query(sql, [ref]) : await pool.query(sql);
+    res.json({ history: result.rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/axxerion/write-status", (req, res) => {
+  res.json({
+    enabled: AX_WRITE_ENABLED,
+    mode: AX_WRITE_ENABLED ? "live" : "dryrun",
+    writableFields: Array.from(AX_WRITABLE_FIELDS),
+    fieldCodes: AX_FIELD_CODES,
+    endpointConfigured: !!AX_WRITE_URL,
+  });
 });
 
 // ── Ops Queue Persistence ──
