@@ -28,7 +28,9 @@ a:hover{text-decoration:underline;}
 .gnav .crumb{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
 .gnav .crumb a{color:var(--muted);}
 .gnav .crumb a:hover{color:var(--accent);text-decoration:none;}
-.gnav .draft-tag{font-family:'DM Mono',monospace;font-size:9px;background:rgba(var(--orange-rgb),.15);border:1px solid rgba(var(--orange-rgb),.3);color:var(--orange);padding:3px 9px;border-radius:5px;letter-spacing:.08em;}
+.gnav .live-tag{font-family:'DM Mono',monospace;font-size:9px;background:rgba(var(--green-rgb),.15);border:1px solid rgba(var(--green-rgb),.3);color:var(--green);padding:3px 9px;border-radius:5px;letter-spacing:.08em;cursor:help;transition:all .15s;}
+.gnav .live-tag.loading{background:rgba(var(--yellow-rgb),.15);border-color:rgba(var(--yellow-rgb),.3);color:var(--yellow);}
+.gnav .live-tag.error{background:rgba(var(--red-rgb),.15);border-color:rgba(var(--red-rgb),.3);color:var(--red);}
 .gright{margin-left:auto;display:flex;gap:8px;align-items:center;}
 .gright .gtab{font-family:'DM Mono',monospace;font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-transform:uppercase;transition:all .18s;}
 .gright .gtab:hover{border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}
@@ -174,7 +176,7 @@ a:hover{text-decoration:underline;}
 <div class="gnav">
   <div class="logo">AXX</div>
   <div class="crumb"><a href="/">Operations Dashboard</a> &nbsp;/&nbsp; FM Scorecards</div>
-  <span class="draft-tag">DRAFT</span>
+  <span class="live-tag" id="liveTag" title="Loading live data from Axxerion API">● LIVE</span>
   <div class="gright">
     <button class="gtab" onclick="toggleTheme()" title="Toggle theme" id="theme-toggle">☾</button>
     <button class="gtab" onclick="loadData()">Refresh</button>
@@ -612,19 +614,49 @@ function render() {
   document.getElementById('felipe-table-count').textContent = felipeTable.count + ' items';
 }
 
+function setLiveTag(state, text, title) {
+  var tag = document.getElementById('liveTag');
+  if (!tag) return;
+  tag.classList.remove('loading','error');
+  if (state) tag.classList.add(state);
+  tag.textContent = text;
+  if (title) tag.title = title;
+}
+
+function refreshLiveTag() {
+  fetch('/api/status').then(function(r){ return r.json(); }).then(function(s){
+    var wos = (s.workorders && s.workorders.count) || 0;
+    var reqs = (s.requests && s.requests.count) || 0;
+    var ageMin = s.workorders && s.workorders.ageMinutes != null ? s.workorders.ageMinutes : null;
+    var ageStr = ageMin === null ? 'unknown' : ageMin < 1 ? 'just now' : ageMin + 'm ago';
+    var refreshing = s.workorders && s.workorders.fetchInProgress;
+    setLiveTag(refreshing ? 'loading' : null,
+      (refreshing ? '○ REFRESHING' : '● LIVE') + ' · ' + wos.toLocaleString() + ' WOs + ' + reqs.toLocaleString() + ' REQs',
+      'Cache age: ' + ageStr + (s.authFailed ? '\nAuth FAILED — fetches paused' : '\nClick Refresh to force a fresh pull'));
+  }).catch(function(){
+    setLiveTag('error', '● OFFLINE', 'Could not reach /api/status');
+  });
+}
+
 function loadData() {
   document.getElementById('loading').style.display = 'block';
   document.getElementById('content').style.display = 'none';
+  setLiveTag('loading', '○ LOADING…', 'Fetching from Axxerion API');
   fetchData().then(function(rows) {
     ALL_RAW = rows;
     initFilters(ALL_RAW);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = 'block';
     applyFilters();
+    refreshLiveTag();
   }).catch(function(e) {
     document.getElementById('loading').textContent = 'Error: ' + e.message;
+    setLiveTag('error', '● ERROR', e.message);
   });
 }
+
+// Refresh the LIVE tag periodically so cache age stays fresh
+setInterval(refreshLiveTag, 60000);
 
 loadData();
 </script>
