@@ -145,6 +145,23 @@ a:hover{text-decoration:underline;}
 .legend{display:flex;gap:18px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:12px;}
 .legend-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;}
 
+/* ── Clickable KPI affordance ── */
+.kpi-clickable{cursor:pointer;transition:transform .12s, box-shadow .12s;}
+.kpi-clickable:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,var(--shadow-strength));}
+.kpi-clickable:active{transform:translateY(0);}
+.fm-count.kpi-clickable:hover,.fm-mini.kpi-clickable:hover{border-color:rgba(var(--accent-rgb),.45);}
+
+/* ── Raw data modal ── */
+.fm-raw-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:32px;}
+.fm-raw-overlay.open{display:flex;}
+.fm-raw-modal{background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:1280px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,var(--shadow-strength));}
+.fm-raw-header{display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border);}
+.fm-raw-header h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.005em;color:var(--text);}
+.fm-raw-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+.fm-raw-close{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:18px;line-height:1;transition:all .15s;}
+.fm-raw-close:hover{border-color:var(--red);color:var(--red);}
+.fm-raw-body{overflow:auto;padding:0;}
+
 /* ── Tables (matches main dashboard) ── */
 .db-table{width:100%;border-collapse:collapse;font-size:12px;}
 .db-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:500;background:var(--surface);}
@@ -212,22 +229,22 @@ a:hover{text-decoration:underline;}
 <div id="content" class="db" style="display:none">
   <!-- Combined KPI Strip -->
   <div class="elev-kpis">
-    <div class="db-kpi kpi-red">
+    <div class="db-kpi kpi-red kpi-clickable" onclick="showByPriority('Critical')" title="Click to view all Critical items">
       <div class="kpi-lbl">Critical Open</div>
       <div class="kpi-val" id="kpi-critical" style="color:var(--red)">—</div>
       <div class="kpi-sub" id="kpi-critical-sub">across both FMs</div>
     </div>
-    <div class="db-kpi kpi-orange">
+    <div class="db-kpi kpi-orange kpi-clickable" onclick="showByPriority('High')" title="Click to view all High items">
       <div class="kpi-lbl">High Open</div>
       <div class="kpi-val" id="kpi-high" style="color:var(--orange)">—</div>
       <div class="kpi-sub" id="kpi-high-sub">across both FMs</div>
     </div>
-    <div class="db-kpi kpi-blue">
+    <div class="db-kpi kpi-blue kpi-clickable" onclick="showAllItems()" title="Click to view all items sorted by age">
       <div class="kpi-lbl">Avg Age (days)</div>
       <div class="kpi-val" id="kpi-age">—</div>
       <div class="kpi-sub">since created</div>
     </div>
-    <div class="db-kpi kpi-yellow">
+    <div class="db-kpi kpi-yellow kpi-clickable" onclick="showPastDue()" title="Click to view all items >14 days old">
       <div class="kpi-lbl">Past Due (&gt;14d)</div>
       <div class="kpi-val" id="kpi-pastdue" style="color:var(--yellow)">—</div>
       <div class="kpi-sub" id="kpi-pastdue-sub">% of total open</div>
@@ -263,6 +280,18 @@ a:hover{text-decoration:underline;}
       <div class="db-card-title" style="padding:18px 20px 14px;margin:0;border-bottom:1px solid var(--border)">Felipe — Items <span class="badge" id="felipe-table-count">—</span></div>
       <div id="felipe-table" class="table-wrap"></div>
     </div>
+  </div>
+</div>
+
+<!-- Raw data modal -->
+<div class="fm-raw-overlay" id="fmRawOverlay" onclick="if(event.target===this)closeRawData()">
+  <div class="fm-raw-modal">
+    <div class="fm-raw-header">
+      <h2 id="fmRawTitle">Items</h2>
+      <span class="fm-raw-count" id="fmRawCount"></span>
+      <button class="fm-raw-close" onclick="closeRawData()" title="Close (Esc)">&times;</button>
+    </div>
+    <div class="fm-raw-body" id="fmRawBody"></div>
   </div>
 </div>
 
@@ -512,15 +541,16 @@ function buildFmCard(name, color, rows) {
     }).join('');
   }
 
+  var safeName = name.replace(/'/g, "\\'");
   return ''
     + '<div class="db-card-title">' + name + '<span class="badge">' + rows.length + ' open · ' + byType['Work Order'] + ' WO + ' + byType['Request'] + ' REQ</span></div>'
     + '<div class="fm-counts">'
-    +   '<div class="fm-count crit"><div class="fm-count-lbl">Critical</div><div class="fm-count-val">' + crit.length + '</div></div>'
-    +   '<div class="fm-count high"><div class="fm-count-lbl">High</div><div class="fm-count-val">' + high.length + '</div></div>'
+    +   '<div class="fm-count crit kpi-clickable" onclick="showFmSubset(\'' + safeName + '\',\'Critical\')" title="Click to view ' + name + '\'s Critical items"><div class="fm-count-lbl">Critical</div><div class="fm-count-val">' + crit.length + '</div></div>'
+    +   '<div class="fm-count high kpi-clickable" onclick="showFmSubset(\'' + safeName + '\',\'High\')" title="Click to view ' + name + '\'s High items"><div class="fm-count-lbl">High</div><div class="fm-count-val">' + high.length + '</div></div>'
     + '</div>'
     + '<div class="fm-mini-grid">'
-    +   '<div class="fm-mini"><div class="fm-mini-lbl">Avg Age</div><div class="fm-mini-val">' + avgAge + 'd</div></div>'
-    +   '<div class="fm-mini"><div class="fm-mini-lbl">Oldest</div><div class="fm-mini-val">' + oldest + 'd</div></div>'
+    +   '<div class="fm-mini kpi-clickable" onclick="showFmSubset(\'' + safeName + '\',\'all\')" title="Click to view all ' + name + '\'s items"><div class="fm-mini-lbl">Avg Age</div><div class="fm-mini-val">' + avgAge + 'd</div></div>'
+    +   '<div class="fm-mini kpi-clickable" onclick="showFmSubset(\'' + safeName + '\',\'oldest\')" title="Click to view ' + name + '\'s items by age"><div class="fm-mini-lbl">Oldest</div><div class="fm-mini-val">' + oldest + 'd</div></div>'
     + '</div>'
     + '<div class="sub-section"><div class="sub-section-title">Top Properties</div>' + barRows(byProperty) + '</div>'
     + '<div class="sub-section"><div class="sub-section-title">Top Service Types</div>' + barRows(byService) + '</div>'
@@ -549,6 +579,71 @@ function buildAgingChart(timRows, felipeRows) {
       + '<div class="aging-bar"><span class="aging-bar-name">Felipe</span><div class="aging-bar-track"><div class="aging-bar-fill-felipe" style="width:' + felipePct + '%"></div></div><span class="aging-count">' + felipeCounts[i] + '</span></div>'
       + '</div>';
   }).join('');
+}
+
+// ── Raw data modal ──
+function buildRawTable(rows) {
+  if (!rows.length) return '<div class="empty">No items</div>';
+  rows = rows.slice().sort(function(a,b){ return ageInDays(b.created) - ageInDays(a.created); });
+  var rowsHtml = rows.map(function(r){
+    var age = ageInDays(r.created);
+    var refLink = r.bookmark ? '<a href="' + r.bookmark + '" target="_blank">' + r.ref + '</a>' : r.ref;
+    return '<tr>'
+      + '<td class="mono ' + ageClass(age) + '">' + age + 'd</td>'
+      + '<td class="mono">' + refLink + '</td>'
+      + '<td><span class="pri-' + r.priority + '">' + escapeHtml(r.priority) + '</span></td>'
+      + '<td class="mono" style="font-size:10px;color:var(--muted)">' + fmtDate(r.created) + '</td>'
+      + '<td>' + escapeHtml(r.fm) + '</td>'
+      + '<td>' + escapeHtml(r.property) + '</td>'
+      + '<td title="' + escapeHtml(r.subject) + '" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(r.subject) + '</td>'
+      + '<td>' + escapeHtml(r.status) + '</td>'
+      + '<td class="mono" style="font-size:9px;color:var(--muted)">' + r.type + '</td>'
+      + '</tr>';
+  }).join('');
+  return '<table class="db-table" style="font-size:12px">'
+    + '<thead><tr><th>Age</th><th>Ref</th><th>Pri</th><th>Created</th><th>FM</th><th>Property</th><th>Subject</th><th>Status</th><th>Type</th></tr></thead>'
+    + '<tbody>' + rowsHtml + '</tbody></table>';
+}
+
+function openRawData(rows, title) {
+  document.getElementById('fmRawTitle').textContent = title;
+  document.getElementById('fmRawCount').textContent = rows.length + ' items';
+  document.getElementById('fmRawBody').innerHTML = buildRawTable(rows);
+  document.getElementById('fmRawOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRawData(){
+  document.getElementById('fmRawOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && document.getElementById('fmRawOverlay').classList.contains('open')) closeRawData();
+});
+
+// KPI click handlers — operate on currently filtered ALL_OPEN
+function showByPriority(p){
+  var rows = ALL_OPEN.filter(function(r){ return r.priority === p; });
+  openRawData(rows, p + ' — All Open Items');
+}
+function showAllItems(){
+  openRawData(ALL_OPEN.slice(), 'All Open Items (sorted by age)');
+}
+function showPastDue(){
+  var rows = ALL_OPEN.filter(function(r){ return ageInDays(r.created) > 14; });
+  openRawData(rows, 'Past Due (>14 days)');
+}
+function showFmSubset(name, key){
+  var rows = ALL_OPEN.filter(function(r){ return r.fm === name; });
+  if (key === 'Critical' || key === 'High') {
+    rows = rows.filter(function(r){ return r.priority === key; });
+    openRawData(rows, name + ' — ' + key);
+  } else if (key === 'all') {
+    openRawData(rows, name + ' — All Items');
+  } else if (key === 'oldest') {
+    openRawData(rows, name + ' — All Items (oldest first)');
+  }
 }
 
 // ── Render: detail table ──
