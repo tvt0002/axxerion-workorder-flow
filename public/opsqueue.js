@@ -151,7 +151,7 @@ function getQ1Data() {
     var note = OPS_DATA.notes[ref] || {};
     var store = getStoreInfo(r[0]);
     return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', subject: r[3], created: r[12], requestor: r[16] || r[8], bookmark: r[14], logs: logs, note: note.text || '', age: daysAgo(r[12]), lastAction: logs.length ? logs[0] : null, storeCode: store ? (store.code || '') : '', storePhone: store ? (store.store_office_phone || '') : '', storeCellPhone: store ? (store.store_cell_phone || '') : '' };
-  }).sort(function(a, b) { return b.age - a.age; });
+  }).sort(function(a, b) { return a.age - b.age; }); // newest first
 }
 
 function getQ2Data() {
@@ -178,7 +178,7 @@ function getQ2Data() {
     var vPhone = r[27] || r[28] || vendorInfo.phone || '';
     var vEmail = r[29] || vendorInfo.email || '';
     return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, executor: r[18] || '', vendorPhone: vPhone, vendorEmail: vEmail, created: r[12], bookmark: r[14], logs: logs, hours: hoursAgo(r[12]), callCount: logs.filter(function(l) { return l.action === 'call'; }).length, lastAction: logs.length ? logs[0] : null, schedFrom: r[19] || '', schedUntil: r[20] || '', actualStart: r[21] || '', actualEnd: r[22] || '', apptDate: appt.date || '', apptTime: appt.time || '' };
-  }).sort(function(a, b) { return b.hours - a.hours; });
+  }).sort(function(a, b) { return a.hours - b.hours; }); // newest first
 }
 
 // Statuses that mean Q3 should skip the WO regardless of date fields.
@@ -232,8 +232,14 @@ function getQ3Data() {
     var isWip = !!r[21];
     return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, schedFrom: r[19] || '', actualStart: r[21] || '', actualEnd: r[22] || '', wip: isWip };
   }).sort(function(a, b) {
-    // WIP first (active jobs needing verification), then today's appointments by time.
+    // WIP first (active jobs needing verification), then today's appointments.
+    // WIP sub-sort: most recently started first. Today sub-sort: chronological.
     if (a.wip !== b.wip) return a.wip ? -1 : 1;
+    if (a.wip && b.wip) {
+      var ta = new Date(a.actualStart).getTime() || 0;
+      var tb = new Date(b.actualStart).getTime() || 0;
+      return tb - ta; // newest started first
+    }
     return (a.time || 'ZZ').localeCompare(b.time || 'ZZ');
   });
 }
@@ -273,10 +279,10 @@ function getQ4Data() {
     var finishedDate = r[22] || r[23] || r[12]; // Actual end, Closed, or Created as fallback
     return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', vendorEstCost: r[31] || 0, bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
   }).sort(function(a, b) {
-    // Sort by: no emails first, then oldest finished date
-    if (a.emailCount === 0 && b.emailCount > 0) return -1;
-    if (b.emailCount === 0 && a.emailCount > 0) return 1;
-    return b.daysSinceFinished - a.daysSinceFinished;
+    // Most recently finished first — fresh closeouts are easier to chase
+    // (vendor still has the job in mind). Old ones drift to bottom but
+    // remain accessible via column sort.
+    return a.daysSinceFinished - b.daysSinceFinished;
   });
 }
 
@@ -469,7 +475,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q4') {
     items = getQ4Data();
-    headHTML = '<tr>' + oqSortHeader('Days','daysSinceFinished') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Days Since End','daysSinceFinished') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
