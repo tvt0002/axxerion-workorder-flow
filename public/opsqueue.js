@@ -230,7 +230,7 @@ function getQ3Data() {
     var vendorInfo = OPS_DATA.vendors[r[6] || ''] || {};
     var vEmail = r[29] || vendorInfo.email || '';
     var isWip = !!r[21];
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, schedFrom: r[19] || '', actualStart: r[21] || '', wip: isWip };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, schedFrom: r[19] || '', actualStart: r[21] || '', actualEnd: r[22] || '', wip: isWip };
   }).sort(function(a, b) {
     // WIP first (active jobs needing verification), then today's appointments by time.
     if (a.wip !== b.wip) return a.wip ? -1 : 1;
@@ -437,7 +437,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var confBadge = d.wip
@@ -459,6 +459,7 @@ function renderQueue() {
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td style="' + dateSty + '">' + (d.schedFrom || muted) + '</td>'
         + '<td style="' + dateSty + '">' + (d.actualStart || muted) + '</td>'
+        + '<td style="' + dateSty + '">' + (d.actualEnd || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
         + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button></td>'
