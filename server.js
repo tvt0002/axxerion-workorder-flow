@@ -448,13 +448,15 @@ const AX_DATETIME_FIELDS = new Set([
   "Actual end date",
 ]);
 
+// Axxerion stores datetimes as UTC (per San 2026-04-29). Use UTC accessors so a
+// caller-provided wall-clock (or ISO with offset) lands at the intended UTC instant.
 function formatAxDateTime(value) {
   if (!value) return "";
   const d = new Date(value);
-  if (isNaN(d.getTime())) return String(value); // unparseable — pass through unchanged
+  if (isNaN(d.getTime())) return String(value);
   const pad = (n) => String(n).padStart(2, "0");
-  return pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + String(d.getFullYear()).slice(-2)
-    + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  return pad(d.getUTCDate()) + "-" + pad(d.getUTCMonth() + 1) + "-" + String(d.getUTCFullYear()).slice(-2)
+    + " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
 }
 
 async function logWrite(entry) {
