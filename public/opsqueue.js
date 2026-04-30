@@ -155,15 +155,17 @@ function getQ1Data() {
 }
 
 function getQ2Data() {
-  // WOs assigned 24+ hours, not yet scheduled
+  // WOs assigned 24+ hours, not yet scheduled, no execution dates yet
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
     if (!Q2_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q2) return false;
-    // Has appointment already? Check Axxerion Scheduled from first, then manual ops tracking
-    if (r[19]) return false;
+    // Out of Q2 if ANY scheduling/execution date has been touched. Vendors don't always
+    // populate fields in order — checking only Scheduled from leaks the ones that filled
+    // Scheduled until, Actual start, or Actual end first.
+    if (r[19] || r[20] || r[21] || r[22]) return false;
     if (OPS_DATA.appointments[ref] && OPS_DATA.appointments[ref].date) return false;
     var hrs = hoursAgo(r[12]);
     return hrs >= 24;
@@ -215,14 +217,28 @@ function getQ3Data() {
   }).sort(function(a, b) { return (a.time || 'ZZ').localeCompare(b.time || 'ZZ'); });
 }
 
+// Status that means invoice already settled, vendor already submitted, or WO retired —
+// never surface in Q4. Q4 is a "missing invoice — chase the vendor" list, so any status
+// that already has the invoice handled (or explicitly says no invoice is coming) is out.
+var Q4_TERMINAL_STATUSES = new Set([
+  'Closed', 'Cancelled', 'Invoiced', 'Completed',
+  'Financials Submitted',           // vendor already submitted invoice
+  'No Invoice/Warranty/Internal',   // no invoice expected
+]);
+
 function getQ4Data() {
-  // WOs with work done, awaiting invoice
+  // WOs with work done, awaiting invoice. Match if EITHER:
+  //   - status is Work finished, OR
+  //   - Actual end date is populated (vendor finished but didn't move status)
+  // Filter out terminal statuses so Closed/Invoiced WOs with end dates don't leak in.
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] !== 'Work Order') return false;
-    if (!Q4_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
     if (!ref) return false;
+    if (Q4_TERMINAL_STATUSES.has(r[1])) return false;
+    var hasActualEnd = !!r[22];
+    if (!Q4_STATUSES.has(r[1]) && !hasActualEnd) return false;
     // Skip rows missing key data (property, vendor, or service type)
     if (!r[0] && !r[6] && !r[3]) return false;
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q4) return false;
