@@ -88,8 +88,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -183,9 +183,9 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST",
-        "phone": "713-236-8291",
-        "email": "jmcfadden@securespace.com"
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
+        "email": ""
       }
     ],
     "account_rep": {
@@ -209,8 +209,15 @@
     "computers_onsite": "",
     "staff": [
       {
+        "name": "Helen Della-Pena",
+        "role": "Store Manager",
+        "store_code_ref": "L007",
+        "phone": "910-616-9370",
+        "email": ""
+      },
+      {
         "name": "Charles McDaniel",
-        "role": "ASM",
+        "role": "Floating ASM",
         "store_code_ref": "L007",
         "phone": "385 282 3495",
         "email": ""
@@ -285,8 +292,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -370,7 +377,7 @@
     "staff": [
       {
         "name": "Charles McDaniel",
-        "role": "ASM",
+        "role": "Floating ASM",
         "store_code_ref": "L010",
         "phone": "385 282 3495",
         "email": ""
@@ -417,13 +424,6 @@
         "role": "Store Manager",
         "store_code_ref": "L011",
         "phone": "360-608-4203",
-        "email": ""
-      },
-      {
-        "name": "Austin Rohwer",
-        "role": "Night Facility Maintenance Inspector",
-        "store_code_ref": "L011",
-        "phone": "707-630-2014",
         "email": ""
       },
       {
@@ -489,6 +489,13 @@
         "role": "ASM",
         "store_code_ref": "L012",
         "phone": "503-619-5023",
+        "email": ""
+      },
+      {
+        "name": "Nate Bulldis",
+        "role": "Night Facility Maintenance Inspector",
+        "store_code_ref": "L012",
+        "phone": "253-221-5261",
         "email": ""
       }
     ],
@@ -591,8 +598,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -607,13 +614,13 @@
   {
     "code": "L015",
     "name": "Waipahu",
-    "state": "HI",
-    "timezone": "",
-    "address": "94-130 Leokane St, Waipahu, HI 96797",
-    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Wed",
-    "store_email": "waipahu@securespace.com",
-    "store_office_phone": "808-649-4918",
-    "store_cell_phone": "808-699-0692",
+    "state": "WA",
+    "timezone": "PST",
+    "address": "220 112 St E, Tacoma, WA 98445",
+    "hours_raw": "Mon, Tue, Thu, Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Wed Tues-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Mon",
+    "store_email": "parkland@securespace.com",
+    "store_office_phone": "253-361-4918",
+    "store_cell_phone": "253-363-0489",
     "computers_onsite": "2",
     "staff": [
       {
@@ -643,6 +650,20 @@
         "store_code_ref": "L015, L023, L072",
         "phone": "951-403-3877",
         "email": ""
+      },
+      {
+        "name": "Lindsey Rodriguez",
+        "role": "Store Manager",
+        "store_code_ref": "L016",
+        "phone": "425-525-8024",
+        "email": ""
+      },
+      {
+        "name": "Cyril Carty",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L016, L018 (Sat)",
+        "phone": "206.693.1096",
+        "email": ""
       }
     ],
     "supervisors": [
@@ -659,44 +680,7 @@
         "store_code_ref": "TX(CST)",
         "phone": "972-890-7318",
         "email": "mbroadus@securespace.com"
-      }
-    ],
-    "account_rep": {
-      "name": "Claire",
-      "role": "Account Representative",
-      "store_code_ref": "",
-      "phone": "claire@insitepg.com",
-      "email": ""
-    }
-  },
-  {
-    "code": "L016",
-    "name": "Parkland",
-    "state": "WA",
-    "timezone": "PST",
-    "address": "220 112 St E, Tacoma, WA 98445",
-    "hours_raw": "Tues-Fri 9:30am-6pm\nSat 9am-5:30pm\nClosed Sun, Mon",
-    "store_email": "parkland@securespace.com",
-    "store_office_phone": "253-361-4918",
-    "store_cell_phone": "253-363-0489",
-    "computers_onsite": "2",
-    "staff": [
-      {
-        "name": "Burney Campbell",
-        "role": "Multi Store Manager L016, L018, L026, L031",
-        "store_code_ref": "",
-        "phone": "206-820-7926",
-        "email": ""
       },
-      {
-        "name": "Cyril Carty",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "L016, L018 (Sat)",
-        "phone": "206.693.1096",
-        "email": ""
-      }
-    ],
-    "supervisors": [
       {
         "name": "Dana McClintock",
         "role": "Area Manager",
@@ -731,15 +715,7 @@
     "store_office_phone": "813-776-4918",
     "store_cell_phone": "813-981-2192",
     "computers_onsite": "",
-    "staff": [
-      {
-        "name": "Jeffrey Braat",
-        "role": "ASM",
-        "store_code_ref": "L017",
-        "phone": "8137325129",
-        "email": ""
-      }
-    ],
+    "staff": [],
     "supervisors": [
       {
         "name": "Alonzo Lewis",
@@ -776,13 +752,6 @@
     "store_cell_phone": "253-281-7840",
     "computers_onsite": "2",
     "staff": [
-      {
-        "name": "Burney Campbell",
-        "role": "Multi Store Manager L016, L018, L026, L031",
-        "store_code_ref": "",
-        "phone": "206-820-7926",
-        "email": ""
-      },
       {
         "name": "Tonya Reins",
         "role": "Store Manager",
@@ -1129,8 +1098,8 @@
     "timezone": "PST",
     "address": "10389 Azuaga St, San Diego, CA 92129",
     "hours_raw": "Mon-Fri 9:30am-6pm\nSat 10am-4:00pm\nClosed Sun",
-    "store_email": "ranchopenasquitos@securespace.com",
-    "store_office_phone": "619-943-3180",
+    "store_email": "",
+    "store_office_phone": "",
     "store_cell_phone": "619-310-1103",
     "computers_onsite": "2",
     "staff": [
@@ -1160,8 +1129,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -1185,13 +1154,6 @@
     "store_cell_phone": "253-312-3145",
     "computers_onsite": "2",
     "staff": [
-      {
-        "name": "Burney Campbell",
-        "role": "Multi Store Manager L016, L018, L026, L031",
-        "store_code_ref": "",
-        "phone": "206-820-7926",
-        "email": ""
-      },
       {
         "name": "Kathleen Roetger",
         "role": "Store Manager",
@@ -1262,8 +1224,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -1492,13 +1454,6 @@
     "computers_onsite": "2",
     "staff": [
       {
-        "name": "Jimmy Perez",
-        "role": "Store Manager",
-        "store_code_ref": "L032",
-        "phone": "512-296-7397",
-        "email": ""
-      },
-      {
         "name": "Angela Delossantos",
         "role": "Multi-Store Manager - L032, L033, L034",
         "store_code_ref": "L032",
@@ -1598,13 +1553,6 @@
         "role": "Multi-Store Manager - L032, L033, L034",
         "store_code_ref": "L034",
         "phone": "512-762-3983",
-        "email": ""
-      },
-      {
-        "name": "Oldmixon, Stephanie",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "L034",
-        "phone": "",
         "email": ""
       }
     ],
@@ -2210,8 +2158,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -2254,8 +2202,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST",
-        "phone": "713-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -2458,8 +2406,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST",
-        "phone": "713-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -2611,8 +2559,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST",
-        "phone": "713-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3113,9 +3061,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3251,13 +3199,6 @@
         "store_code_ref": "CA (PST)",
         "phone": "951-484-5195",
         "email": "zforeman@securespace.com"
-      },
-      {
-        "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
-        "email": "jmcfadden@securespace.com"
       }
     ],
     "account_rep": null
@@ -3299,9 +3240,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3350,9 +3291,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3396,8 +3337,8 @@
       {
         "name": "Temp Coverage - John McFadden",
         "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3654,9 +3595,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3737,9 +3678,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -3827,9 +3768,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -4104,9 +4045,9 @@
       },
       {
         "name": "Temp Coverage - John McFadden",
-        "role": "DM",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
+        "role": "District Manager",
+        "store_code_ref": "TN (CST)",
+        "phone": "901-218-3356",
         "email": "jmcfadden@securespace.com"
       }
     ],
@@ -4178,7 +4119,7 @@
     "staff": [
       {
         "name": "Norvia Pena",
-        "role": "Part Time - ASM",
+        "role": "Store Manager",
         "store_code_ref": "",
         "phone": "(617) 652 4248",
         "email": ""
@@ -4221,17 +4162,17 @@
     "computers_onsite": "2",
     "staff": [
       {
-        "name": "Ashton Manson",
+        "name": "Kolby Berube",
         "role": "Store Manager",
         "store_code_ref": "",
-        "phone": "317 452 2079",
+        "phone": "978 968 7890",
         "email": ""
       },
       {
-        "name": "Kolby Berube",
+        "name": "Alex Rodriguez",
         "role": "Assistant Store Manager",
         "store_code_ref": "",
-        "phone": "978 968 7891",
+        "phone": "",
         "email": ""
       }
     ],
@@ -4258,36 +4199,6 @@
       "phone": "",
       "email": "manal@insitepg.com"
     }
-  },
-  {
-    "code": "L089",
-    "name": "North Hollywood",
-    "state": "CA",
-    "timezone": "PT",
-    "address": "5260 Vineland Avenue, North Hollywood, CA 91601",
-    "hours_raw": "M-F 9:30am-6pm\nSa 9am-5:30pm\nSu 10am-4pm",
-    "store_email": "",
-    "store_office_phone": "(818) 334-2034",
-    "store_cell_phone": "818-523-5095",
-    "computers_onsite": "2",
-    "staff": [],
-    "supervisors": [
-      {
-        "name": "Temp Coverage - Zach Foreman",
-        "role": "Area Manager",
-        "store_code_ref": "CA (PST)",
-        "phone": "951-484-5195",
-        "email": "zforeman@securespace.com"
-      },
-      {
-        "name": "Temp Coverage - John McFadden",
-        "role": "District Manager",
-        "store_code_ref": "FL (EST)",
-        "phone": "716-236-8291",
-        "email": "jmcfadden@securespace.com"
-      }
-    ],
-    "account_rep": null
   },
   {
     "code": "L090",
@@ -4403,13 +4314,6 @@
         "store_code_ref": "",
         "phone": "253-334-4852",
         "email": ""
-      },
-      {
-        "name": "Nannette",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "",
-        "phone": "",
-        "email": ""
       }
     ],
     "supervisors": [
@@ -4432,38 +4336,16 @@
   },
   {
     "code": "L093",
-    "name": "Seattle Skyway",
+    "name": "Skyway",
     "state": "WA",
     "timezone": "PST",
     "address": "5890 South 129th Street, Seattle, WA 98178",
-    "hours_raw": "Mon-Sat 9:00am - 6:00pm, \nSunday 10am-5pm",
+    "hours_raw": "Office Hours: Mon-Sat 9:00am - 6:00pm\nSunday 10am-5pm",
     "store_email": "SeattleSkyway@securespace.com",
     "store_office_phone": "(206) 895-5925",
     "store_cell_phone": "206-503-4001",
     "computers_onsite": "",
-    "staff": [
-      {
-        "name": "Jasmin Baker",
-        "role": "Multi-Store Manager",
-        "store_code_ref": "",
-        "phone": "",
-        "email": "Jasmin.Baker@securespace.com"
-      },
-      {
-        "name": "Dani Sono",
-        "role": "Store Manager",
-        "store_code_ref": "",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "name": "Christina Eppling",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "",
-        "phone": "",
-        "email": ""
-      }
-    ],
+    "staff": [],
     "supervisors": [
       {
         "name": "Bart Mays",
@@ -4480,21 +4362,6 @@
         "email": "mbroadus@securespace.com"
       }
     ],
-    "account_rep": null
-  },
-  {
-    "code": "L094",
-    "name": "San Diego Encanto",
-    "state": "CA",
-    "timezone": "PST",
-    "address": "5950 Federal Blvd., San Diego, CA 92114",
-    "hours_raw": "Mon-Fri 9:30am-6:00pm\nSat-Sun 9:30am-5:00pm",
-    "store_email": "SanDiegoEncanto@securespace.com",
-    "store_office_phone": "(619) 877-6644",
-    "store_cell_phone": "619-936-0565",
-    "computers_onsite": "",
-    "staff": [],
-    "supervisors": [],
     "account_rep": null
   }
 ]
