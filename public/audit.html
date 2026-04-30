@@ -123,6 +123,7 @@ h1 { font-family: Syne, sans-serif; font-size: 28px; margin: 0 0 4px; font-weigh
     <button class="tab" data-view="axxerion">Axxerion Changes</button>
     <button class="tab" data-view="ops">Ops Actions</button>
     <button class="tab" data-view="logins">Logins</button>
+    <button class="tab" data-view="activity">Activity</button>
   </div>
 
   <div class="filters">
@@ -305,11 +306,17 @@ function applyView(v) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
   const filtersEl = document.querySelector(".filters");
   const pagerEl = document.querySelector(".pager");
-  // Logins view swaps the feed for an aggregate table — hide filter bar + pager.
+  // Logins / Activity views swap the feed for aggregate tables — hide filter + pager.
   if (v === "logins") {
     filtersEl.style.display = "none";
     pagerEl.style.display = "none";
     loadLoginStats();
+    return;
+  }
+  if (v === "activity") {
+    filtersEl.style.display = "none";
+    pagerEl.style.display = "none";
+    loadActivityStats();
     return;
   }
   filtersEl.style.display = "";
@@ -367,6 +374,80 @@ async function loadLoginStats() {
   } catch (e) {
     document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
   }
+}
+
+// ── Activity tab: per-user counts of ops actions ──
+let activitySort = { col: "total_actions", dir: -1 };
+let activityDays = 7;
+
+async function loadActivityStats() {
+  document.getElementById("summary").innerHTML =
+    'Window: <select id="actDays" style="background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:2px 6px;font-size:12px;font-family:Inter,sans-serif">'
+    + [1,7,14,30,90].map(d => '<option value="' + d + '"' + (d === activityDays ? ' selected' : '') + '>last ' + d + ' day' + (d === 1 ? '' : 's') + '</option>').join("")
+    + '</select>';
+  document.getElementById("feed").innerHTML = '<div class="empty">Loading activity stats...</div>';
+  document.getElementById("actDays").addEventListener("change", e => { activityDays = parseInt(e.target.value, 10); loadActivityStats(); });
+  try {
+    const res = await fetch("/api/audit/activity-stats?days=" + activityDays);
+    const data = await res.json();
+    if (!data.rows || !data.rows.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">No ops actions logged in the last ' + activityDays + ' day' + (activityDays === 1 ? '' : 's') + '.</div>';
+      return;
+    }
+    renderActivityStats(data.rows);
+  } catch (e) {
+    document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+function renderActivityStats(rows) {
+  const sorted = rows.slice().sort((a, b) => {
+    let va = a[activitySort.col], vb = b[activitySort.col];
+    if (activitySort.col === "last_action") { va = new Date(va || 0).getTime(); vb = new Date(vb || 0).getTime(); }
+    if (typeof va === "string") return activitySort.dir * va.localeCompare(vb);
+    return activitySort.dir * (va - vb);
+  });
+  const arrow = (col) => activitySort.col === col ? (activitySort.dir > 0 ? " ▲" : " ▼") : "";
+  const cell = (n) => n > 0 ? '<span style="font-family:\'DM Mono\',monospace;font-weight:600">' + n + '</span>' : '<span class="muted" style="font-family:\'DM Mono\',monospace">0</span>';
+  const html = '<table class="logins-table">'
+    + '<thead><tr>'
+    +   '<th data-sortcol="email">User' + arrow("email") + '</th>'
+    +   '<th class="r" data-sortcol="calls_logged">Calls' + arrow("calls_logged") + '</th>'
+    +   '<th class="r" data-sortcol="appts_set">Appts Set' + arrow("appts_set") + '</th>'
+    +   '<th class="r" data-sortcol="appts_confirmed">Confirmed' + arrow("appts_confirmed") + '</th>'
+    +   '<th class="r" data-sortcol="emails_sent">Emails' + arrow("emails_sent") + '</th>'
+    +   '<th class="r" data-sortcol="vendor_edits">Vendor Edits' + arrow("vendor_edits") + '</th>'
+    +   '<th class="r" data-sortcol="notes_added">Notes' + arrow("notes_added") + '</th>'
+    +   '<th class="r" data-sortcol="dismissals">Dismissals' + arrow("dismissals") + '</th>'
+    +   '<th class="r" data-sortcol="active_days">Active Days' + arrow("active_days") + '</th>'
+    +   '<th class="r" data-sortcol="distinct_entities">WOs Touched' + arrow("distinct_entities") + '</th>'
+    +   '<th class="r" data-sortcol="total_actions">Total' + arrow("total_actions") + '</th>'
+    +   '<th data-sortcol="last_action">Last Action' + arrow("last_action") + '</th>'
+    + '</tr></thead><tbody>'
+    + sorted.map(r => '<tr>'
+        + '<td><div class="email-cell">' + r.email + '</div></td>'
+        + '<td class="r">' + cell(r.calls_logged) + '</td>'
+        + '<td class="r">' + cell(r.appts_set) + '</td>'
+        + '<td class="r">' + cell(r.appts_confirmed) + '</td>'
+        + '<td class="r">' + cell(r.emails_sent) + '</td>'
+        + '<td class="r">' + cell(r.vendor_edits) + '</td>'
+        + '<td class="r">' + cell(r.notes_added) + '</td>'
+        + '<td class="r">' + cell(r.dismissals) + '</td>'
+        + '<td class="r">' + r.active_days + '</td>'
+        + '<td class="r">' + r.distinct_entities + '</td>'
+        + '<td class="r"><strong>' + r.total_actions + '</strong></td>'
+        + '<td><div class="last-login">' + fmtLoginTime(r.last_action) + '</div></td>'
+        + '</tr>').join("")
+    + '</tbody></table>';
+  document.getElementById("feed").innerHTML = html;
+  document.querySelectorAll(".logins-table th[data-sortcol]").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.sortcol;
+      if (activitySort.col === col) activitySort.dir *= -1;
+      else { activitySort.col = col; activitySort.dir = -1; }
+      renderActivityStats(rows);
+    });
+  });
 }
 
 function renderLoginStats(rows) {

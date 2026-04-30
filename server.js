@@ -580,6 +580,18 @@ app.get("/api/audit/login-stats", async (req, res) => {
   }
 });
 
+// Per-user activity stats (drives Activity tab)
+app.get("/api/audit/activity-stats", async (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 7));
+    const stats = await audit.getActivityStats(days);
+    res.json({ rows: stats, days });
+  } catch (e) {
+    console.error("[Audit] activity-stats error:", e.message);
+    res.status(500).json({ error: "Failed to load activity stats" });
+  }
+});
+
 // System feed with optional filters (drives /audit page + my-day view)
 app.get("/api/audit", async (req, res) => {
   try {

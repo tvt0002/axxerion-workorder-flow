@@ -85,6 +85,11 @@ var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
 var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
 var TERMINAL_STATUSES = new Set(['Closed', 'Cancelled', 'Invoiced', 'Completed']);
 
+// CapEx WOs/Requests are out of scope for Ops day-to-day chase. Exclude from all queues.
+function isCapex(serviceType) {
+  return !!serviceType && String(serviceType).toLowerCase().indexOf('capex') !== -1;
+}
+
 function loadOpsData(cb) {
   fetch('/api/ops').then(function(r) { return r.json(); }).then(function(d) {
     OPS_DATA = d;
@@ -141,6 +146,7 @@ function getQ1Data() {
   return ALLDATA.filter(function(r) {
     if (r[15] !== 'Request') return false;
     if (TERMINAL_STATUSES.has(r[1])) return false;
+    if (isCapex(r[3])) return false;
     if (!isInfoNeeded(r[2]) && !isInfoNeeded(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q1) return false;
@@ -160,6 +166,7 @@ function getQ2Data() {
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
     if (!Q2_STATUSES.has(r[1])) return false;
+    if (isCapex(r[3])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q2) return false;
     // Out of Q2 if ANY scheduling/execution date has been touched. Vendors don't always
@@ -199,6 +206,7 @@ function getQ3Data() {
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
     if (Q3_EXCLUDED_STATUSES.has(r[1])) return false;
+    if (isCapex(r[3])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q3) return false;
     // Once Actual end date is populated the WO is done — Q4 picks it up.
@@ -264,6 +272,7 @@ function getQ4Data() {
     var ref = r[10] || '';
     if (!ref) return false;
     if (Q4_TERMINAL_STATUSES.has(r[1])) return false;
+    if (isCapex(r[3])) return false;
     var hasActualEnd = !!r[22];
     if (!Q4_STATUSES.has(r[1]) && !hasActualEnd) return false;
     // Skip rows missing key data (property, vendor, or service type)
@@ -293,6 +302,7 @@ function getQ5Data() {
   refs.forEach(function(ref) {
     var emails = OPS_DATA.emails[ref] || [];
     var wo = ALLDATA ? ALLDATA.find(function(r) { return r[10] === ref; }) : null;
+    if (wo && isCapex(wo[3])) return; // skip capex WOs from email log
     emails.forEach(function(em) {
       results.push({
         ref: ref,
@@ -480,7 +490,7 @@ function renderQueue() {
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
-      var emailBtn = '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Draft Email</button>';
+      var emailBtn = '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Email Vendor</button>';
       var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
@@ -639,7 +649,7 @@ function sendInvoiceEmail(ref, vendorName) {
     + 'Please submit within 7 business days to avoid payment delays.\n\n'
     + 'Thank you,\nSecure Space Operations';
 
-  var html = '<div class="psl" style="margin-bottom:12px">DRAFT EMAIL — ' + ref + '</div>'
+  var html = '<div class="psl" style="margin-bottom:12px">EMAIL VENDOR — ' + ref + '</div>'
     + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Axxerion Upload Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO' + (!info.email ? ' <span style="color:var(--orange)">(no vendor email on file)</span>' : '') + '</label>'
     + '<input type="email" id="oqEmailTo" value="' + (info.email || '').replace(/"/g, '&quot;') + '" placeholder="vendor@example.com" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
