@@ -13,6 +13,7 @@ require("dotenv").config();
 const { sendChatMessage } = require("./lib/chat");
 const chatUsage = require("./lib/chat-usage");
 const { buildCache, tryCache } = require("./lib/chat-cache");
+const audit = require("./lib/audit");
 
 const app = express();
 app.use(express.json());
@@ -78,6 +79,15 @@ app.get("/auth/callback", async (req, res) => {
       email: tokenResponse.account.username,
     };
     Sentry.setUser({ email: req.session.user.email, username: req.session.user.name });
+    audit.logEvent({
+      actor: req.session.user.email,
+      actorType: "user",
+      action: "user.login",
+      entityType: "user",
+      entityId: req.session.user.email,
+      metadata: { name: req.session.user.name },
+      sessionId: req.sessionID,
+    });
     req.session.save(() => res.redirect("/"));
   } catch (err) {
     console.error("[Auth] Callback error:", err.message);
@@ -152,7 +162,9 @@ async function initDB() {
       data JSONB NOT NULL,
       fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
-    console.log("[DB] Cache table ready");
+    audit.init(pool);
+    await audit.ensureTable();
+    console.log("[DB] Cache + audit_log tables ready");
   } catch (e) { console.error("[DB] Init error:", e.message); }
 }
 
@@ -321,17 +333,30 @@ function fetchWorkOrdersIncremental() {
       cachedWO.forEach((wo, idx) => woMap.set(wo.ID, idx));
 
       let updated = 0, added = 0;
+      // Capture diffs before merging — fire audit events asynchronously after.
+      const diffs = [];
+      const newWOs = [];
       data.forEach((wo) => {
         const existingIdx = woMap.get(wo.ID);
         if (existingIdx !== undefined) {
-          cachedWO[existingIdx] = wo; // replace with updated record
+          const prior = cachedWO[existingIdx];
+          diffs.push({ prior, next: wo });
+          cachedWO[existingIdx] = wo;
           updated++;
         } else {
-          cachedWO.push(wo); // new WO not in full dataset yet
+          newWOs.push(wo);
+          cachedWO.push(wo);
           woMap.set(wo.ID, cachedWO.length - 1);
           added++;
         }
       });
+      // Fire-and-forget audit writes — never block the merge.
+      (async () => {
+        try {
+          for (const d of diffs) await audit.diffAndLogWO(d.prior, d.next);
+          for (const wo of newWOs) await audit.logWOCreated(wo);
+        } catch (e) { console.error("[Audit] diff log error:", e.message); }
+      })();
 
       lastIncrUpdate = Date.now();
       cacheWOTimestamp = Date.now(); // mark data as fresh
@@ -428,8 +453,17 @@ app.post("/api/ops/log", (req, res) => {
   if (!ref || !action) return res.status(400).json({ error: "ref and action required" });
   const ops = loadOps();
   if (!ops.logs[ref]) ops.logs[ref] = [];
-  ops.logs[ref].unshift({ date: new Date().toISOString(), action, note: note || "", user: user || "ops" });
+  const entry = { date: new Date().toISOString(), action, note: note || "", user: user || "ops" };
+  ops.logs[ref].unshift(entry);
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: "call.logged",
+    entityType: "wo",
+    entityId: ref,
+    newValue: { action, note: note || "" },
+  });
   res.json({ ok: true, logs: ops.logs[ref] });
 });
 
@@ -438,8 +472,21 @@ app.post("/api/ops/appointment", (req, res) => {
   const { ref, date, confirmed, time } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
   const ops = loadOps();
-  ops.appointments[ref] = { date: date || null, confirmed: !!confirmed, time: time || "", updatedAt: new Date().toISOString() };
+  const old = ops.appointments[ref] || null;
+  const next = { date: date || null, confirmed: !!confirmed, time: time || "", updatedAt: new Date().toISOString() };
+  ops.appointments[ref] = next;
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  // Distinguish "newly confirmed" from generic schedule update
+  const isConfirm = !!confirmed && (!old || !old.confirmed);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: isConfirm ? "appt.confirmed" : "appt.set",
+    entityType: "wo",
+    entityId: ref,
+    oldValue: old,
+    newValue: next,
+  });
   res.json({ ok: true, appointment: ops.appointments[ref] });
 });
 
@@ -449,8 +496,17 @@ app.post("/api/ops/email", (req, res) => {
   if (!ref) return res.status(400).json({ error: "ref required" });
   const ops = loadOps();
   if (!ops.emails[ref]) ops.emails[ref] = [];
-  ops.emails[ref].unshift({ sentAt: new Date().toISOString(), to: to || "", type: type || "invoice", subject: subject || "" });
+  const entry = { sentAt: new Date().toISOString(), to: to || "", type: type || "invoice", subject: subject || "" };
+  ops.emails[ref].unshift(entry);
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: "email.sent",
+    entityType: "wo",
+    entityId: ref,
+    newValue: entry,
+  });
   res.json({ ok: true, emails: ops.emails[ref] });
 });
 
@@ -459,8 +515,19 @@ app.post("/api/ops/vendor", (req, res) => {
   const { name, email, phone, contact } = req.body;
   if (!name) return res.status(400).json({ error: "vendor name required" });
   const ops = loadOps();
-  ops.vendors[name] = { email: email || "", phone: phone || "", contact: contact || "", updatedAt: new Date().toISOString() };
+  const old = ops.vendors[name] || null;
+  const next = { email: email || "", phone: phone || "", contact: contact || "", updatedAt: new Date().toISOString() };
+  ops.vendors[name] = next;
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: "vendor.contact_updated",
+    entityType: "vendor",
+    entityId: name,
+    oldValue: old,
+    newValue: next,
+  });
   res.json({ ok: true, vendor: ops.vendors[name] });
 });
 
@@ -475,9 +542,54 @@ app.post("/api/ops/note", (req, res) => {
   const { ref, note } = req.body;
   if (!ref) return res.status(400).json({ error: "ref required" });
   const ops = loadOps();
+  const old = ops.notes[ref] || null;
   ops.notes[ref] = { text: note || "", updatedAt: new Date().toISOString() };
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: "note.added",
+    entityType: "wo",
+    entityId: ref,
+    oldValue: old ? { text: old.text } : null,
+    newValue: { text: note || "" },
+  });
   res.json({ ok: true });
+});
+
+// ── Audit log read endpoints ──
+// Per-entity timeline (drives per-WO history drawer)
+app.get("/api/audit/entity/:type/:id", async (req, res) => {
+  try {
+    const rows = await audit.getEntityHistory(req.params.type, req.params.id, parseInt(req.query.limit, 10) || 200);
+    res.json({ rows });
+  } catch (e) {
+    console.error("[Audit] entity read error:", e.message);
+    res.status(500).json({ error: "Failed to load history" });
+  }
+});
+
+// System feed with optional filters (drives /audit page + my-day view)
+app.get("/api/audit", async (req, res) => {
+  try {
+    const filters = {};
+    let actor = req.query.actor;
+    if (actor === "me" && req.session && req.session.user) actor = req.session.user.email;
+    if (actor) filters.actor = actor;
+    if (req.query.actorType) filters.actorType = req.query.actorType;
+    if (req.query.action) filters.action = req.query.action;
+    if (req.query.entityType) filters.entityType = req.query.entityType;
+    if (req.query.entityId) filters.entityId = req.query.entityId;
+    if (req.query.since) filters.since = req.query.since;
+    if (req.query.until) filters.until = req.query.until;
+    filters.limit = parseInt(req.query.limit, 10) || 100;
+    filters.offset = parseInt(req.query.offset, 10) || 0;
+    const result = await audit.getAuditFeed(filters);
+    res.json({ ...result, currentUser: req.session && req.session.user ? req.session.user.email : null });
+  } catch (e) {
+    console.error("[Audit] feed read error:", e.message);
+    res.status(500).json({ error: "Failed to load audit feed" });
+  }
 });
 
 // Delete a specific log entry or clear queue action
@@ -489,6 +601,14 @@ app.post("/api/ops/dismiss", (req, res) => {
   if (!ops.dismissed[ref]) ops.dismissed[ref] = {};
   ops.dismissed[ref][queue] = new Date().toISOString();
   saveOps(ops);
+  const a = audit.actorFromReq(req);
+  audit.logEvent({
+    actor: a.actor, actorType: a.actorType, sessionId: a.sessionId,
+    action: "wo.dismissed",
+    entityType: "wo",
+    entityId: ref,
+    metadata: { queue: queue || null },
+  });
   res.json({ ok: true });
 });
 
@@ -631,6 +751,14 @@ app.post("/api/admin/budget", requireAdmin, async (req, res) => {
   if (!email || budget == null) return res.status(400).json({ error: "email and budget required" });
   try {
     await chatUsage.upsertUserBudget(pool, email.toLowerCase().trim(), name || null, parseFloat(budget), req.session.user.email);
+    audit.logEvent({
+      actor: req.session.user.email, actorType: "user", sessionId: req.sessionID,
+      action: "budget.set",
+      entityType: "user",
+      entityId: email.toLowerCase().trim(),
+      newValue: { budget: parseFloat(budget) },
+      metadata: { name: name || null },
+    });
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -640,6 +768,14 @@ app.post("/api/admin/add-admin", requireAdmin, async (req, res) => {
   if (!email) return res.status(400).json({ error: "email required" });
   try {
     await chatUsage.addAdmin(pool, email.toLowerCase().trim(), req.session.user.email);
+    audit.logEvent({
+      actor: req.session.user.email, actorType: "user", sessionId: req.sessionID,
+      action: "user.role_changed",
+      entityType: "user",
+      entityId: email.toLowerCase().trim(),
+      newValue: { role: "admin" },
+      metadata: { granted_by: req.session.user.email },
+    });
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -649,6 +785,15 @@ app.post("/api/admin/remove-admin", requireAdmin, async (req, res) => {
   if (!email) return res.status(400).json({ error: "email required" });
   try {
     await chatUsage.removeAdmin(pool, email.toLowerCase().trim(), req.session.user.email);
+    audit.logEvent({
+      actor: req.session.user.email, actorType: "user", sessionId: req.sessionID,
+      action: "user.role_changed",
+      entityType: "user",
+      entityId: email.toLowerCase().trim(),
+      oldValue: { role: "admin" },
+      newValue: { role: "user" },
+      metadata: { revoked_by: req.session.user.email },
+    });
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });

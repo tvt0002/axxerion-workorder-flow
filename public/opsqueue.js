@@ -403,7 +403,7 @@ function renderQueue() {
         + '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.subject + '</td>'
         + '<td>' + d.requestor + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q1\')">Log Action</button> <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q1\')">Dismiss</button></td>'
+        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q1\')">Log Action</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button> <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q1\')">Dismiss</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -436,7 +436,7 @@ function renderQueue() {
         + '<td style="' + dateSty + '">' + (apptTxt || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.callCount + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button></td>'
+        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -468,7 +468,7 @@ function renderQueue() {
         + '<td style="' + dateSty + '">' + (d.actualEnd || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button></td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -494,7 +494,7 @@ function renderQueue() {
         + '<td class="r" style="font-family:\'DM Mono\',monospace;font-size:11px">' + (d.vendorEstCost ? '$' + Number(d.vendorEstCost).toLocaleString() : '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.emailCount + '</td>'
         + '<td>' + lastEmail + '</td>'
-        + '<td>' + emailBtn + ' <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
+        + '<td>' + emailBtn + ' <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button> <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -513,7 +513,7 @@ function renderQueue() {
         + '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + d.to + '</td>'
         + '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">' + d.subject + '</td>'
-        + '<td><button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Resend</button></td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Resend</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
