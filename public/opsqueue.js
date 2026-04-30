@@ -81,8 +81,14 @@ function isInfoNeeded(val) {
   var v = val.toUpperCase();
   return v === 'INFO NEEDED' || v.indexOf('INFO NEEDED') === 0 || v === 'NFO NEEDED' || v.indexOf('NFO NEEDED') === 0;
 }
-var Q2_STATUSES = new Set(['Assigned', 'Accepted']);
-var Q4_STATUSES = new Set(['Work finished', 'Work Finished']);
+// Q4 is invoice chase — strict status whitelist, no date logic.
+var Q4_STATUSES = new Set(['Work finished', 'Work Finished', 'Prepare Financials']);
+// Statuses that mean the WO is fully retired or downstream of Q4 — not Q2 either.
+var Q2_TERMINAL_STATUSES = new Set([
+  'Closed', 'Cancelled', 'Invoiced', 'Completed',
+  'Financials Submitted',           // invoice already submitted
+  'No Invoice/Warranty/Internal',   // no invoice expected
+]);
 var TERMINAL_STATUSES = new Set(['Closed', 'Cancelled', 'Invoiced', 'Completed']);
 
 // CapEx WOs/Requests are out of scope for Ops day-to-day chase. Exclude from all queues.
@@ -161,21 +167,18 @@ function getQ1Data() {
 }
 
 function getQ2Data() {
-  // WOs assigned 24+ hours, not yet scheduled, no execution dates yet
+  // Q2 is the catch-all "active work" bucket: every WO that's not in a terminal
+  // state and not in Q4 (invoice chase). Pure status-based — no date logic.
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
-    if (!Q2_STATUSES.has(r[1])) return false;
+    if (Q4_STATUSES.has(r[1])) return false;          // belongs to Q4
+    if (Q2_TERMINAL_STATUSES.has(r[1])) return false; // retired or downstream of Q4
     if (isCapex(r[3])) return false;
     var ref = r[10] || '';
+    if (!ref) return false;
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q2) return false;
-    // Out of Q2 if ANY scheduling/execution date has been touched. Vendors don't always
-    // populate fields in order — checking only Scheduled from leaks the ones that filled
-    // Scheduled until, Actual start, or Actual end first.
-    if (r[19] || r[20] || r[21] || r[22]) return false;
-    if (OPS_DATA.appointments[ref] && OPS_DATA.appointments[ref].date) return false;
-    var hrs = hoursAgo(r[12]);
-    return hrs >= 24;
+    return true;
   }).map(function(r) {
     var ref = r[10] || '';
     var logs = OPS_DATA.logs[ref] || [];
@@ -238,7 +241,7 @@ function getQ3Data() {
     var vendorInfo = OPS_DATA.vendors[r[6] || ''] || {};
     var vEmail = r[29] || vendorInfo.email || '';
     var isWip = !!r[21];
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, schedFrom: r[19] || '', actualStart: r[21] || '', actualEnd: r[22] || '', wip: isWip };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, created: r[12] || '', schedFrom: r[19] || '', actualStart: r[21] || '', actualEnd: r[22] || '', wip: isWip };
   }).sort(function(a, b) {
     // WIP first (active jobs needing verification), then today's appointments.
     // WIP sub-sort: most recently started first. Today sub-sort: chronological.
@@ -252,29 +255,16 @@ function getQ3Data() {
   });
 }
 
-// Status that means invoice already settled, vendor already submitted, or WO retired —
-// never surface in Q4. Q4 is a "missing invoice — chase the vendor" list, so any status
-// that already has the invoice handled (or explicitly says no invoice is coming) is out.
-var Q4_TERMINAL_STATUSES = new Set([
-  'Closed', 'Cancelled', 'Invoiced', 'Completed',
-  'Financials Submitted',           // vendor already submitted invoice
-  'No Invoice/Warranty/Internal',   // no invoice expected
-]);
-
 function getQ4Data() {
-  // WOs with work done, awaiting invoice. Match if EITHER:
-  //   - status is Work finished, OR
-  //   - Actual end date is populated (vendor finished but didn't move status)
-  // Filter out terminal statuses so Closed/Invoiced WOs with end dates don't leak in.
+  // Q4 is invoice chase — strict status whitelist (Work finished + Prepare Financials).
+  // Pure status-based, no actual end date logic.
   if (!ALLDATA || !ALLDATA.length) return [];
   return ALLDATA.filter(function(r) {
     if (r[15] !== 'Work Order') return false;
+    if (!Q4_STATUSES.has(r[1])) return false;
+    if (isCapex(r[3])) return false;
     var ref = r[10] || '';
     if (!ref) return false;
-    if (Q4_TERMINAL_STATUSES.has(r[1])) return false;
-    if (isCapex(r[3])) return false;
-    var hasActualEnd = !!r[22];
-    if (!Q4_STATUSES.has(r[1]) && !hasActualEnd) return false;
     // Skip rows missing key data (property, vendor, or service type)
     if (!r[0] && !r[6] && !r[3]) return false;
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q4) return false;
@@ -286,7 +276,7 @@ function getQ4Data() {
     var vendor = r[6] || '';
     var vendorInfo = OPS_DATA.vendors[vendor] || {};
     var finishedDate = r[22] || r[23] || r[12]; // Actual end, Closed, or Created as fallback
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', vendorEstCost: r[31] || 0, bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: vendor, vendorEmail: vendorInfo.email || '', vendorEstCost: r[31] || 0, bookmark: r[14], logs: logs, emails: emails, emailCount: emails.length, lastEmail: emails.length ? emails[0] : null, lastAction: logs.length ? logs[0] : null, created: r[12] || '', finishedDate: finishedDate, daysSinceFinished: daysAgo(finishedDate) };
   }).sort(function(a, b) {
     // Most recently finished first — fresh closeouts are easier to chase
     // (vendor still has the job in mind). Old ones drift to bottom but
@@ -420,7 +410,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q2') {
     items = getQ2Data();
-    headHTML = '<tr>' + oqSortHeader('Hours','hours') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Service Type','service') + oqSortHeader('Vendor','vendor') + oqSortHeader('Phone','vendorPhone') + oqSortHeader('Email','vendorEmail') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Sched End','schedUntil') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Appointment','apptDate') + oqSortHeader('Calls','callCount') + '<th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Hours','hours') + oqSortHeader('Created','created') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Service Type','service') + oqSortHeader('Vendor','vendor') + oqSortHeader('Phone','vendorPhone') + oqSortHeader('Email','vendorEmail') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Sched End','schedUntil') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Appointment','apptDate') + oqSortHeader('Calls','callCount') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
@@ -429,8 +419,10 @@ function renderQueue() {
       var lastAct = d.lastAction ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastAction.date) + ' · ' + d.lastAction.action + '</span>' : '<span style="font-size:10px;color:var(--red)">No calls</span>';
       var dateSty = 'font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap';
       var apptTxt = d.apptDate ? d.apptDate + (d.apptTime ? ' ' + d.apptTime : '') : '';
+      var createdShort = (d.created || '').split(' ')[0] || '<span style="color:var(--muted)">—</span>';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + hrsClass + '">' + d.hours + 'h</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;white-space:nowrap">' + createdShort + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
@@ -453,7 +445,7 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Created','created') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var confBadge = d.wip
@@ -464,8 +456,10 @@ function renderQueue() {
       var dateSty = 'font-family:\'DM Mono\',monospace;font-size:11px';
       var muted = '<span style="color:var(--muted)">—</span>';
       var timeCell = d.wip ? 'WIP' : (d.time || 'TBD');
+      var createdShort = (d.created || '').split(' ')[0] || '<span style="color:var(--muted)">—</span>';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:12px;font-weight:600">' + timeCell + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;white-space:nowrap">' + createdShort + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
@@ -485,16 +479,19 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q4') {
     items = getQ4Data();
-    headHTML = '<tr>' + oqSortHeader('Days Since End','daysSinceFinished') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Days Since End','daysSinceFinished') + oqSortHeader('Created','created') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
       var emailBtn = '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Email Vendor</button>';
       var daysClass = d.daysSinceFinished >= 14 ? 'color:var(--red)' : d.daysSinceFinished >= 7 ? 'color:var(--orange)' : 'color:var(--green)';
+      var createdShort = (d.created || '').split(' ')[0] || '<span style="color:var(--muted)">—</span>';
+      var finishedShort = (d.finishedDate || '').split(' ')[0] || '<span style="color:var(--muted)">—</span>';
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;' + daysClass + '">' + d.daysSinceFinished + 'd</td>'
-        + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + (d.finishedDate ? fmtShortDate(d.finishedDate) : '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;white-space:nowrap">' + createdShort + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:11px;white-space:nowrap">' + finishedShort + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + d.vendor + '</td>'
