@@ -181,15 +181,31 @@ function getQ2Data() {
   }).sort(function(a, b) { return b.hours - a.hours; });
 }
 
+// Statuses that mean Q3 should skip the WO regardless of date fields.
+// Covers terminal states (Closed/Cancelled/Invoiced/Completed) plus statuses that
+// belong to Q4 or downstream (Work finished, Financials Submitted, etc.) — guards
+// against dirty data where actualEnd was never set on retired WOs.
+var Q3_EXCLUDED_STATUSES = new Set([
+  'Closed', 'Cancelled', 'Invoiced', 'Completed',
+  'Work finished', 'Work Finished',
+  'Financials Submitted', 'No Invoice/Warranty/Internal',
+]);
+
 function getQ3Data() {
-  // WOs with appointment today — check both Axxerion Scheduled from and manual ops tracking
+  // Active-work tracker: today's appointments + any WIP work the vendor started
+  // but hasn't reported finished yet. Drops to Q4 the moment Actual end date populates.
   if (!ALLDATA || !ALLDATA.length) return [];
   var today = todayStr();
   return ALLDATA.filter(function(r) {
     if (r[15] === 'Request') return false;
+    if (Q3_EXCLUDED_STATUSES.has(r[1])) return false;
     var ref = r[10] || '';
     if (OPS_DATA.dismissed && OPS_DATA.dismissed[ref] && OPS_DATA.dismissed[ref].q3) return false;
-    // Check Axxerion Scheduled from date
+    // Once Actual end date is populated the WO is done — Q4 picks it up.
+    if (r[22]) return false;
+    // WIP: vendor has started work but not finished — keep in Q3 until verified done.
+    if (r[21]) return true;
+    // Today's scheduled appointment (Axxerion Scheduled from)
     if (r[19]) {
       var sf = new Date(r[19]);
       if (!isNaN(sf.getTime())) {
@@ -213,8 +229,13 @@ function getQ3Data() {
     }
     var vendorInfo = OPS_DATA.vendors[r[6] || ''] || {};
     var vEmail = r[29] || vendorInfo.email || '';
-    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail };
-  }).sort(function(a, b) { return (a.time || 'ZZ').localeCompare(b.time || 'ZZ'); });
+    var isWip = !!r[21];
+    return { row: r, ref: ref, property: r[0], status: r[1], priority: r[2] || '', service: r[3], vendor: r[6] || '', executor: r[18] || '', time: time, confirmed: appt.confirmed, bookmark: r[14], logs: logs, lastAction: logs.length ? logs[0] : null, vendorEmail: vEmail, schedFrom: r[19] || '', actualStart: r[21] || '', wip: isWip };
+  }).sort(function(a, b) {
+    // WIP first (active jobs needing verification), then today's appointments by time.
+    if (a.wip !== b.wip) return a.wip ? -1 : 1;
+    return (a.time || 'ZZ').localeCompare(b.time || 'ZZ');
+  });
 }
 
 // Status that means invoice already settled, vendor already submitted, or WO retired —
@@ -416,14 +437,19 @@ function renderQueue() {
 
   else if (OPS_QUEUE === 'q3') {
     items = getQ3Data();
-    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
+    headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
     rowsHTML = items.map(function(d) {
-      var confBadge = d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>';
+      var confBadge = d.wip
+        ? '<span style="color:var(--accent);font-weight:600">In Progress</span>'
+        : (d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>');
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastAct = d.lastAction ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastAction.date) + ' · ' + d.lastAction.action + '</span>' : '<span style="font-size:10px;color:var(--muted)">—</span>';
+      var dateSty = 'font-family:\'DM Mono\',monospace;font-size:11px';
+      var muted = '<span style="color:var(--muted)">—</span>';
+      var timeCell = d.wip ? 'WIP' : (d.time || 'TBD');
       return '<tr>'
-        + '<td style="font-family:\'DM Mono\',monospace;font-size:12px;font-weight:600">' + (d.time || 'TBD') + '</td>'
+        + '<td style="font-family:\'DM Mono\',monospace;font-size:12px;font-weight:600">' + timeCell + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + refLink + '</td>'
         + '<td>' + d.property + '</td>'
         + '<td>' + (typeof statusTooltipHTML==='function'?statusTooltipHTML(d.status):d.status) + '</td>'
@@ -431,6 +457,8 @@ function renderQueue() {
         + '<td>' + d.vendor + '</td>'
         + '<td>' + (d.vendorEmail ? '<a href="mailto:' + d.vendorEmail + '" style="color:var(--accent);font-size:11px">' + d.vendorEmail + '</a>' : '<span style="color:var(--muted);font-size:10px">—</span>') + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
+        + '<td style="' + dateSty + '">' + (d.schedFrom || muted) + '</td>'
+        + '<td style="' + dateSty + '">' + (d.actualStart || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
         + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button></td>'
