@@ -14,6 +14,7 @@ const { sendChatMessage } = require("./lib/chat");
 const chatUsage = require("./lib/chat-usage");
 const { buildCache, tryCache } = require("./lib/chat-cache");
 const audit = require("./lib/audit");
+const calldirJob = require("./lib/calllist-job");
 
 const app = express();
 app.use(express.json());
@@ -821,6 +822,23 @@ app.post("/api/admin/remove-admin", requireAdmin, async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+// Manual trigger for the call directory sync (admin-only).
+// Body: { dryRun?: boolean, force?: boolean }
+app.post("/api/admin/sync-calldir", requireAdmin, async (req, res) => {
+  const { dryRun = false, force = false } = req.body || {};
+  try {
+    const result = await calldirJob.runSync({ pool, dryRun, force });
+    audit.logEvent({
+      actor: req.session.user.email, actorType: "user", sessionId: req.sessionID,
+      action: "calldir.sync_triggered",
+      entityType: "calldir_sync",
+      entityId: String(result.run_id || 'manual'),
+      metadata: { dryRun, force, summary: result.summary, action: result.action },
+    });
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Admin page (guarded)
 app.get("/admin", async (req, res) => {
   const u = req.session.user;
@@ -858,4 +876,24 @@ app.listen(PORT, async () => {
   setInterval(fetchWorkOrdersIncremental, REFRESH_INTERVAL_WO_INCR);
   setInterval(fetchRequests, REFRESH_INTERVAL_REQ);
   console.log("[Startup] Timers: Full WOs every 4h, Incremental WOs every 10m, Requests every 10m");
+
+  // 3. Daily call-directory sync at 07:00 America/New_York.
+  await calldirJob.ensureStateTable(pool);
+  let calldirLastRunDate = null;
+  setInterval(() => {
+    const now = new Date();
+    const etTime = now.toLocaleString("en-US", {
+      timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+    });
+    const etDate = now.toLocaleDateString("en-US", { timeZone: "America/New_York" });
+    if (etTime === "07:00" && etDate !== calldirLastRunDate) {
+      calldirLastRunDate = etDate;
+      console.log("[calldir-sync] daily 07:00 ET trigger");
+      calldirJob.runSync({ pool }).catch(err => {
+        console.error("[calldir-sync] daily run failed:", err.message);
+        Sentry.captureException(err, { tags: { job: "calldir-sync" } });
+      });
+    }
+  }, 60_000);
+  console.log("[Startup] Call directory sync scheduled daily at 07:00 ET");
 });
