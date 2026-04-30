@@ -91,6 +91,21 @@ h1 { font-family: Syne, sans-serif; font-size: 28px; margin: 0 0 4px; font-weigh
   .row { grid-template-columns: 1fr; gap: 6px; padding: 12px; }
   .row-time { font-size: 10px; }
 }
+/* Logins tab — aggregate stats table */
+.logins-table { width: 100%; border-collapse: collapse; }
+.logins-table th, .logins-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; }
+.logins-table th { background: var(--card2); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; cursor: pointer; user-select: none; }
+.logins-table th:hover { color: var(--text); }
+.logins-table th.r, .logins-table td.r { text-align: right; font-family: 'DM Mono', monospace; }
+.logins-table tr:hover td { background: var(--card2); }
+.logins-table tbody tr:last-child td { border-bottom: none; }
+.email-cell { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; }
+.last-login { font-size: 12px; color: var(--text); }
+.first-login { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.count-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.pill-active { background: rgba(var(--green-rgb), .15); color: var(--green); }
+.pill-warm { background: rgba(var(--accent-rgb), .15); color: var(--accent); }
+.pill-cold { background: rgba(var(--muted-rgb), .2); color: var(--muted); }
 </style>
 </head>
 <body>
@@ -107,6 +122,7 @@ h1 { font-family: Syne, sans-serif; font-size: 28px; margin: 0 0 4px; font-weigh
     <button class="tab" data-view="my-day">My Day</button>
     <button class="tab" data-view="axxerion">Axxerion Changes</button>
     <button class="tab" data-view="ops">Ops Actions</button>
+    <button class="tab" data-view="logins">Logins</button>
   </div>
 
   <div class="filters">
@@ -287,6 +303,17 @@ async function load() {
 function applyView(v) {
   activeView = v;
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
+  const filtersEl = document.querySelector(".filters");
+  const pagerEl = document.querySelector(".pager");
+  // Logins view swaps the feed for an aggregate table — hide filter bar + pager.
+  if (v === "logins") {
+    filtersEl.style.display = "none";
+    pagerEl.style.display = "none";
+    loadLoginStats();
+    return;
+  }
+  filtersEl.style.display = "";
+  pagerEl.style.display = "";
   // Reset filters then apply view-specific defaults
   document.getElementById("fActor").value = "";
   document.getElementById("fAction").value = "";
@@ -302,6 +329,86 @@ function applyView(v) {
   // "ops" view: handled by activeView === "ops" injecting actorType=user in load()
   offset = 0;
   load();
+}
+
+let loginSort = { col: "last_login", dir: -1 };
+
+function fmtLoginTime(iso) {
+  if (!iso) return '<span class="muted">—</span>';
+  const d = new Date(iso);
+  const now = Date.now();
+  const ago = now - d.getTime();
+  let rel = '';
+  if (ago < 3600e3) rel = Math.floor(ago / 60e3) + 'm ago';
+  else if (ago < 86400e3) rel = Math.floor(ago / 3600e3) + 'h ago';
+  else if (ago < 7 * 86400e3) rel = Math.floor(ago / 86400e3) + 'd ago';
+  else rel = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return rel;
+}
+
+function loginPill(count) {
+  if (count >= 5) return '<span class="count-pill pill-active">' + count + '</span>';
+  if (count >= 1) return '<span class="count-pill pill-warm">' + count + '</span>';
+  return '<span class="count-pill pill-cold">' + count + '</span>';
+}
+
+async function loadLoginStats() {
+  document.getElementById("summary").textContent = "";
+  document.getElementById("feed").innerHTML = '<div class="empty">Loading login stats...</div>';
+  try {
+    const res = await fetch("/api/audit/login-stats");
+    const data = await res.json();
+    if (!data.rows || !data.rows.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">No login events recorded yet. Logins are captured automatically when users complete SSO sign-in. Local-dev sessions don\'t fire the event.</div>';
+      return;
+    }
+    renderLoginStats(data.rows);
+    document.getElementById("summary").textContent = data.rows.length + " distinct user" + (data.rows.length === 1 ? "" : "s") + " · sortable columns";
+  } catch (e) {
+    document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+function renderLoginStats(rows) {
+  const sorted = rows.slice().sort((a, b) => {
+    let va = a[loginSort.col], vb = b[loginSort.col];
+    if (loginSort.col === "last_login" || loginSort.col === "first_login") {
+      va = new Date(va || 0).getTime();
+      vb = new Date(vb || 0).getTime();
+    }
+    if (typeof va === "string") return loginSort.dir * va.localeCompare(vb);
+    return loginSort.dir * (va - vb);
+  });
+  const arrow = (col) => loginSort.col === col ? (loginSort.dir > 0 ? " ▲" : " ▼") : "";
+  const html = '<table class="logins-table">'
+    + '<thead><tr>'
+    +   '<th data-sortcol="email">User' + arrow("email") + '</th>'
+    +   '<th data-sortcol="last_login">Last Login' + arrow("last_login") + '</th>'
+    +   '<th class="r" data-sortcol="last_24h">24h' + arrow("last_24h") + '</th>'
+    +   '<th class="r" data-sortcol="last_7d">7 days' + arrow("last_7d") + '</th>'
+    +   '<th class="r" data-sortcol="last_30d">30 days' + arrow("last_30d") + '</th>'
+    +   '<th class="r" data-sortcol="distinct_days">Distinct Days' + arrow("distinct_days") + '</th>'
+    +   '<th class="r" data-sortcol="total_logins">Total' + arrow("total_logins") + '</th>'
+    + '</tr></thead><tbody>'
+    + sorted.map(r => '<tr>'
+        + '<td><div class="email-cell">' + r.email + '</div><div class="first-login">first seen ' + fmtLoginTime(r.first_login) + '</div></td>'
+        + '<td><div class="last-login">' + fmtLoginTime(r.last_login) + '</div></td>'
+        + '<td class="r">' + loginPill(r.last_24h) + '</td>'
+        + '<td class="r">' + loginPill(r.last_7d) + '</td>'
+        + '<td class="r">' + loginPill(r.last_30d) + '</td>'
+        + '<td class="r">' + r.distinct_days + '</td>'
+        + '<td class="r"><strong>' + r.total_logins + '</strong></td>'
+        + '</tr>').join("")
+    + '</tbody></table>';
+  document.getElementById("feed").innerHTML = html;
+  document.querySelectorAll(".logins-table th[data-sortcol]").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.sortcol;
+      if (loginSort.col === col) loginSort.dir *= -1;
+      else { loginSort.col = col; loginSort.dir = -1; }
+      renderLoginStats(rows);
+    });
+  });
 }
 
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => applyView(t.dataset.view)));

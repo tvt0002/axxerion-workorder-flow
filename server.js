@@ -569,6 +569,17 @@ app.get("/api/audit/entity/:type/:id", async (req, res) => {
   }
 });
 
+// Login frequency stats per user (drives Logins tab)
+app.get("/api/audit/login-stats", async (req, res) => {
+  try {
+    const stats = await audit.getLoginStats();
+    res.json({ rows: stats });
+  } catch (e) {
+    console.error("[Audit] login-stats error:", e.message);
+    res.status(500).json({ error: "Failed to load login stats" });
+  }
+});
+
 // System feed with optional filters (drives /audit page + my-day view)
 app.get("/api/audit", async (req, res) => {
   try {
