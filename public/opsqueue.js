@@ -115,6 +115,75 @@ function opsApi(endpoint, body, cb) {
   }).catch(function(e) { console.error('[Ops] API error:', e); });
 }
 
+// ── Axxerion Write API ──
+var AX_WRITE_STATUS = { enabled: false, mode: 'dryrun', writableFields: [] };
+
+function loadAxWriteStatus() {
+  fetch('/api/axxerion/write-status').then(function(r) { return r.json(); }).then(function(d) {
+    AX_WRITE_STATUS = d;
+  }).catch(function(){});
+}
+
+function axWriteWo(ref, updates, cb) {
+  var user = (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.email) ? CURRENT_USER.email : 'ops';
+  return fetch('/api/axxerion/update-wo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ref: ref, updates: updates, user: user })
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, body: d }; }); })
+    .then(function(res) { if (cb) cb(res); return res; })
+    .catch(function(e) { console.error('[AxWrite] Error:', e); if (cb) cb({ ok: false, body: { error: e.message } }); });
+}
+
+// Compose date+time into the format the server's formatAxDateTime can parse cleanly.
+// Emits "M/D/YY h:mm AM/PM" (matches Axxerion's read format). Server parses this with
+// new Date() then reformats to "dd-MM-yy HH:mm" UTC. TODO once San confirms timezone
+// behavior on a live test: may need to switch to ISO-with-offset to preserve the user's
+// wall-clock vs UTC instant.
+function composeAxDateTime(dateStr, timeStr) {
+  if (!dateStr) return '';
+  var parts = dateStr.split('-'); // YYYY-MM-DD
+  if (parts.length !== 3) return '';
+  var d = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+  var time = (timeStr || '').trim();
+  var hh = 9, mm = 0, ampm = 'AM';
+  if (time) {
+    var m = time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+    if (m) {
+      hh = parseInt(m[1], 10);
+      mm = parseInt(m[2], 10);
+      if (m[3]) {
+        ampm = m[3].toUpperCase();
+        if (ampm === 'PM' && hh < 12) hh += 12;
+        if (ampm === 'AM' && hh === 12) hh = 0;
+      }
+    }
+  }
+  d.setHours(hh, mm, 0, 0);
+  var month = d.getMonth() + 1;
+  var day = d.getDate();
+  var year = String(d.getFullYear()).slice(-2);
+  var h12 = d.getHours() % 12; if (h12 === 0) h12 = 12;
+  var minStr = String(d.getMinutes()).padStart(2, '0');
+  var ap = d.getHours() < 12 ? 'AM' : 'PM';
+  return month + '/' + day + '/' + year + ' ' + h12 + ':' + minStr + ' ' + ap;
+}
+
+function axWriteToast(msg, kind) {
+  var t = document.getElementById('axWriteToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'axWriteToast';
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;border-radius:8px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.3);max-width:360px;display:none';
+    document.body.appendChild(t);
+  }
+  t.style.background = kind === 'error' ? 'var(--red, #dc3545)' : kind === 'dryrun' ? 'var(--orange, #f59e0b)' : 'var(--green, #16a34a)';
+  t.style.color = '#fff';
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(function(){ t.style.display = 'none'; }, 4000);
+}
+
 function hoursAgo(dateStr) {
   if (!dateStr) return 9999;
   // Parse "M/D/YY h:mm AM/PM" format from Axxerion
@@ -577,11 +646,22 @@ function submitOqAction(ref) {
 
 function openOqSchedule(ref) {
   var appt = OPS_DATA.appointments[ref] || {};
-  var html = '<div class="psl" style="margin-bottom:12px">SCHEDULE APPOINTMENT — ' + ref + '</div>'
+  var modeBadge = AX_WRITE_STATUS.enabled
+    ? '<span style="background:var(--green,#16a34a);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">LIVE</span>'
+    : '<span style="background:var(--orange,#f59e0b);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">DRY-RUN</span>';
+  var modeNote = AX_WRITE_STATUS.enabled
+    ? 'Saving will write Scheduled from / Scheduled until directly to Axxerion.'
+    : 'Dry-run mode: will log + update local cache, but will NOT update Axxerion until the live endpoint is wired.';
+  var html = '<div class="psl" style="margin-bottom:6px">SCHEDULE APPOINTMENT — ' + ref + ' &nbsp; ' + modeBadge + '</div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.4">' + modeNote + '</div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">DATE</label>'
     + '<input type="date" id="oqApptDate" value="' + (appt.date || '') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TIME (optional)</label>'
-    + '<input type="text" id="oqApptTime" value="' + (appt.time || '') + '" placeholder="e.g. 10:00 AM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:12px">'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START TIME</label>'
+    +     '<input type="text" id="oqApptTime" value="' + (appt.time || '') + '" placeholder="e.g. 10:00 AM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END TIME (optional)</label>'
+    +     '<input type="text" id="oqApptEnd" value="' + (appt.endTime || '') + '" placeholder="e.g. 12:00 PM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '</div>'
     + '<button class="oq-btn oq-btn-g" style="width:100%;padding:10px" onclick="submitOqSchedule(\'' + ref + '\')">Save Appointment</button>';
   openOqModal(html);
 }
@@ -589,9 +669,35 @@ function openOqSchedule(ref) {
 function submitOqSchedule(ref) {
   var date = document.getElementById('oqApptDate').value;
   var time = document.getElementById('oqApptTime').value;
+  var endEl = document.getElementById('oqApptEnd');
+  var endTime = endEl ? endEl.value : '';
   if (!date) { alert('Please select a date'); return; }
-  opsApi('appointment', { ref: ref, date: date, time: time, confirmed: false });
-  opsApi('log', { ref: ref, action: 'scheduled', note: 'Appointment set for ' + date + (time ? ' at ' + time : '') });
+
+  // Persist locally first (existing behavior)
+  opsApi('appointment', { ref: ref, date: date, time: time, endTime: endTime, confirmed: false });
+  opsApi('log', { ref: ref, action: 'scheduled', note: 'Appointment set for ' + date + (time ? ' at ' + time : '') + (endTime ? ' until ' + endTime : '') });
+
+  // Then push to Axxerion (will be dry-run until AXXERION_WRITE_ENABLED=true)
+  var updates = {};
+  if (time) {
+    updates['Scheduled from'] = composeAxDateTime(date, time);
+    updates['Scheduled until'] = composeAxDateTime(date, endTime || time);
+  } else {
+    updates['Scheduled from'] = composeAxDateTime(date, '9:00 AM');
+    updates['Scheduled until'] = composeAxDateTime(date, '5:00 PM');
+  }
+
+  axWriteWo(ref, updates, function(res) {
+    if (res.ok && res.body && res.body.mode === 'dryrun') {
+      axWriteToast('DRY-RUN: schedule logged locally. Axxerion not called.', 'dryrun');
+    } else if (res.ok && res.body && res.body.mode === 'live') {
+      axWriteToast('Saved to Axxerion: ' + ref, 'success');
+    } else {
+      var msg = (res.body && res.body.error) || 'Axxerion write failed';
+      axWriteToast(msg, 'error');
+    }
+  });
+
   closeOqModal();
 }
 
@@ -701,6 +807,7 @@ function logEmailOnly(ref, vendorName) {
 function initOpsQueue(hashQueue) {
   var savedQ = hashQueue || localStorage.getItem('ax_active_queue') || 'q1';
   loadStoreDirectory();
+  loadAxWriteStatus();
   loadOpsData(function() {
     switchQueue(savedQ, document.querySelector('.oq-tab[data-queue="' + savedQ + '"]'));
   });
