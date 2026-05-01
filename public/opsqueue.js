@@ -3,6 +3,11 @@ var OPS_DATA = { logs: {}, appointments: {}, emails: {}, vendors: {}, notes: {},
 var OPS_QUEUE = 'q1';
 var OPS_LOADED = false;
 var OQ_SORT = { col: null, dir: 1 }; // current sort state
+// Cap rows actually rendered. Q2 has 1k+ rows × 17 cols and was thrashing
+// paint/composite (especially with the native datetime picker overlay live).
+// Pager reveals more on demand. Reset on queue switch / sort.
+var OQ_PAGE_STEP = 100;
+var OQ_PAGE_LIMIT = OQ_PAGE_STEP;
 
 /* ── Store directory lookup (from /call-directory/data/stores.json) ── */
 var STORE_LOOKUP = null;
@@ -70,6 +75,7 @@ function bindOqSort() {
       var key = th.getAttribute('data-sortkey');
       if (OQ_SORT.col === key) { OQ_SORT.dir *= -1; }
       else { OQ_SORT.col = key; OQ_SORT.dir = 1; }
+      OQ_PAGE_LIMIT = OQ_PAGE_STEP;
       renderQueue();
     });
   });
@@ -250,8 +256,18 @@ function isoToAxDateTime(iso) {
   return month + '/' + day + '/' + year + ' ' + h12 + ':' + String(min).padStart(2, '0') + ' ' + ap;
 }
 
+// Tracks the in-flight inline edit so back-to-back clicks on different cells
+// can finalize the prior edit synchronously. Two native <input type="datetime-local">
+// elements alive at once on Windows Chrome thrashes paint and locks the cursor.
+var OQ_ACTIVE_EDIT = null;
+
 function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   if (td.querySelector('input')) return; // already editing
+  // Tear down any other in-flight edit immediately — no setTimeout window where
+  // two pickers can coexist.
+  if (OQ_ACTIVE_EDIT && OQ_ACTIVE_EDIT.td !== td) {
+    OQ_ACTIVE_EDIT.finalize();
+  }
   // Snapshot the cell so we can restore on cancel/error without re-rendering 1000+ rows.
   var origHTML = td.innerHTML;
   var origTitle = td.getAttribute('title') || '';
@@ -263,7 +279,15 @@ function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   var input = td.querySelector('input');
   var settled = false;
 
+  // Closing the native datetime picker BEFORE removing the input from the DOM
+  // avoids Windows Chrome orphaning the calendar overlay — which pegs paint and
+  // makes the page feel like it locked up after click-out.
+  function detachInput() {
+    try { input.blur(); } catch(_) {}
+  }
+
   function restoreCell(htmlOverride) {
+    detachInput();
     td.classList.remove('oq-editing');
     td.innerHTML = htmlOverride != null ? htmlOverride : origHTML;
   }
@@ -276,6 +300,7 @@ function oqInlineEdit(td, ref, fieldLabel, currentValue) {
     if (newIso === iso) { restoreCell(); return; }
     var formatted = newIso ? isoToAxDateTime(newIso) : '';
     var pending = '<span style="font-size:10px;color:var(--muted)">saving…</span>';
+    detachInput();
     td.innerHTML = pending;
     var updates = {}; updates[fieldLabel] = formatted;
     axWriteWo(ref, updates, function(res) {
@@ -306,6 +331,21 @@ function oqInlineEdit(td, ref, fieldLabel, currentValue) {
     restoreCell();
   }
 
+  // Public hook used by OQ_ACTIVE_EDIT.finalize() — synchronous commit for the
+  // case where the user clicked into another datetime cell while this one was open.
+  function finalize() {
+    if (settled) return;
+    var newIso = input.value;
+    if (newIso === iso) { cancel(); }
+    else { commit(); }
+  }
+
+  OQ_ACTIVE_EDIT = {
+    td: td,
+    finalize: finalize,
+    clear: function() { if (OQ_ACTIVE_EDIT && OQ_ACTIVE_EDIT.td === td) OQ_ACTIVE_EDIT = null; }
+  };
+
   input.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') { e.preventDefault(); commit(); }
     else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
@@ -313,8 +353,14 @@ function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   // `change` fires when the picker commits a value — primary save trigger.
   input.addEventListener('change', commit);
   // Fallback: if the user clicks outside without committing via picker/Enter,
-  // delay slightly so a picker-internal blur doesn't trigger a no-op save.
-  input.addEventListener('blur', function() { setTimeout(commit, 150); });
+  // a tiny delay swallows picker-internal blur. Keep it short so the native
+  // calendar overlay doesn't hang around stealing paint cycles after click-out.
+  input.addEventListener('blur', function() {
+    setTimeout(function() {
+      commit();
+      if (OQ_ACTIVE_EDIT && OQ_ACTIVE_EDIT.td === td) OQ_ACTIVE_EDIT = null;
+    }, 60);
+  });
   input.focus();
 }
 
@@ -550,6 +596,7 @@ function priColor(p) {
 function switchQueue(q, btn) {
   OPS_QUEUE = q;
   OQ_SORT = { col: null, dir: 1 };
+  OQ_PAGE_LIMIT = OQ_PAGE_STEP;
   localStorage.setItem('ax_active_queue', q);
   window.location.hash = 'opsqueue/' + q;
   document.querySelectorAll('.oq-tab').forEach(function(b) { b.classList.remove('active'); });
@@ -597,7 +644,7 @@ function renderQueue() {
     items = getQ1Data();
     headHTML = '<tr>' + oqSortHeader('Age','age') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Store #','storeCode') + oqSortHeader('Store Phone','storePhone') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Subject','subject') + oqSortHeader('Requestor','requestor') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
-    rowsHTML = items.map(function(d) {
+    rowsHTML = items.slice(0, OQ_PAGE_LIMIT).map(function(d) {
       var ageClass = d.age >= 3 ? 'color:var(--red)' : d.age >= 1 ? 'color:var(--orange)' : 'color:var(--green)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastAct = d.lastAction ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastAction.date) + ' · ' + d.lastAction.action + '</span>' : '<span style="font-size:10px;color:var(--red)">No action yet</span>';
@@ -630,7 +677,7 @@ function renderQueue() {
     items = getQ2Data();
     headHTML = '<tr>' + oqSortHeader('Hours','hours') + oqSortHeader('Created','created') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Service Type','service') + oqSortHeader('Vendor','vendor') + oqSortHeader('Phone','vendorPhone') + oqSortHeader('Email','vendorEmail') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Sched End','schedUntil') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Appointment','apptDate') + oqSortHeader('Calls','callCount') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
-    rowsHTML = items.map(function(d) {
+    rowsHTML = items.slice(0, OQ_PAGE_LIMIT).map(function(d) {
       var hrsClass = d.hours >= 72 ? 'color:var(--red)' : d.hours >= 48 ? 'color:var(--orange)' : 'color:var(--yellow)';
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var phone = d.vendorPhone ? '<a href="tel:' + d.vendorPhone + '" style="color:var(--accent)">' + d.vendorPhone + '</a>' : '<span style="color:var(--red);font-size:10px">No phone</span>';
@@ -665,7 +712,7 @@ function renderQueue() {
     items = getQ3Data();
     headHTML = '<tr>' + oqSortHeader('Time','time') + oqSortHeader('Created','created') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor','vendor') + oqSortHeader('Vendor Email','vendorEmail') + oqSortHeader('Service Type','service') + oqSortHeader('Sched Start','schedFrom') + oqSortHeader('Actual Start','actualStart') + oqSortHeader('Actual End','actualEnd') + oqSortHeader('Confirmed','confirmed') + '<th>Last Action</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
-    rowsHTML = items.map(function(d) {
+    rowsHTML = items.slice(0, OQ_PAGE_LIMIT).map(function(d) {
       var confBadge = d.wip
         ? '<span style="color:var(--accent);font-weight:600">In Progress</span>'
         : (d.confirmed ? '<span style="color:var(--green);font-weight:600">Confirmed</span>' : '<span style="color:var(--orange);font-weight:600">Pending</span>');
@@ -699,7 +746,7 @@ function renderQueue() {
     items = getQ4Data();
     headHTML = '<tr>' + oqSortHeader('Days Since End','daysSinceFinished') + oqSortHeader('Created','created') + oqSortHeader('Date Finished','finishedDate') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('Status','status') + oqSortHeader('Priority','priority') + oqSortHeader('Vendor Est Cost','vendorEstCost',true) + oqSortHeader('Emails Sent','emailCount') + '<th>Last Email</th><th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
-    rowsHTML = items.map(function(d) {
+    rowsHTML = items.slice(0, OQ_PAGE_LIMIT).map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       var lastEmail = d.lastEmail ? '<span style="font-size:10px;color:var(--muted)">' + fmtDate(d.lastEmail.sentAt) + '</span>' : '<span style="font-size:10px;color:var(--red)">Never sent</span>';
       var emailBtn = '<button class="oq-btn oq-btn-g" onclick="sendInvoiceEmail(\'' + d.ref + '\',\'' + d.vendor.replace(/'/g, "\\'") + '\')">Email Vendor</button>';
@@ -728,7 +775,7 @@ function renderQueue() {
     items = getQ5Data();
     headHTML = '<tr>' + oqSortHeader('Sent','sentAtFmt') + oqSortHeader('Reference','ref') + oqSortHeader('Property','property') + oqSortHeader('Vendor','vendor') + oqSortHeader('Service Type','service') + oqSortHeader('To','to') + oqSortHeader('Subject','subject') + '<th>Actions</th></tr>';
     items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
-    rowsHTML = items.map(function(d) {
+    rowsHTML = items.slice(0, OQ_PAGE_LIMIT).map(function(d) {
       var refLink = d.bookmark ? '<a href="' + d.bookmark + '" target="_blank" style="color:var(--accent)">' + d.ref + '</a>' : d.ref;
       return '<tr>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:10px;white-space:nowrap">' + d.sentAtFmt + '</td>'
@@ -748,6 +795,20 @@ function renderQueue() {
   empty.style.display = items.length ? 'none' : 'block';
   document.getElementById('oqTable').style.display = items.length ? '' : 'none';
   bindOqSort();
+  renderOqPager(items.length);
+}
+
+function renderOqPager(total) {
+  var pager = document.getElementById('oqPager');
+  if (!pager) return;
+  if (total <= OQ_PAGE_LIMIT) { pager.style.display = 'none'; return; }
+  pager.style.display = '';
+  var shown = Math.min(OQ_PAGE_LIMIT, total);
+  document.getElementById('oqPagerCount').textContent = 'Showing ' + shown + ' of ' + total;
+  var more = document.getElementById('oqPagerMore');
+  var all = document.getElementById('oqPagerAll');
+  more.onclick = function() { OQ_PAGE_LIMIT += OQ_PAGE_STEP; renderQueue(); };
+  all.onclick = function() { OQ_PAGE_LIMIT = total; renderQueue(); };
 }
 
 // ── Actions ──
