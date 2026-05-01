@@ -739,6 +739,11 @@ function sendInvoiceEmail(ref, vendorName) {
   var property = wo ? wo[0] : '';
   var service = wo ? wo[3] : '';
   var contactName = info.contact || vendorName;
+  // Fall back to Axxerion-provided vendor contact fields if ops hasn't manually set them.
+  // Indices: r[29]=Vendor Email, r[27]=Vendor Phone, r[28]=Vendor Mobile.
+  var axEmail = wo ? (wo[29] || '') : '';
+  var axPhone = wo ? (wo[27] || wo[28] || '') : '';
+  var resolvedEmail = info.email || axEmail || '';
 
   var defaultSubject = 'Action Required: Upload Invoice & Paperwork — WO ' + ref + ' (' + property + ')';
   var defaultBody = 'Hi ' + contactName + ',\n\n'
@@ -752,10 +757,12 @@ function sendInvoiceEmail(ref, vendorName) {
     + 'Please submit within 7 business days to avoid payment delays.\n\n'
     + 'Thank you,\nSecure Space Operations';
 
+  var emailSourceLabel = info.email ? '' : (axEmail ? ' <span style="color:var(--muted)">(from Axxerion)</span>' : ' <span style="color:var(--orange)">(no vendor email on file)</span>');
+  var phoneHint = axPhone ? '<div style="font-size:10px;color:var(--muted);margin-top:4px">Vendor phone on file: ' + axPhone + '</div>' : '';
   var html = '<div class="psl" style="margin-bottom:12px">EMAIL VENDOR — ' + ref + '</div>'
-    + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Axxerion Upload Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
-    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO' + (!info.email ? ' <span style="color:var(--orange)">(no vendor email on file)</span>' : '') + '</label>'
-    + '<input type="email" id="oqEmailTo" value="' + (info.email || '').replace(/"/g, '&quot;') + '" placeholder="vendor@example.com" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + (bookmark ? '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:6px;font-size:11px"><span style="color:var(--accent);font-weight:600">Invoice Submission Link:</span> <a href="' + bookmark + '" target="_blank" style="color:var(--accent);word-break:break-all;margin-left:6px">' + bookmark + '</a></div>' : '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.2);border-radius:6px;font-size:11px;color:var(--orange)">No Axxerion link available — bookmark not set on this WO</div>')
+    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">TO' + emailSourceLabel + '</label>'
+    + '<input type="email" id="oqEmailTo" value="' + resolvedEmail.replace(/"/g, '&quot;') + '" placeholder="vendor@example.com" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%">' + phoneHint + '</div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">SUBJECT</label>'
     + '<input type="text" id="oqEmailSubject" value="' + defaultSubject.replace(/"/g, '&quot;') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
     + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">BODY</label>'
