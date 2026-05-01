@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vendor Profiles · Axxerion Operations</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+<script>
+(function(){
+  try{ var s=localStorage.getItem('ax_theme')||'dark'; document.documentElement.setAttribute('data-theme',s); }
+  catch(_){ document.documentElement.setAttribute('data-theme','dark'); }
+})();
+</script>
+<style>
+[data-theme="dark"]{--bg:#0c1120;--surface:#111827;--card:#1a2235;--border:#283044;--border-rgb:40,48,68;--accent:#1f4a9a;--accent-rgb:31,74,154;--accent2:#4182c3;--green:#5ec28f;--green-rgb:94,194,143;--orange:#fb923c;--orange-rgb:251,146,60;--red:#c34141;--red-rgb:195,65,65;--yellow:#ffd600;--text:#e8eaf0;--muted:#8893a7;}
+[data-theme="light"]{--bg:#f5f6fa;--surface:#ffffff;--card:#ffffff;--border:#d5dae3;--border-rgb:213,218,227;--accent:#1f4a9a;--accent-rgb:31,74,154;--accent2:#4182c3;--green:#22a331;--green-rgb:34,163,49;--orange:#e07800;--orange-rgb:224,120,0;--red:#c34141;--red-rgb:195,65,65;--yellow:#c5a600;--text:#1a1e2a;--muted:#5c6478;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+.gnav{display:flex;align-items:center;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--bg);gap:16px;position:sticky;top:0;z-index:300;}
+.gnav .logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.15em;color:var(--accent);background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.3);padding:5px 12px;border-radius:5px;}
+.gnav .crumb{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+.gnav .crumb a{color:var(--muted);}
+.gnav .crumb a:hover{color:var(--accent);text-decoration:none;}
+.gright{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.gright .gtab{font-family:'DM Mono',monospace;font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-transform:uppercase;transition:all .18s;}
+.gright .gtab:hover{border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}
+
+.toolbar{display:flex;align-items:center;gap:14px;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);}
+.toolbar input{flex:1;max-width:520px;font-family:'Inter',sans-serif;font-size:13px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 12px;}
+.toolbar input:focus{outline:none;border-color:var(--accent);}
+.toolbar .count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+
+.wrap{padding:24px 32px;max-width:1500px;margin:0 auto;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.kpi .lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.kpi .val{font-family:'DM Mono',monospace;font-size:clamp(22px,3vw,36px);font-weight:600;color:var(--text);}
+
+table.vendors{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+table.vendors th{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+table.vendors th:hover{color:var(--accent);}
+table.vendors th.r{text-align:right;}
+table.vendors td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(var(--border-rgb),.5);}
+table.vendors td.r{text-align:right;font-family:'DM Mono',monospace;font-size:12px;}
+table.vendors tr.row{cursor:pointer;transition:background .12s;}
+table.vendors tr.row:hover{background:rgba(var(--accent-rgb),.05);}
+table.vendors tr.detail td{background:var(--surface);padding:0;}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;padding:18px 24px;}
+.detail-grid h4{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;}
+.mini-list{font-size:12px;}
+.mini-list li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed rgba(var(--border-rgb),.5);list-style:none;}
+.mini-list li:last-child{border-bottom:none;}
+.contact-block{font-size:12px;line-height:1.7;}
+.contact-block .label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;margin-right:6px;}
+
+.empty{padding:40px;text-align:center;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="gnav">
+  <a href="/" class="logo">AXXERION</a>
+  <span class="crumb"><a href="/">Dashboard</a> &nbsp;/&nbsp; Vendor Profiles</span>
+  <div class="gright">
+    <button class="gtab" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); localStorage.setItem('ax_theme',document.documentElement.getAttribute('data-theme'));">☾ Theme</button>
+    <a class="gtab" href="/">← Back</a>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="vSearch" placeholder="Search by vendor name, contact, phone, email…">
+  <span class="count" id="vCount">—</span>
+</div>
+
+<div class="wrap">
+  <div class="kpis" id="vKpis"></div>
+  <div id="vTableWrap">
+    <div class="empty">Loading vendor profiles…</div>
+  </div>
+</div>
+
+<script>
+var VENDORS = [];
+var FILTERED = [];
+var SORT = { col: 'woCount', dir: -1 };
+var EXPANDED = null;
+
+function fmtMoney(n){ return '$' + Number(n||0).toLocaleString(undefined, {maximumFractionDigits: 0}); }
+function fmtDateShort(s){ if(!s) return '—'; return (s+'').split(' ')[0]; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function buildKpis() {
+  var totalVendors = VENDORS.length;
+  var totalWO = VENDORS.reduce(function(a,v){return a+v.woCount;},0);
+  var totalOpen = VENDORS.reduce(function(a,v){return a+v.openCount;},0);
+  var totalSpend = VENDORS.reduce(function(a,v){return a+v.totalSpend;},0);
+  var noContact = VENDORS.filter(function(v){return !v.contact.email && !v.contact.phone;}).length;
+  document.getElementById('vKpis').innerHTML =
+    '<div class="kpi"><div class="lbl">Total Vendors</div><div class="val">'+totalVendors+'</div></div>' +
+    '<div class="kpi"><div class="lbl">Total WOs</div><div class="val">'+totalWO.toLocaleString()+'</div></div>' +
+    '<div class="kpi"><div class="lbl">Open WOs</div><div class="val" style="color:var(--orange)">'+totalOpen.toLocaleString()+'</div></div>' +
+    '<div class="kpi"><div class="lbl">Total Spend</div><div class="val">'+fmtMoney(totalSpend)+'</div></div>' +
+    '<div class="kpi"><div class="lbl">Missing Contact</div><div class="val" style="color:var(--red)">'+noContact+'</div></div>';
+}
+
+function applyFilter() {
+  var q = document.getElementById('vSearch').value.toLowerCase().trim();
+  FILTERED = VENDORS.filter(function(v){
+    if (!q) return true;
+    var blob = (v.name + ' ' + (v.contact.email||'') + ' ' + (v.contact.phone||'') + ' ' + (v.contact.mobile||'') + ' ' + (v.contact.contactName||'')).toLowerCase();
+    return blob.indexOf(q) !== -1;
+  });
+  applySort();
+  render();
+}
+
+function applySort() {
+  var c = SORT.col, d = SORT.dir;
+  FILTERED.sort(function(a,b){
+    var av = a[c], bv = b[c];
+    if (typeof av === 'string') return av.localeCompare(bv) * d;
+    return (av - bv) * d;
+  });
+}
+
+function setSort(col) {
+  if (SORT.col === col) SORT.dir = -SORT.dir;
+  else { SORT.col = col; SORT.dir = (typeof FILTERED[0]?.[col] === 'string') ? 1 : -1; }
+  applySort();
+  render();
+}
+
+function toggleDetail(name) {
+  EXPANDED = (EXPANDED === name) ? null : name;
+  render();
+}
+
+function render() {
+  document.getElementById('vCount').textContent = FILTERED.length + ' of ' + VENDORS.length + ' vendors';
+  if (!FILTERED.length) {
+    document.getElementById('vTableWrap').innerHTML = '<div class="empty">No vendors match the current filter.</div>';
+    return;
+  }
+  var rows = '';
+  FILTERED.forEach(function(v){
+    var contact = v.contact.email || v.contact.phone || v.contact.mobile || '<span style="color:var(--muted);font-size:11px">missing</span>';
+    rows += '<tr class="row" onclick="toggleDetail(\''+esc(v.name).replace(/'/g,"\\'")+'\')">'
+         +    '<td>'+esc(v.name)+'</td>'
+         +    '<td class="r">'+v.woCount+'</td>'
+         +    '<td class="r" style="color:'+(v.openCount?'var(--orange)':'var(--muted)')+'">'+v.openCount+'</td>'
+         +    '<td class="r">'+fmtMoney(v.totalSpend)+'</td>'
+         +    '<td class="r">'+fmtMoney(v.totalNTE)+'</td>'
+         +    '<td class="r">'+v.propertyCount+'</td>'
+         +    '<td class="r">'+fmtDateShort(v.lastWODate)+'</td>'
+         +    '<td>'+contact+'</td>'
+         +  '</tr>';
+    if (EXPANDED === v.name) {
+      var topProps = v.topProperties.map(function(p){ return '<li><span>'+esc(p.name)+'</span><span style="font-family:\'DM Mono\',monospace;color:var(--muted)">'+p.count+'</span></li>'; }).join('') || '<li><span style="color:var(--muted)">—</span></li>';
+      var topSvcs = v.topServices.map(function(s){ return '<li><span>'+esc(s.name)+'</span><span style="font-family:\'DM Mono\',monospace;color:var(--muted)">'+s.count+'</span></li>'; }).join('') || '<li><span style="color:var(--muted)">—</span></li>';
+      var statuses = v.statuses.map(function(s){ return '<li><span>'+esc(s.name)+'</span><span style="font-family:\'DM Mono\',monospace;color:var(--muted)">'+s.count+'</span></li>'; }).join('') || '<li><span style="color:var(--muted)">—</span></li>';
+      rows += '<tr class="detail"><td colspan="8">'
+           +    '<div class="detail-grid">'
+           +      '<div><h4>Contact</h4><div class="contact-block">'
+           +        (v.contact.contactName ? '<div><span class="label">Name</span> '+esc(v.contact.contactName)+'</div>' : '')
+           +        (v.contact.email ? '<div><span class="label">Email</span> <a href="mailto:'+esc(v.contact.email)+'">'+esc(v.contact.email)+'</a></div>' : '<div style="color:var(--red)"><span class="label">Email</span> not on file</div>')
+           +        (v.contact.phone ? '<div><span class="label">Phone</span> <a href="tel:'+esc(v.contact.phone).replace(/\D/g,'')+'">'+esc(v.contact.phone)+'</a></div>' : '<div style="color:var(--muted)"><span class="label">Phone</span> —</div>')
+           +        (v.contact.mobile ? '<div><span class="label">Mobile</span> <a href="tel:'+esc(v.contact.mobile).replace(/\D/g,'')+'">'+esc(v.contact.mobile)+'</a></div>' : '')
+           +      '</div></div>'
+           +      '<div><h4>Top Properties</h4><ul class="mini-list">'+topProps+'</ul></div>'
+           +      '<div><h4>Top Services</h4><ul class="mini-list">'+topSvcs+'</ul></div>'
+           +      '<div><h4>Status Breakdown</h4><ul class="mini-list">'+statuses+'</ul></div>'
+           +    '</div>'
+           +  '</td></tr>';
+    }
+  });
+  document.getElementById('vTableWrap').innerHTML =
+    '<table class="vendors">' +
+    '<thead><tr>' +
+      '<th onclick="setSort(\'name\')">Vendor</th>' +
+      '<th class="r" onclick="setSort(\'woCount\')">WOs</th>' +
+      '<th class="r" onclick="setSort(\'openCount\')">Open</th>' +
+      '<th class="r" onclick="setSort(\'totalSpend\')">Spend</th>' +
+      '<th class="r" onclick="setSort(\'totalNTE\')">NTE</th>' +
+      '<th class="r" onclick="setSort(\'propertyCount\')">Props</th>' +
+      '<th class="r" onclick="setSort(\'lastWODate\')">Last WO</th>' +
+      '<th>Contact</th>' +
+    '</tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>';
+}
+
+fetch('/api/vendors/profiles').then(function(r){ return r.json(); }).then(function(d){
+  VENDORS = d.vendors || [];
+  FILTERED = VENDORS.slice();
+  buildKpis();
+  applySort();
+  render();
+}).catch(function(e){
+  document.getElementById('vTableWrap').innerHTML = '<div class="empty" style="color:var(--red)">Error loading vendor profiles: '+e.message+'</div>';
+});
+
+document.getElementById('vSearch').addEventListener('input', applyFilter);
+</script>
+
+</body>
+</html>

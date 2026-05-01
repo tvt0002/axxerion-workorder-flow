@@ -746,6 +746,107 @@ app.get("/api/ops", (req, res) => {
   res.json(loadOps());
 });
 
+// ── Vendor Profile Aggregation ──
+// Aggregates cachedWO into per-vendor stats: WO count, spend, NTE, open count,
+// top properties + services, last WO, plus merged contact info from OPS_DATA + Axxerion.
+const TERMINAL_VENDOR_STATUSES = new Set(["Closed", "Cancelled", "Invoiced", "Completed", "Financials Submitted", "No Invoice", "Warranty", "Internal"]);
+
+function buildVendorProfiles() {
+  if (!cachedWO || !cachedWO.length) return [];
+  const ops = loadOps();
+  const opsVendors = ops.vendors || {};
+  const map = new Map();
+
+  for (const r of cachedWO) {
+    const name = (r["Vendor"] || "").trim();
+    if (!name) continue;
+    let v = map.get(name);
+    if (!v) {
+      v = {
+        name,
+        woCount: 0,
+        openCount: 0,
+        totalSpend: 0,
+        totalNTE: 0,
+        properties: new Map(),
+        services: new Map(),
+        statuses: new Map(),
+        lastWODate: null,
+        contact: { phone: "", mobile: "", email: "" },
+        recentRefs: [],
+      };
+      map.set(name, v);
+    }
+    v.woCount++;
+    const status = String(r["Status"] || "");
+    if (!TERMINAL_VENDOR_STATUSES.has(status)) v.openCount++;
+    const spend = parseFloat(r["Total"] || "0") || 0;
+    const nte = parseFloat(r["Not To Exceed"] || "0") || 0;
+    v.totalSpend += spend;
+    v.totalNTE += nte;
+    const prop = r["Property"] || "(unknown)";
+    v.properties.set(prop, (v.properties.get(prop) || 0) + 1);
+    const svc = r["Problem Type"] || "(unknown)";
+    v.services.set(svc, (v.services.get(svc) || 0) + 1);
+    v.statuses.set(status || "(blank)", (v.statuses.get(status || "(blank)") || 0) + 1);
+    const created = r["Created"] || "";
+    if (created && (!v.lastWODate || new Date(created) > new Date(v.lastWODate))) v.lastWODate = created;
+    if (!v.contact.phone && r["Phone"]) v.contact.phone = r["Phone"];
+    if (!v.contact.mobile && r["Mobile"]) v.contact.mobile = r["Mobile"];
+    if (!v.contact.email && r["Email"]) v.contact.email = r["Email"];
+  }
+
+  // Merge OPS_DATA vendor contact (manual entries take precedence over Axxerion).
+  for (const [name, v] of map) {
+    const manual = opsVendors[name] || {};
+    if (manual.phone) v.contact.phone = manual.phone;
+    if (manual.email) v.contact.email = manual.email;
+    if (manual.contact) v.contact.contactName = manual.contact;
+  }
+
+  // Convert maps to sorted arrays + serialize.
+  return Array.from(map.values()).map((v) => ({
+    name: v.name,
+    woCount: v.woCount,
+    openCount: v.openCount,
+    totalSpend: Math.round(v.totalSpend * 100) / 100,
+    totalNTE: Math.round(v.totalNTE * 100) / 100,
+    propertyCount: v.properties.size,
+    serviceCount: v.services.size,
+    topProperties: Array.from(v.properties.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count })),
+    topServices: Array.from(v.services.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count })),
+    statuses: Array.from(v.statuses.entries()).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count })),
+    lastWODate: v.lastWODate,
+    contact: v.contact,
+  })).sort((a, b) => b.woCount - a.woCount);
+}
+
+app.get("/api/vendors/profiles", (req, res) => {
+  res.json({ vendors: buildVendorProfiles(), generatedAt: new Date().toISOString() });
+});
+
+app.get("/api/vendors/profile/:name", (req, res) => {
+  const target = decodeURIComponent(req.params.name);
+  const profile = buildVendorProfiles().find((v) => v.name.toLowerCase() === target.toLowerCase());
+  if (!profile) return res.status(404).json({ error: "Vendor not found", name: target });
+  // Include the full WO list for this vendor (most recent first).
+  const wos = (cachedWO || [])
+    .filter((r) => (r["Vendor"] || "").trim().toLowerCase() === target.toLowerCase())
+    .map((r) => ({
+      ref: r["Reference"] || "",
+      property: r["Property"] || "",
+      status: r["Status"] || "",
+      priority: r["Priority"] || "",
+      service: r["Problem Type"] || "",
+      created: r["Created"] || "",
+      total: parseFloat(r["Total"] || "0") || 0,
+      nte: parseFloat(r["Not To Exceed"] || "0") || 0,
+      bookmark: r["Bookmark"] || "",
+    }))
+    .sort((a, b) => new Date(b.created) - new Date(a.created));
+  res.json({ profile, workorders: wos });
+});
+
 // Log an action (call, email, note) for a WO
 app.post("/api/ops/log", (req, res) => {
   const { ref, action, note, user } = req.body;
