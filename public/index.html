@@ -273,8 +273,12 @@ body.sidebar-collapsed{margin-left:58px;}
 .oq-btn-dim{color:var(--muted);}
 .oq-btn-dim:hover{color:var(--text);}
 .oq-edit{position:relative;transition:background .12s;}
-.oq-edit:hover{background:rgba(var(--accent-rgb),.10);outline:1px dashed rgba(var(--accent-rgb),.35);outline-offset:-1px;}
+.oq-edit:not(.oq-editing):hover{background:rgba(var(--accent-rgb),.10);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.35);}
+.oq-edit.oq-editing{background:rgba(var(--accent-rgb),.06);}
 .oq-edit input[type="datetime-local"]{outline:none;}
+/* Limit reflow scope on large queue tables (Q2 can be 1k+ rows). */
+#oqTable tbody tr{contain:layout style;}
+#oqTable{contain:layout style;}
 
 /* ── WO Search ── */
 .wo-search-wrap{position:relative;margin-left:auto;margin-right:16px;}

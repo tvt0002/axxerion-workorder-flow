@@ -252,41 +252,70 @@ function isoToAxDateTime(iso) {
 
 function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   if (td.querySelector('input')) return; // already editing
+  // Snapshot the cell so we can restore on cancel/error without re-rendering 1000+ rows.
+  var origHTML = td.innerHTML;
+  var origTitle = td.getAttribute('title') || '';
   var iso = axDateTimeToISO(currentValue);
-  td.innerHTML = '<input type="datetime-local" data-ref="' + ref + '" data-field="' + fieldLabel + '" value="' + iso + '" '
-    + 'style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:3px 6px;width:100%;box-sizing:border-box">';
+  // Mark cell as in-edit so the hover style stays calm and outline doesn't flicker.
+  td.classList.add('oq-editing');
+  td.innerHTML = '<input type="datetime-local" value="' + iso + '" '
+    + 'style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:3px 6px;width:100%;box-sizing:border-box;outline:none">';
   var input = td.querySelector('input');
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') { input._cancel = true; renderQueue(); }
-  });
-  input.addEventListener('blur', function() {
-    if (input._cancel) return;
-    oqSaveInlineEdit(input);
-  });
-  input.focus();
-  // Open the native picker on click for snappier UX
-  if (typeof input.showPicker === 'function') { try { input.showPicker(); } catch(_){} }
-}
+  var settled = false;
 
-function oqSaveInlineEdit(input) {
-  var ref = input.dataset.ref;
-  var field = input.dataset.field;
-  var iso = input.value;
-  var formatted = iso ? isoToAxDateTime(iso) : '';
-  var td = input.parentNode;
-  td.innerHTML = '<span style="font-size:10px;color:var(--muted)">saving...</span>';
-  var updates = {}; updates[field] = formatted;
-  axWriteWo(ref, updates, function(res) {
-    if (res.ok && res.body && res.body.mode === 'live') {
-      axWriteToast('Saved ' + field + ' on ' + ref + (formatted ? ': ' + formatted : ' (cleared)'), 'success');
-    } else if (res.ok && res.body && res.body.mode === 'dryrun') {
-      axWriteToast('DRY-RUN: ' + field + ' on ' + ref, 'dryrun');
-    } else {
-      axWriteToast((res.body && res.body.error) || 'Save failed', 'error');
-    }
-    renderQueue();
+  function restoreCell(htmlOverride) {
+    td.classList.remove('oq-editing');
+    td.innerHTML = htmlOverride != null ? htmlOverride : origHTML;
+  }
+
+  function commit() {
+    if (settled) return;
+    settled = true;
+    var newIso = input.value;
+    // No change → just restore without writing.
+    if (newIso === iso) { restoreCell(); return; }
+    var formatted = newIso ? isoToAxDateTime(newIso) : '';
+    var pending = '<span style="font-size:10px;color:var(--muted)">saving…</span>';
+    td.innerHTML = pending;
+    var updates = {}; updates[fieldLabel] = formatted;
+    axWriteWo(ref, updates, function(res) {
+      var live = res.ok && res.body && res.body.mode === 'live';
+      var dry  = res.ok && res.body && res.body.mode === 'dryrun';
+      if (live || dry) {
+        // Replace cell with new value + re-arm the click handler. No full renderQueue.
+        var display = formatted || '<span style="color:var(--muted)">—</span>';
+        td.classList.remove('oq-editing');
+        td.innerHTML = display;
+        td.setAttribute('onclick',
+          "oqInlineEdit(this,'" + ref + "','" + fieldLabel + "','" + (formatted || '').replace(/'/g, "\\'") + "')");
+        if (origTitle) td.setAttribute('title', origTitle);
+        axWriteToast(live
+          ? ('Saved ' + fieldLabel + (formatted ? (': ' + formatted) : ' (cleared)') + ' — ' + ref)
+          : ('DRY-RUN: ' + fieldLabel + ' on ' + ref),
+          live ? 'success' : 'dryrun');
+      } else {
+        restoreCell();
+        axWriteToast((res.body && res.body.error) || 'Save failed', 'error');
+      }
+    });
+  }
+
+  function cancel() {
+    if (settled) return;
+    settled = true;
+    restoreCell();
+  }
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
   });
+  // `change` fires when the picker commits a value — primary save trigger.
+  input.addEventListener('change', commit);
+  // Fallback: if the user clicks outside without committing via picker/Enter,
+  // delay slightly so a picker-internal blur doesn't trigger a no-op save.
+  input.addEventListener('blur', function() { setTimeout(commit, 150); });
+  input.focus();
 }
 
 function axWriteToast(msg, kind) {
