@@ -209,6 +209,78 @@ function openOqStatusTransition(ref) {
   openOqModal(html);
 }
 
+// ── Q3 Actual Start / End modal ──
+// Writes to "Start" / "End" labels which target startDate/endDate — the fields vendors
+// actually populate via [Start Work] / [End Work] in the Axxerion UI (per 2026-04-30
+// discovery). Existing actualStartDate/actualEndDate writes still available via API.
+function openOqActualTimes(ref) {
+  var wo = ALLDATA.find(function(r) { return r[10] === ref; });
+  if (!wo) { axWriteToast('WO not found in cache: ' + ref, 'error'); return; }
+  var curStart = wo[21] || '';
+  var curEnd = wo[22] || '';
+  var modeBadge = AX_WRITE_STATUS.enabled
+    ? '<span style="background:var(--green,#16a34a);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">LIVE</span>'
+    : '<span style="background:var(--orange,#f59e0b);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">DRY-RUN</span>';
+  // Pre-fill date with today, time with current local clock.
+  var today = todayStr();
+  var now = new Date();
+  var hh12 = now.getHours() % 12; if (hh12 === 0) hh12 = 12;
+  var nowTime = hh12 + ':' + String(now.getMinutes()).padStart(2, '0') + ' ' + (now.getHours() < 12 ? 'AM' : 'PM');
+  var html = '<div class="psl" style="margin-bottom:6px">SET ACTUAL TIMES — ' + ref + ' &nbsp; ' + modeBadge + '</div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.4">'
+    +   'Writes to <span style="font-family:\'DM Mono\',monospace">Start</span> / <span style="font-family:\'DM Mono\',monospace">End</span> — the fields populated when vendors click [Start Work] / [End Work] in Axxerion.'
+    + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Current: '
+    +   '<span style="color:var(--text)">Start:</span> ' + (curStart || '<span style="color:var(--muted)">—</span>')
+    +   ' · <span style="color:var(--text)">End:</span> ' + (curEnd || '<span style="color:var(--muted)">—</span>')
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:10px">'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START DATE</label>'
+    +     '<input type="date" id="oqStartDate" value="' + today + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START TIME</label>'
+    +     '<input type="text" id="oqStartTime" value="' + nowTime + '" placeholder="e.g. 10:00 AM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:14px">'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END DATE</label>'
+    +     '<input type="date" id="oqEndDate" value="' + today + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END TIME</label>'
+    +     '<input type="text" id="oqEndTime" value="" placeholder="leave blank to skip" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px">'
+    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',true,false)">Save Start Only</button>'
+    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',true,true)">Save Both</button>'
+    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',false,true)">Save End Only</button>'
+    + '</div>';
+  openOqModal(html);
+}
+
+function submitOqActualTimes(ref, includeStart, includeEnd) {
+  var startDate = document.getElementById('oqStartDate').value;
+  var startTime = document.getElementById('oqStartTime').value;
+  var endDate = document.getElementById('oqEndDate').value;
+  var endTime = document.getElementById('oqEndTime').value;
+  var updates = {};
+  if (includeStart) {
+    if (!startDate || !startTime) { alert('Start date and time required'); return; }
+    updates['Start'] = composeAxDateTime(startDate, startTime);
+  }
+  if (includeEnd) {
+    if (!endDate || !endTime) { alert('End date and time required'); return; }
+    updates['End'] = composeAxDateTime(endDate, endTime);
+  }
+  if (!Object.keys(updates).length) { alert('Nothing to save'); return; }
+  axWriteWo(ref, updates, function(res) {
+    if (res.ok && res.body && res.body.mode === 'dryrun') {
+      axWriteToast('DRY-RUN: actual times logged. Axxerion not called.', 'dryrun');
+    } else if (res.ok && res.body && res.body.mode === 'live') {
+      axWriteToast('Saved to Axxerion: ' + ref, 'success');
+    } else {
+      axWriteToast((res.body && res.body.error) || 'Axxerion write failed', 'error');
+    }
+  });
+  closeOqModal();
+}
+
 function submitOqStatusTransition(ref, toStatus) {
   axTransitionStatus(ref, toStatus, function(res) {
     if (res.ok && res.body && res.body.mode === 'dryrun') {
@@ -594,7 +666,7 @@ function renderQueue() {
         + '<td style="' + dateSty + '">' + (d.actualEnd || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-g" onclick="openOqActualTimes(\'' + d.ref + '\')">Times</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }

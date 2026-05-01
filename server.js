@@ -455,11 +455,18 @@ const AX_WRITE_URL = process.env.AXXERION_WRITE_URL ||
 
 // Display label → internal field code (from IPG-REP-085 schema CSV pulled 2026-04-29).
 // Adding to this map alone is NOT enough — also add to AX_WRITABLE_FIELDS below.
+//
+// "Start"/"End" map to startDate/endDate — the fields vendors actually populate when
+// they click [Start Work] / [End Work] in the Axxerion UI (8,434 of 12,151 WOs have
+// `endDate` populated vs only 1,936 with `actualEndDate`, per the 2026-04-30 discovery).
+// "Actual start date"/"Actual end date" mappings are kept for back-compat but rarely used.
 const AX_FIELD_CODES = {
-  "Scheduled from":   "scheduledStartTime",
-  "Scheduled until":  "scheduledEndTime",
+  "Scheduled from":    "scheduledStartTime",
+  "Scheduled until":   "scheduledEndTime",
   "Actual start date": "actualStartDate",
   "Actual end date":   "actualEndDate",
+  "Start":             "startDate",
+  "End":               "endDate",
 };
 
 // Whitelist of fields Ops can write to.
@@ -472,6 +479,8 @@ const AX_DATETIME_FIELDS = new Set([
   "Scheduled until",
   "Actual start date",
   "Actual end date",
+  "Start",
+  "End",
 ]);
 
 // Axxerion stores datetimes as UTC (per San 2026-04-29). Use UTC accessors so a
