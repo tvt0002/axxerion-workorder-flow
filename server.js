@@ -483,15 +483,26 @@ const AX_DATETIME_FIELDS = new Set([
   "End",
 ]);
 
-// Axxerion stores datetimes as UTC (per San 2026-04-29). Use UTC accessors so a
-// caller-provided wall-clock (or ISO with offset) lands at the intended UTC instant.
+// Empirical format selection (axts19 smoke test 2026-05-01):
+//   - Manual's "dd-MM-yy HH:mm" silently strips time-of-day (stored as 00:00).
+//   - "M/D/YY h:mm AM/PM" preserves time correctly, matches the format Axxerion
+//     echoes back in reads via completereportresult.
+// If the input already looks like the target format ("M/D/YY h:mm AM/PM"), pass
+// through unchanged. Otherwise parse via new Date() and re-emit.
 function formatAxDateTime(value) {
   if (!value) return "";
+  if (typeof value === "string" && /^\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}\s*(AM|PM)$/i.test(value.trim())) {
+    return value.trim();
+  }
   const d = new Date(value);
   if (isNaN(d.getTime())) return String(value);
-  const pad = (n) => String(n).padStart(2, "0");
-  return pad(d.getUTCDate()) + "-" + pad(d.getUTCMonth() + 1) + "-" + String(d.getUTCFullYear()).slice(-2)
-    + " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const yy = String(d.getFullYear()).slice(-2);
+  let h12 = d.getHours() % 12; if (h12 === 0) h12 = 12;
+  const minStr = String(d.getMinutes()).padStart(2, "0");
+  const ap = d.getHours() < 12 ? "AM" : "PM";
+  return month + "/" + day + "/" + yy + " " + h12 + ":" + minStr + " " + ap;
 }
 
 async function logWrite(entry) {
