@@ -935,6 +935,137 @@ function logEmailOnly(ref, vendorName) {
   closeOqModal();
 }
 
+// ── Excel Export ──
+// Lazy-loads SheetJS from CDN on first use, then exports the current queue's
+// items (with filters + sort applied — identical to what's rendered) as .xlsx.
+var XLSX_LOADED = false;
+function loadSheetJS(cb) {
+  if (XLSX_LOADED || typeof XLSX !== 'undefined') { XLSX_LOADED = true; return cb(); }
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+  s.onload = function() { XLSX_LOADED = true; cb(); };
+  s.onerror = function() { alert('Could not load Excel library — check your network connection.'); };
+  document.head.appendChild(s);
+}
+
+// Per-queue column definitions: [Excel column header, item property/getter]
+var OQ_EXPORT_COLS = {
+  q1: [
+    ['Age (days)', function(d){ return d.age; }],
+    ['Reference', 'ref'],
+    ['Property', 'property'],
+    ['Store #', 'storeCode'],
+    ['Store Phone', 'storePhone'],
+    ['Status', 'status'],
+    ['Priority', 'priority'],
+    ['Subject', 'subject'],
+    ['Requestor', 'requestor'],
+    ['Created', 'created'],
+    ['Last Action', function(d){ return d.lastAction ? (d.lastAction.action + ' · ' + d.lastAction.date) : ''; }],
+    ['Bookmark', 'bookmark'],
+  ],
+  q2: [
+    ['Hours Open', 'hours'],
+    ['Created', 'created'],
+    ['Reference', 'ref'],
+    ['Property', 'property'],
+    ['Status', 'status'],
+    ['Priority', 'priority'],
+    ['Service Type', 'service'],
+    ['Vendor', 'vendor'],
+    ['Vendor Phone', 'vendorPhone'],
+    ['Vendor Email', 'vendorEmail'],
+    ['Executor', 'executor'],
+    ['Sched Start', 'schedFrom'],
+    ['Sched End', 'schedUntil'],
+    ['Actual Start', 'actualStart'],
+    ['Actual End', 'actualEnd'],
+    ['Appt Date', 'apptDate'],
+    ['Appt Time', 'apptTime'],
+    ['Call Count', 'callCount'],
+    ['Last Action', function(d){ return d.lastAction ? (d.lastAction.action + ' · ' + d.lastAction.date) : ''; }],
+    ['Bookmark', 'bookmark'],
+  ],
+  q3: [
+    ['Time', 'time'],
+    ['Created', 'created'],
+    ['Reference', 'ref'],
+    ['Property', 'property'],
+    ['Status', 'status'],
+    ['Priority', 'priority'],
+    ['Vendor', 'vendor'],
+    ['Vendor Email', 'vendorEmail'],
+    ['Service Type', 'service'],
+    ['Executor', 'executor'],
+    ['Sched Start', 'schedFrom'],
+    ['Actual Start', 'actualStart'],
+    ['Actual End', 'actualEnd'],
+    ['Status Note', function(d){ return d.wip ? 'WIP' : (d.confirmed ? 'Confirmed' : ''); }],
+    ['Last Action', function(d){ return d.lastAction ? (d.lastAction.action + ' · ' + d.lastAction.date) : ''; }],
+    ['Bookmark', 'bookmark'],
+  ],
+  q4: [
+    ['Days Since End', 'daysSinceFinished'],
+    ['Created', 'created'],
+    ['Date Finished', 'finishedDate'],
+    ['Reference', 'ref'],
+    ['Property', 'property'],
+    ['Vendor', 'vendor'],
+    ['Service Type', 'service'],
+    ['Status', 'status'],
+    ['Priority', 'priority'],
+    ['Vendor Est Cost', 'vendorEstCost'],
+    ['Emails Sent', 'emailCount'],
+    ['Last Email', function(d){ return d.lastEmail ? (d.lastEmail.to + ' · ' + d.lastEmail.sentAt) : ''; }],
+    ['Bookmark', 'bookmark'],
+  ],
+  q5: [
+    ['Sent', 'sentAtFmt'],
+    ['Reference', 'ref'],
+    ['Property', 'property'],
+    ['Vendor', 'vendor'],
+    ['Service Type', 'service'],
+    ['To', 'to'],
+    ['Subject', 'subject'],
+    ['Bookmark', 'bookmark'],
+  ],
+};
+
+function exportOqToExcel() {
+  var q = OPS_QUEUE;
+  var cols = OQ_EXPORT_COLS[q];
+  if (!cols) { alert('Export not available for this queue.'); return; }
+  // Re-derive items the same way renderQueue does so filter+sort state is preserved.
+  var getter = ({q1:getQ1Data, q2:getQ2Data, q3:getQ3Data, q4:getQ4Data, q5:getQ5Data})[q];
+  var items = getter ? getter() : [];
+  if (OQ_SORT && OQ_SORT.col) items = oqSortItems(items, OQ_SORT.col, OQ_SORT.dir);
+  if (!items.length) { alert('No rows to export.'); return; }
+
+  loadSheetJS(function() {
+    var rows = items.map(function(d) {
+      var out = {};
+      cols.forEach(function(c) {
+        var key = c[0], src = c[1];
+        out[key] = (typeof src === 'function') ? src(d) : (d[src] != null ? d[src] : '');
+      });
+      return out;
+    });
+    var ws = XLSX.utils.json_to_sheet(rows, { header: cols.map(function(c){ return c[0]; }) });
+    // Auto-width: take longest cell value per column, capped at 60.
+    ws['!cols'] = cols.map(function(c) {
+      var maxLen = String(c[0]).length;
+      rows.forEach(function(r) { var v = String(r[c[0]] == null ? '' : r[c[0]]); if (v.length > maxLen) maxLen = v.length; });
+      return { wch: Math.min(maxLen + 2, 60) };
+    });
+    var wb = XLSX.utils.book_new();
+    var sheetName = ({q1:'Q1 Requests', q2:'Q2 Active Work', q3:'Q3 Today+WIP', q4:'Q4 Invoice Follow-Up', q5:'Q5 Email Log'})[q] || q.toUpperCase();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    var d = new Date();
+    var ts = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + '_' + String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0');
+    XLSX.writeFile(wb, 'Axxerion_' + q.toUpperCase() + '_' + ts + '.xlsx');
+  });
+}
+
 // ── Init ──
 function initOpsQueue(hashQueue) {
   var savedQ = hashQueue || localStorage.getItem('ax_active_queue') || 'q1';

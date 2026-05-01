@@ -1461,6 +1461,7 @@ document.addEventListener('keydown', function(e){
     <button class="gtab oq-tab" data-queue="q4" onclick="switchQueue('q4',this)">Q4 · Invoice Follow-Up</button>
     <button class="gtab oq-tab" data-queue="q5" onclick="switchQueue('q5',this)">Q5 · Email Log</button>
     <button class="oq-sort-reset" id="oqSortReset" style="display:none" onclick="OQ_SORT={col:null,dir:1};document.getElementById('oqSortReset').style.display='none';renderQueue();">Reset Sort</button>
+    <button class="oq-sort-reset" id="oqExportBtn" title="Export current queue (filters + sort applied) to Excel" onclick="exportOqToExcel()">&#128196; Export Excel</button>
     <button class="oq-sort-reset" id="oqHelpBtn" style="margin-left:auto;color:var(--accent);border-color:rgba(var(--accent-rgb),0.3)" title="Open the walkthrough for this queue" onclick="window.openOpsWalkthrough && window.openOpsWalkthrough(document.querySelector('.oq-tab.active')?.dataset.queue || 'overview')">? How this queue works</button>
   </div>
 
