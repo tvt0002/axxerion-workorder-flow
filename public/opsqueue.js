@@ -209,78 +209,6 @@ function openOqStatusTransition(ref) {
   openOqModal(html);
 }
 
-// ── Q3 Actual Start / End modal ──
-// Writes to "Start" / "End" labels which target startDate/endDate — the fields vendors
-// actually populate via [Start Work] / [End Work] in the Axxerion UI (per 2026-04-30
-// discovery). Existing actualStartDate/actualEndDate writes still available via API.
-function openOqActualTimes(ref) {
-  var wo = ALLDATA.find(function(r) { return r[10] === ref; });
-  if (!wo) { axWriteToast('WO not found in cache: ' + ref, 'error'); return; }
-  var curStart = wo[21] || '';
-  var curEnd = wo[22] || '';
-  var modeBadge = AX_WRITE_STATUS.enabled
-    ? '<span style="background:var(--green,#16a34a);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">LIVE</span>'
-    : '<span style="background:var(--orange,#f59e0b);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">DRY-RUN</span>';
-  // Pre-fill date with today, time with current local clock.
-  var today = todayStr();
-  var now = new Date();
-  var hh12 = now.getHours() % 12; if (hh12 === 0) hh12 = 12;
-  var nowTime = hh12 + ':' + String(now.getMinutes()).padStart(2, '0') + ' ' + (now.getHours() < 12 ? 'AM' : 'PM');
-  var html = '<div class="psl" style="margin-bottom:6px">SET ACTUAL TIMES — ' + ref + ' &nbsp; ' + modeBadge + '</div>'
-    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.4">'
-    +   'Writes to <span style="font-family:\'DM Mono\',monospace">Start</span> / <span style="font-family:\'DM Mono\',monospace">End</span> — the fields populated when vendors click [Start Work] / [End Work] in Axxerion.'
-    + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Current: '
-    +   '<span style="color:var(--text)">Start:</span> ' + (curStart || '<span style="color:var(--muted)">—</span>')
-    +   ' · <span style="color:var(--text)">End:</span> ' + (curEnd || '<span style="color:var(--muted)">—</span>')
-    + '</div>'
-    + '<div style="display:flex;gap:8px;margin-bottom:10px">'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START DATE</label>'
-    +     '<input type="date" id="oqStartDate" value="' + today + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START TIME</label>'
-    +     '<input type="text" id="oqStartTime" value="' + nowTime + '" placeholder="e.g. 10:00 AM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    + '</div>'
-    + '<div style="display:flex;gap:8px;margin-bottom:14px">'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END DATE</label>'
-    +     '<input type="date" id="oqEndDate" value="' + today + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END TIME</label>'
-    +     '<input type="text" id="oqEndTime" value="" placeholder="leave blank to skip" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    + '</div>'
-    + '<div style="display:flex;gap:8px">'
-    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',true,false)">Save Start Only</button>'
-    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',true,true)">Save Both</button>'
-    +   '<button class="oq-btn oq-btn-g" style="flex:1;padding:10px" onclick="submitOqActualTimes(\'' + ref + '\',false,true)">Save End Only</button>'
-    + '</div>';
-  openOqModal(html);
-}
-
-function submitOqActualTimes(ref, includeStart, includeEnd) {
-  var startDate = document.getElementById('oqStartDate').value;
-  var startTime = document.getElementById('oqStartTime').value;
-  var endDate = document.getElementById('oqEndDate').value;
-  var endTime = document.getElementById('oqEndTime').value;
-  var updates = {};
-  if (includeStart) {
-    if (!startDate || !startTime) { alert('Start date and time required'); return; }
-    updates['Start'] = composeAxDateTime(startDate, startTime);
-  }
-  if (includeEnd) {
-    if (!endDate || !endTime) { alert('End date and time required'); return; }
-    updates['End'] = composeAxDateTime(endDate, endTime);
-  }
-  if (!Object.keys(updates).length) { alert('Nothing to save'); return; }
-  axWriteWo(ref, updates, function(res) {
-    if (res.ok && res.body && res.body.mode === 'dryrun') {
-      axWriteToast('DRY-RUN: actual times logged. Axxerion not called.', 'dryrun');
-    } else if (res.ok && res.body && res.body.mode === 'live') {
-      axWriteToast('Saved to Axxerion: ' + ref, 'success');
-    } else {
-      axWriteToast((res.body && res.body.error) || 'Axxerion write failed', 'error');
-    }
-  });
-  closeOqModal();
-}
-
 function submitOqStatusTransition(ref, toStatus) {
   axTransitionStatus(ref, toStatus, function(res) {
     if (res.ok && res.body && res.body.mode === 'dryrun') {
@@ -292,6 +220,73 @@ function submitOqStatusTransition(ref, toStatus) {
     }
   });
   closeOqModal();
+}
+
+// ── Inline cell editing for datetime fields ──
+// Click any datetime cell in Q2/Q3 → input replaces text → Enter or blur saves → toast confirms.
+function axDateTimeToISO(s) {
+  if (!s) return '';
+  var m = String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return '';
+  var month = parseInt(m[1], 10), day = parseInt(m[2], 10);
+  var year = parseInt(m[3], 10); if (year < 100) year += 2000;
+  var hour = parseInt(m[4], 10), min = parseInt(m[5], 10);
+  var ap = m[6].toUpperCase();
+  if (ap === 'PM' && hour < 12) hour += 12;
+  if (ap === 'AM' && hour === 12) hour = 0;
+  return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0')
+       + 'T' + String(hour).padStart(2, '0') + ':' + String(min).padStart(2, '0');
+}
+
+function isoToAxDateTime(iso) {
+  if (!iso) return '';
+  var m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!m) return '';
+  var month = parseInt(m[2], 10), day = parseInt(m[3], 10);
+  var year = String(parseInt(m[1], 10)).slice(-2);
+  var hour = parseInt(m[4], 10), min = parseInt(m[5], 10);
+  var h12 = hour % 12; if (h12 === 0) h12 = 12;
+  var ap = hour < 12 ? 'AM' : 'PM';
+  return month + '/' + day + '/' + year + ' ' + h12 + ':' + String(min).padStart(2, '0') + ' ' + ap;
+}
+
+function oqInlineEdit(td, ref, fieldLabel, currentValue) {
+  if (td.querySelector('input')) return; // already editing
+  var iso = axDateTimeToISO(currentValue);
+  td.innerHTML = '<input type="datetime-local" data-ref="' + ref + '" data-field="' + fieldLabel + '" value="' + iso + '" '
+    + 'style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:3px 6px;width:100%;box-sizing:border-box">';
+  var input = td.querySelector('input');
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input._cancel = true; renderQueue(); }
+  });
+  input.addEventListener('blur', function() {
+    if (input._cancel) return;
+    oqSaveInlineEdit(input);
+  });
+  input.focus();
+  // Open the native picker on click for snappier UX
+  if (typeof input.showPicker === 'function') { try { input.showPicker(); } catch(_){} }
+}
+
+function oqSaveInlineEdit(input) {
+  var ref = input.dataset.ref;
+  var field = input.dataset.field;
+  var iso = input.value;
+  var formatted = iso ? isoToAxDateTime(iso) : '';
+  var td = input.parentNode;
+  td.innerHTML = '<span style="font-size:10px;color:var(--muted)">saving...</span>';
+  var updates = {}; updates[field] = formatted;
+  axWriteWo(ref, updates, function(res) {
+    if (res.ok && res.body && res.body.mode === 'live') {
+      axWriteToast('Saved ' + field + ' on ' + ref + (formatted ? ': ' + formatted : ' (cleared)'), 'success');
+    } else if (res.ok && res.body && res.body.mode === 'dryrun') {
+      axWriteToast('DRY-RUN: ' + field + ' on ' + ref, 'dryrun');
+    } else {
+      axWriteToast((res.body && res.body.error) || 'Save failed', 'error');
+    }
+    renderQueue();
+  });
 }
 
 function axWriteToast(msg, kind) {
@@ -625,14 +620,14 @@ function renderQueue() {
         + '<td>' + d.vendor + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;font-size:11px">' + phone + '</td>'
         + '<td>' + (d.vendorEmail ? '<a href="mailto:' + d.vendorEmail + '" style="color:var(--accent);font-size:11px">' + d.vendorEmail + '</a>' : '<span style="color:var(--muted);font-size:10px">—</span>') + '</td>'
-        + '<td style="' + dateSty + '">' + (d.schedFrom || '<span style="color:var(--muted)">—</span>') + '</td>'
-        + '<td style="' + dateSty + '">' + (d.schedUntil || '<span style="color:var(--muted)">—</span>') + '</td>'
-        + '<td style="' + dateSty + '">' + (d.actualStart || '<span style="color:var(--muted)">—</span>') + '</td>'
-        + '<td style="' + dateSty + '">' + (d.actualEnd || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Scheduled from" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'Scheduled from\',\'' + (d.schedFrom||'').replace(/'/g,"\\'") + '\')">' + (d.schedFrom || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Scheduled until" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'Scheduled until\',\'' + (d.schedUntil||'').replace(/'/g,"\\'") + '\')">' + (d.schedUntil || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Actual Start" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'Start\',\'' + (d.actualStart||'').replace(/'/g,"\\'") + '\')">' + (d.actualStart || '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Actual End" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'End\',\'' + (d.actualEnd||'').replace(/'/g,"\\'") + '\')">' + (d.actualEnd || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="' + dateSty + '">' + (apptTxt || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.callCount + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
+        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -661,12 +656,12 @@ function renderQueue() {
         + '<td>' + d.vendor + '</td>'
         + '<td>' + (d.vendorEmail ? '<a href="mailto:' + d.vendorEmail + '" style="color:var(--accent);font-size:11px">' + d.vendorEmail + '</a>' : '<span style="color:var(--muted);font-size:10px">—</span>') + '</td>'
         + '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.service + '</td>'
-        + '<td style="' + dateSty + '">' + (d.schedFrom || muted) + '</td>'
-        + '<td style="' + dateSty + '">' + (d.actualStart || muted) + '</td>'
-        + '<td style="' + dateSty + '">' + (d.actualEnd || muted) + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Scheduled from" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'Scheduled from\',\'' + (d.schedFrom||'').replace(/'/g,"\\'") + '\')">' + (d.schedFrom || muted) + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Actual Start" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'Start\',\'' + (d.actualStart||'').replace(/'/g,"\\'") + '\')">' + (d.actualStart || muted) + '</td>'
+        + '<td class="oq-edit" style="' + dateSty + ';cursor:pointer" title="Click to edit Actual End" onclick="oqInlineEdit(this,\'' + d.ref + '\',\'End\',\'' + (d.actualEnd||'').replace(/'/g,"\\'") + '\')">' + (d.actualEnd || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-g" onclick="openOqActualTimes(\'' + d.ref + '\')">Times</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -766,63 +761,6 @@ function submitOqAction(ref) {
   var action = document.getElementById('oqActType').value;
   var note = document.getElementById('oqActNote').value;
   opsApi('log', { ref: ref, action: action, note: note });
-  closeOqModal();
-}
-
-function openOqSchedule(ref) {
-  var appt = OPS_DATA.appointments[ref] || {};
-  var modeBadge = AX_WRITE_STATUS.enabled
-    ? '<span style="background:var(--green,#16a34a);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">LIVE</span>'
-    : '<span style="background:var(--orange,#f59e0b);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">DRY-RUN</span>';
-  var modeNote = AX_WRITE_STATUS.enabled
-    ? 'Saving will write Scheduled from / Scheduled until directly to Axxerion.'
-    : 'Dry-run mode: will log + update local cache, but will NOT update Axxerion until the live endpoint is wired.';
-  var html = '<div class="psl" style="margin-bottom:6px">SCHEDULE APPOINTMENT — ' + ref + ' &nbsp; ' + modeBadge + '</div>'
-    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.4">' + modeNote + '</div>'
-    + '<div style="margin-bottom:12px"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">DATE</label>'
-    + '<input type="date" id="oqApptDate" value="' + (appt.date || '') + '" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    + '<div style="display:flex;gap:8px;margin-bottom:12px">'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">START TIME</label>'
-    +     '<input type="text" id="oqApptTime" value="' + (appt.time || '') + '" placeholder="e.g. 10:00 AM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    +   '<div style="flex:1"><label style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:4px">END TIME (optional)</label>'
-    +     '<input type="text" id="oqApptEnd" value="' + (appt.endTime || '') + '" placeholder="e.g. 12:00 PM" style="font-family:\'DM Mono\',monospace;font-size:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:6px 10px;width:100%"></div>'
-    + '</div>'
-    + '<button class="oq-btn oq-btn-g" style="width:100%;padding:10px" onclick="submitOqSchedule(\'' + ref + '\')">Save Appointment</button>';
-  openOqModal(html);
-}
-
-function submitOqSchedule(ref) {
-  var date = document.getElementById('oqApptDate').value;
-  var time = document.getElementById('oqApptTime').value;
-  var endEl = document.getElementById('oqApptEnd');
-  var endTime = endEl ? endEl.value : '';
-  if (!date) { alert('Please select a date'); return; }
-
-  // Persist locally first (existing behavior)
-  opsApi('appointment', { ref: ref, date: date, time: time, endTime: endTime, confirmed: false });
-  opsApi('log', { ref: ref, action: 'scheduled', note: 'Appointment set for ' + date + (time ? ' at ' + time : '') + (endTime ? ' until ' + endTime : '') });
-
-  // Then push to Axxerion (will be dry-run until AXXERION_WRITE_ENABLED=true)
-  var updates = {};
-  if (time) {
-    updates['Scheduled from'] = composeAxDateTime(date, time);
-    updates['Scheduled until'] = composeAxDateTime(date, endTime || time);
-  } else {
-    updates['Scheduled from'] = composeAxDateTime(date, '9:00 AM');
-    updates['Scheduled until'] = composeAxDateTime(date, '5:00 PM');
-  }
-
-  axWriteWo(ref, updates, function(res) {
-    if (res.ok && res.body && res.body.mode === 'dryrun') {
-      axWriteToast('DRY-RUN: schedule logged locally. Axxerion not called.', 'dryrun');
-    } else if (res.ok && res.body && res.body.mode === 'live') {
-      axWriteToast('Saved to Axxerion: ' + ref, 'success');
-    } else {
-      var msg = (res.body && res.body.error) || 'Axxerion write failed';
-      axWriteToast(msg, 'error');
-    }
-  });
-
   closeOqModal();
 }
 
