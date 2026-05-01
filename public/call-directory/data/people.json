@@ -65,7 +65,6 @@
       "DM",
       "DM",
       "DM",
-      "DM",
       "District Manager",
       "District Manager",
       "District Manager",
@@ -80,20 +79,18 @@
       "DM",
       "District Manager",
       "DM",
-      "DM",
       "District Manager",
-      "DM",
-      "DM",
-      "DM",
-      "DM",
+      "District Manager",
       "District Manager",
       "District Manager",
       "DM",
       "District Manager",
-      "DM",
-      "DM",
       "District Manager",
-      "DM",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
+      "District Manager",
       "District Manager",
       "District Manager",
       "District Manager - Southeast/NorCal/San Jose"
@@ -101,7 +98,6 @@
     "stores": [
       "L002",
       "L003",
-      "L006",
       "L007",
       "L008",
       "L010",
@@ -128,7 +124,6 @@
       "L054",
       "L064",
       "L065",
-      "L067",
       "L068",
       "L069",
       "L070",
@@ -141,7 +136,6 @@
       "L082",
       "L085",
       "L086",
-      "L089",
       "OPS MANAGEMENT TEAM"
     ]
   },
@@ -200,7 +194,6 @@
       "Area Manager",
       "Area Manager",
       "Area Manager",
-      "Area Manager",
       "Area Manager - SoCal 2 and Temp SoCal 1"
     ],
     "stores": [
@@ -221,7 +214,6 @@
       "L075",
       "L079",
       "L085",
-      "L089",
       "OPS MANAGEMENT TEAM"
     ]
   },
@@ -356,6 +348,17 @@
     ]
   },
   {
+    "name": "Temp Coverage - John McFadden",
+    "email": "",
+    "phone": "901-218-3356",
+    "roles": [
+      "DM"
+    ],
+    "stores": [
+      "L006"
+    ]
+  },
+  {
     "name": "Danielle",
     "email": "danielle@insitepg.com",
     "phone": "",
@@ -371,12 +374,23 @@
     ]
   },
   {
+    "name": "Helen Della-Pena",
+    "email": "",
+    "phone": "910-616-9370",
+    "roles": [
+      "Store Manager"
+    ],
+    "stores": [
+      "L007"
+    ]
+  },
+  {
     "name": "Charles McDaniel",
     "email": "",
     "phone": "385 282 3495",
     "roles": [
-      "ASM",
-      "ASM"
+      "Floating ASM",
+      "Floating ASM"
     ],
     "stores": [
       "L007",
@@ -531,17 +545,6 @@
     ]
   },
   {
-    "name": "Austin Rohwer",
-    "email": "",
-    "phone": "707-630-2014",
-    "roles": [
-      "Night Facility Maintenance Inspector"
-    ],
-    "stores": [
-      "L011"
-    ]
-  },
-  {
     "name": "Liz Niemeir",
     "email": "",
     "phone": "406.546.8309",
@@ -574,7 +577,7 @@
       "L011",
       "L012",
       "L015",
-      "L016",
+      "L015",
       "L018",
       "L023",
       "L042",
@@ -619,7 +622,7 @@
       "L011",
       "L012",
       "L015",
-      "L016",
+      "L015",
       "L018",
       "L019",
       "L020",
@@ -674,6 +677,17 @@
     "phone": "503-619-5023",
     "roles": [
       "ASM"
+    ],
+    "stores": [
+      "L012"
+    ]
+  },
+  {
+    "name": "Nate Bulldis",
+    "email": "",
+    "phone": "253-221-5261",
+    "roles": [
+      "Night Facility Maintenance Inspector"
     ],
     "stores": [
       "L012"
@@ -815,39 +829,14 @@
     ]
   },
   {
-    "name": "Claire",
+    "name": "Lindsey Rodriguez",
     "email": "",
-    "phone": "claire@insitepg.com",
+    "phone": "425-525-8024",
     "roles": [
-      "Account Representative",
-      "Account Representative",
-      "Account Representative",
-      "Account Representative",
-      "Account Representative"
+      "Store Manager"
     ],
     "stores": [
-      "L015",
-      "L035",
-      "L055",
-      "L056",
-      "L063"
-    ]
-  },
-  {
-    "name": "Burney Campbell",
-    "email": "",
-    "phone": "206-820-7926",
-    "roles": [
-      "Multi Store Manager L016, L018, L026, L031",
-      "Multi Store Manager L016, L018, L026, L031",
-      "Multi Store Manager L016, L018, L026, L031",
-      "Multi-Store Manager - L016, L018, L026, L031,"
-    ],
-    "stores": [
-      "L016",
-      "L018",
-      "L026",
-      "L031"
+      "L015"
     ]
   },
   {
@@ -859,7 +848,7 @@
       "ASM (Sat)"
     ],
     "stores": [
-      "L016",
+      "L015",
       "L018"
     ]
   },
@@ -877,24 +866,13 @@
       "Account Representative"
     ],
     "stores": [
-      "L016",
+      "L015",
       "L017",
       "L018",
       "L020",
       "L021",
       "L051",
       "L070"
-    ]
-  },
-  {
-    "name": "Jeffrey Braat",
-    "email": "",
-    "phone": "8137325129",
-    "roles": [
-      "ASM"
-    ],
-    "stores": [
-      "L017"
     ]
   },
   {
@@ -1312,14 +1290,14 @@
     ]
   },
   {
-    "name": "Jimmy Perez",
+    "name": "Burney Campbell",
     "email": "",
-    "phone": "512-296-7397",
+    "phone": "206-820-7926",
     "roles": [
-      "Store Manager"
+      "Multi-Store Manager - L016, L018, L026, L031,"
     ],
     "stores": [
-      "L032"
+      "L031"
     ]
   },
   {
@@ -1346,17 +1324,6 @@
     ],
     "stores": [
       "L033"
-    ]
-  },
-  {
-    "name": "Oldmixon, Stephanie",
-    "email": "",
-    "phone": "",
-    "roles": [
-      "Assistant Store Manager"
-    ],
-    "stores": [
-      "L034"
     ]
   },
   {
@@ -1404,6 +1371,23 @@
       "L044",
       "L065",
       "OPS MANAGEMENT TEAM"
+    ]
+  },
+  {
+    "name": "Claire",
+    "email": "",
+    "phone": "claire@insitepg.com",
+    "roles": [
+      "Account Representative",
+      "Account Representative",
+      "Account Representative",
+      "Account Representative"
+    ],
+    "stores": [
+      "L035",
+      "L055",
+      "L056",
+      "L063"
     ]
   },
   {
@@ -2451,7 +2435,7 @@
     "email": "",
     "phone": "(617) 652 4248",
     "roles": [
-      "Part Time - ASM"
+      "Store Manager"
     ],
     "stores": [
       "L087"
@@ -2469,9 +2453,9 @@
     ]
   },
   {
-    "name": "Ashton Manson",
+    "name": "Kolby Berube",
     "email": "",
-    "phone": "317 452 2079",
+    "phone": "978 968 7890",
     "roles": [
       "Store Manager"
     ],
@@ -2480,9 +2464,9 @@
     ]
   },
   {
-    "name": "Kolby Berube",
+    "name": "Alex Rodriguez",
     "email": "",
-    "phone": "978 968 7891",
+    "phone": "",
     "roles": [
       "Assistant Store Manager"
     ],
@@ -2532,50 +2516,6 @@
     ],
     "stores": [
       "L092"
-    ]
-  },
-  {
-    "name": "Nannette",
-    "email": "",
-    "phone": "",
-    "roles": [
-      "Assistant Store Manager"
-    ],
-    "stores": [
-      "L092"
-    ]
-  },
-  {
-    "name": "Jasmin Baker",
-    "email": "Jasmin.Baker@securespace.com",
-    "phone": "",
-    "roles": [
-      "Multi-Store Manager"
-    ],
-    "stores": [
-      "L093"
-    ]
-  },
-  {
-    "name": "Dani Sono",
-    "email": "",
-    "phone": "",
-    "roles": [
-      "Store Manager"
-    ],
-    "stores": [
-      "L093"
-    ]
-  },
-  {
-    "name": "Christina Eppling",
-    "email": "",
-    "phone": "",
-    "roles": [
-      "Assistant Store Manager"
-    ],
-    "stores": [
-      "L093"
     ]
   },
   {

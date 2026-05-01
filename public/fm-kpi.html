@@ -430,7 +430,7 @@ function initFilters(rows){
   buildMultiSelect('fDM',         uniq(rows.map(function(r){return r.dm;})));
   buildMultiSelect('fPriority',   uniq(rows.map(function(r){return r.priority;})), ['Critical','High']);
   buildMultiSelect('fServiceType',uniq(rows.map(function(r){return r.serviceType;})));
-  buildMultiSelect('fStatus',     uniq(rows.map(function(r){return r.status;})));
+  buildMultiSelect('fStatus',     uniq(rows.map(function(r){return r.status;})), ['Assigned','Accepted','Work in Progress','Work in progress','Work Finished','Work finished','FM Review']);
   buildMultiSelect('fFM',         uniq(rows.map(function(r){return r.fm;})), ['Tim MacVittie','Felipe Lopez']);
   buildMultiSelect('fMaint',      uniq(rows.map(function(r){return r.maintSched;})));
 }

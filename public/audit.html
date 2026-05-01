@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Audit Log — Axxerion Operations Dashboard</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+<script>
+(function(){
+  var t = localStorage.getItem('ax_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<style>
+:root[data-theme="dark"] {
+  --bg:#0c1120; --card:#111827; --card2:#1a2235; --text:#e7eaf3; --muted:#9aa3b9;
+  --line:rgba(255,255,255,.08); --accent:#4182c3; --accent-rgb:65,130,195;
+  --green:#5ec28f; --green-rgb:94,194,143; --red:#c34141; --red-rgb:195,65,65;
+  --orange:#f59e0b; --muted-rgb:154,163,185;
+}
+:root[data-theme="light"] {
+  --bg:#f5f6fa; --card:#ffffff; --card2:#f0f2f7; --text:#1a2235; --muted:#6b7280;
+  --line:rgba(0,0,0,.08); --accent:#1f4a9a; --accent-rgb:31,74,154;
+  --green:#10b981; --green-rgb:16,185,129; --red:#dc2626; --red-rgb:220,38,38;
+  --orange:#f59e0b; --muted-rgb:107,114,128;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, sans-serif; min-height: 100vh;
+}
+.wrap { max-width: 1300px; margin: 0 auto; padding: 24px; }
+.head { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px; flex-wrap:wrap; gap:16px; }
+h1 { font-family: Syne, sans-serif; font-size: 28px; margin: 0 0 4px; font-weight: 700; }
+.sub { color: var(--muted); font-size: 13px; }
+.back { color: var(--accent); text-decoration:none; font-size:13px; }
+.back:hover { text-decoration:underline; }
+.tabs { display:flex; gap:4px; margin-bottom: 16px; border-bottom: 1px solid var(--line); }
+.tab {
+  padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 600;
+  background: transparent; border: none; color: var(--muted);
+  border-bottom: 2px solid transparent; transition: all .15s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--text); }
+.filters {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px; padding: 16px; background: var(--card); border:1px solid var(--line);
+  border-radius: 10px; margin-bottom: 16px;
+}
+.f-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing:.5px; margin-bottom:4px; display:block; }
+.f-input, .f-select {
+  width: 100%; padding: 8px 10px; background: var(--card2); border: 1px solid var(--line);
+  border-radius: 6px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px;
+}
+.f-input:focus, .f-select:focus { outline: none; border-color: var(--accent); }
+.f-actions { display:flex; gap:8px; align-items:end; }
+.btn {
+  padding: 8px 14px; background: var(--accent); color: white; border: none; border-radius: 6px;
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif;
+}
+.btn:hover { filter: brightness(1.1); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+.summary { font-size: 12px; color: var(--muted); padding: 0 4px 8px; }
+.feed { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.row {
+  padding: 14px 18px; border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: 160px 110px 200px 1fr 110px; gap: 16px;
+  align-items: center; font-size: 13px; transition: background .15s;
+}
+.row:hover { background: var(--card2); }
+.row:last-child { border-bottom: none; }
+.row-time { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.actor-badge { display:inline-block; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: .5px; }
+.actor-user { background: rgba(var(--green-rgb), .15); color: var(--green); }
+.actor-axxerion { background: rgba(var(--accent-rgb), .15); color: var(--accent); }
+.actor-system { background: rgba(var(--muted-rgb), .2); color: var(--muted); }
+.action-name { font-weight: 600; font-size: 12px; }
+.entity-link { color: var(--accent); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 11px; }
+.entity-link:hover { text-decoration: underline; }
+.summary-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+.summary-text strong { font-weight: 600; }
+.muted { color: var(--muted); }
+.empty { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+.pager { padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.pager-info { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 800px) {
+  .row { grid-template-columns: 1fr; gap: 6px; padding: 12px; }
+  .row-time { font-size: 10px; }
+}
+/* Logins tab — aggregate stats table */
+.logins-table { width: 100%; border-collapse: collapse; }
+.logins-table th, .logins-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; }
+.logins-table th { background: var(--card2); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; cursor: pointer; user-select: none; }
+.logins-table th:hover { color: var(--text); }
+.logins-table th.r, .logins-table td.r { text-align: right; font-family: 'DM Mono', monospace; }
+.logins-table tr:hover td { background: var(--card2); }
+.logins-table tbody tr:last-child td { border-bottom: none; }
+.email-cell { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; }
+.last-login { font-size: 12px; color: var(--text); }
+.first-login { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.count-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.pill-active { background: rgba(var(--green-rgb), .15); color: var(--green); }
+.pill-warm { background: rgba(var(--accent-rgb), .15); color: var(--accent); }
+.pill-cold { background: rgba(var(--muted-rgb), .2); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Audit Log</h1>
+      <div class="sub">Every state change — who, what, when. <a href="/" class="back">← Back to Dashboard</a></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-view="all">All Activity</button>
+    <button class="tab" data-view="my-day">My Day</button>
+    <button class="tab" data-view="axxerion">Axxerion Changes</button>
+    <button class="tab" data-view="ops">Ops Actions</button>
+    <button class="tab" data-view="logins">Logins</button>
+    <button class="tab" data-view="activity">Activity</button>
+  </div>
+
+  <div class="filters">
+    <div>
+      <label class="f-label">Actor</label>
+      <input class="f-input" id="fActor" placeholder="email or 'axxerion'">
+    </div>
+    <div>
+      <label class="f-label">Action</label>
+      <select class="f-select" id="fAction">
+        <option value="">All actions</option>
+        <optgroup label="Ops user actions">
+          <option value="call.logged">Call logged</option>
+          <option value="appt.set">Appointment set</option>
+          <option value="appt.confirmed">Appointment confirmed</option>
+          <option value="email.sent">Email sent</option>
+          <option value="vendor.contact_updated">Vendor contact updated</option>
+          <option value="note.added">Note added</option>
+          <option value="wo.dismissed">WO dismissed</option>
+        </optgroup>
+        <optgroup label="Axxerion changes">
+          <option value="wo.status_changed">Status changed</option>
+          <option value="wo.vendor_changed">Vendor changed</option>
+          <option value="wo.scheduled_from_changed">Scheduled Start changed</option>
+          <option value="wo.scheduled_until_changed">Scheduled End changed</option>
+          <option value="wo.actual_start_changed">Actual Start changed</option>
+          <option value="wo.actual_end_changed">Actual End changed</option>
+          <option value="wo.created">WO created</option>
+          <option value="wo.priority_changed">Priority changed</option>
+          <option value="wo.vendor_invoice_changed">Vendor invoice # changed</option>
+          <option value="wo.executor_changed">Executor changed</option>
+          <option value="wo.closed_changed">Closed changed</option>
+        </optgroup>
+        <optgroup label="System / admin">
+          <option value="user.login">User login</option>
+          <option value="user.role_changed">Role changed</option>
+          <option value="budget.set">Budget set</option>
+        </optgroup>
+      </select>
+    </div>
+    <div>
+      <label class="f-label">Entity ID (e.g. WRK-261696)</label>
+      <input class="f-input" id="fEntity" placeholder="WRK-...">
+    </div>
+    <div>
+      <label class="f-label">Since</label>
+      <input class="f-input" id="fSince" type="datetime-local">
+    </div>
+    <div class="f-actions">
+      <button class="btn" id="applyBtn">Apply</button>
+      <button class="btn btn-ghost" id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div class="feed" id="feed"><div class="empty">Loading...</div></div>
+  <div class="pager">
+    <button class="btn btn-ghost pager-btn" id="prevBtn">← Previous</button>
+    <span class="pager-info" id="pagerInfo"></span>
+    <button class="btn btn-ghost pager-btn" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<script src="audit-drawer.js"></script>
+<script>
+const ACTION_LABELS = {
+  "call.logged": "Call logged",
+  "appt.set": "Appointment set",
+  "appt.confirmed": "Appointment confirmed",
+  "email.sent": "Email sent",
+  "vendor.contact_updated": "Vendor contact updated",
+  "note.added": "Note added",
+  "wo.dismissed": "Dismissed from queue",
+  "wo.status_changed": "Status changed",
+  "wo.vendor_changed": "Vendor changed",
+  "wo.scheduled_from_changed": "Scheduled Start changed",
+  "wo.scheduled_until_changed": "Scheduled End changed",
+  "wo.actual_start_changed": "Actual Start changed",
+  "wo.actual_end_changed": "Actual End changed",
+  "wo.closed_changed": "Closed flag changed",
+  "wo.vendor_invoice_changed": "Vendor invoice # changed",
+  "wo.priority_changed": "Priority changed",
+  "wo.executor_changed": "Executor changed",
+  "wo.created": "Work order created",
+  "user.login": "Logged in",
+  "user.role_changed": "Role changed",
+  "budget.set": "Budget set",
+};
+
+const PAGE_SIZE = 50;
+let offset = 0;
+let total = 0;
+let currentUser = null;
+let activeView = "all";
+
+function actorBadge(row) {
+  if (row.actor_type === "axxerion") return '<span class="actor-badge actor-axxerion">AXXERION</span>';
+  if (row.actor === "system") return '<span class="actor-badge actor-system">SYSTEM</span>';
+  const short = String(row.actor || "").split("@")[0] || "user";
+  return '<span class="actor-badge actor-user">' + short.toUpperCase() + '</span>';
+}
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+function summarizeChange(row) {
+  const ov = row.old_value, nv = row.new_value;
+  if (ov != null && typeof ov !== "object" && nv != null && typeof nv !== "object") {
+    return '<span class="muted">' + (ov || "—") + '</span> → <strong>' + (nv || "—") + '</strong>';
+  }
+  if (row.action === "note.added" && nv && nv.text) return '"' + String(nv.text).slice(0, 200) + '"';
+  if (row.action === "call.logged" && nv) return '<strong>' + (nv.action || "call") + '</strong>' + (nv.note ? ' — ' + String(nv.note).slice(0,180) : '');
+  if ((row.action === "appt.set" || row.action === "appt.confirmed") && nv) return (nv.date || "TBD") + (nv.time ? " " + nv.time : "") + (nv.confirmed ? " ✓" : "");
+  if (row.action === "email.sent" && nv) return 'to <strong>' + (nv.to || "?") + '</strong>: ' + (nv.subject || nv.type || "");
+  if (row.action === "vendor.contact_updated" && nv) {
+    const p = []; if (nv.email) p.push("email: " + nv.email); if (nv.phone) p.push("phone: " + nv.phone);
+    return p.join(" · ");
+  }
+  if (row.action === "wo.dismissed") return row.metadata && row.metadata.queue ? "from " + row.metadata.queue.toUpperCase() : "";
+  if (row.action === "wo.created" && nv) return (nv.status || "") + " · " + (nv.vendor || "no vendor") + " · " + (nv.property || "");
+  if (row.action === "user.role_changed" && nv) return "role → " + (nv.role || "?");
+  if (row.action === "budget.set" && nv) return "$" + nv.budget;
+  return "";
+}
+
+function renderRow(row) {
+  const label = ACTION_LABELS[row.action] || row.action;
+  const summary = summarizeChange(row);
+  const entityLink = row.entity_id
+    ? '<a class="entity-link" onclick="openWOHistory(\'' + row.entity_id.replace(/\'/g,"&#39;") + '\')">' + row.entity_id + '</a>'
+    : '<span class="muted">—</span>';
+  return '<div class="row">'
+    + '<div class="row-time">' + fmtTime(row.occurred_at) + '</div>'
+    + '<div>' + actorBadge(row) + '</div>'
+    + '<div><span class="action-name">' + label + '</span></div>'
+    + '<div class="summary-text">' + (summary || '<span class="muted">—</span>') + '</div>'
+    + '<div>' + entityLink + '</div>'
+    + '</div>';
+}
+
+async function load() {
+  const params = new URLSearchParams();
+  const actor = document.getElementById("fActor").value.trim();
+  const action = document.getElementById("fAction").value;
+  const entity = document.getElementById("fEntity").value.trim();
+  const since = document.getElementById("fSince").value;
+  if (actor) params.set("actor", actor);
+  if (action) params.set("action", action);
+  if (entity) params.set("entityId", entity);
+  if (since) params.set("since", new Date(since).toISOString());
+  // View-specific actorType filter (user vs axxerion)
+  if (activeView === "ops") params.set("actorType", "user");
+  params.set("limit", String(PAGE_SIZE));
+  params.set("offset", String(offset));
+
+  document.getElementById("feed").innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    const res = await fetch("/api/audit?" + params.toString());
+    const data = await res.json();
+    total = data.total || 0;
+    currentUser = data.currentUser;
+    document.getElementById("summary").textContent = total + " total event" + (total === 1 ? "" : "s") + " matching filters";
+    if (!data.rows.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">No events match your filters.</div>';
+    } else {
+      document.getElementById("feed").innerHTML = data.rows.map(renderRow).join("");
+    }
+    document.getElementById("pagerInfo").textContent = (offset + 1) + "–" + Math.min(offset + PAGE_SIZE, total) + " of " + total;
+    document.getElementById("prevBtn").disabled = offset === 0;
+    document.getElementById("nextBtn").disabled = offset + PAGE_SIZE >= total;
+  } catch (e) {
+    document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+function applyView(v) {
+  activeView = v;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
+  const filtersEl = document.querySelector(".filters");
+  const pagerEl = document.querySelector(".pager");
+  // Logins / Activity views swap the feed for aggregate tables — hide filter + pager.
+  if (v === "logins") {
+    filtersEl.style.display = "none";
+    pagerEl.style.display = "none";
+    loadLoginStats();
+    return;
+  }
+  if (v === "activity") {
+    filtersEl.style.display = "none";
+    pagerEl.style.display = "none";
+    loadActivityStats();
+    return;
+  }
+  filtersEl.style.display = "";
+  pagerEl.style.display = "";
+  // Reset filters then apply view-specific defaults
+  document.getElementById("fActor").value = "";
+  document.getElementById("fAction").value = "";
+  document.getElementById("fEntity").value = "";
+  document.getElementById("fSince").value = "";
+  if (v === "my-day") {
+    document.getElementById("fActor").value = "me";
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    document.getElementById("fSince").value = start.toISOString().slice(0, 16);
+  } else if (v === "axxerion") {
+    document.getElementById("fActor").value = "axxerion";
+  }
+  // "ops" view: handled by activeView === "ops" injecting actorType=user in load()
+  offset = 0;
+  load();
+}
+
+let loginSort = { col: "last_login", dir: -1 };
+
+function fmtLoginTime(iso) {
+  if (!iso) return '<span class="muted">—</span>';
+  const d = new Date(iso);
+  const now = Date.now();
+  const ago = now - d.getTime();
+  let rel = '';
+  if (ago < 3600e3) rel = Math.floor(ago / 60e3) + 'm ago';
+  else if (ago < 86400e3) rel = Math.floor(ago / 3600e3) + 'h ago';
+  else if (ago < 7 * 86400e3) rel = Math.floor(ago / 86400e3) + 'd ago';
+  else rel = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return rel;
+}
+
+function loginPill(count) {
+  if (count >= 5) return '<span class="count-pill pill-active">' + count + '</span>';
+  if (count >= 1) return '<span class="count-pill pill-warm">' + count + '</span>';
+  return '<span class="count-pill pill-cold">' + count + '</span>';
+}
+
+async function loadLoginStats() {
+  document.getElementById("summary").textContent = "";
+  document.getElementById("feed").innerHTML = '<div class="empty">Loading login stats...</div>';
+  try {
+    const res = await fetch("/api/audit/login-stats");
+    const data = await res.json();
+    if (!data.rows || !data.rows.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">No login events recorded yet. Logins are captured automatically when users complete SSO sign-in. Local-dev sessions don\'t fire the event.</div>';
+      return;
+    }
+    renderLoginStats(data.rows);
+    document.getElementById("summary").textContent = data.rows.length + " distinct user" + (data.rows.length === 1 ? "" : "s") + " · sortable columns";
+  } catch (e) {
+    document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+// ── Activity tab: per-user counts of ops actions ──
+let activitySort = { col: "total_actions", dir: -1 };
+let activityDays = 7;
+
+async function loadActivityStats() {
+  document.getElementById("summary").innerHTML =
+    'Window: <select id="actDays" style="background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:2px 6px;font-size:12px;font-family:Inter,sans-serif">'
+    + [1,7,14,30,90].map(d => '<option value="' + d + '"' + (d === activityDays ? ' selected' : '') + '>last ' + d + ' day' + (d === 1 ? '' : 's') + '</option>').join("")
+    + '</select>';
+  document.getElementById("feed").innerHTML = '<div class="empty">Loading activity stats...</div>';
+  document.getElementById("actDays").addEventListener("change", e => { activityDays = parseInt(e.target.value, 10); loadActivityStats(); });
+  try {
+    const res = await fetch("/api/audit/activity-stats?days=" + activityDays);
+    const data = await res.json();
+    if (!data.rows || !data.rows.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">No ops actions logged in the last ' + activityDays + ' day' + (activityDays === 1 ? '' : 's') + '.</div>';
+      return;
+    }
+    renderActivityStats(data.rows);
+  } catch (e) {
+    document.getElementById("feed").innerHTML = '<div class="empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+function renderActivityStats(rows) {
+  const sorted = rows.slice().sort((a, b) => {
+    let va = a[activitySort.col], vb = b[activitySort.col];
+    if (activitySort.col === "last_action") { va = new Date(va || 0).getTime(); vb = new Date(vb || 0).getTime(); }
+    if (typeof va === "string") return activitySort.dir * va.localeCompare(vb);
+    return activitySort.dir * (va - vb);
+  });
+  const arrow = (col) => activitySort.col === col ? (activitySort.dir > 0 ? " ▲" : " ▼") : "";
+  const cell = (n) => n > 0 ? '<span style="font-family:\'DM Mono\',monospace;font-weight:600">' + n + '</span>' : '<span class="muted" style="font-family:\'DM Mono\',monospace">0</span>';
+  const html = '<table class="logins-table">'
+    + '<thead><tr>'
+    +   '<th data-sortcol="email">User' + arrow("email") + '</th>'
+    +   '<th class="r" data-sortcol="calls_logged">Calls' + arrow("calls_logged") + '</th>'
+    +   '<th class="r" data-sortcol="appts_set">Appts Set' + arrow("appts_set") + '</th>'
+    +   '<th class="r" data-sortcol="appts_confirmed">Confirmed' + arrow("appts_confirmed") + '</th>'
+    +   '<th class="r" data-sortcol="emails_sent">Emails' + arrow("emails_sent") + '</th>'
+    +   '<th class="r" data-sortcol="vendor_edits">Vendor Edits' + arrow("vendor_edits") + '</th>'
+    +   '<th class="r" data-sortcol="notes_added">Notes' + arrow("notes_added") + '</th>'
+    +   '<th class="r" data-sortcol="dismissals">Dismissals' + arrow("dismissals") + '</th>'
+    +   '<th class="r" data-sortcol="active_days">Active Days' + arrow("active_days") + '</th>'
+    +   '<th class="r" data-sortcol="distinct_entities">WOs Touched' + arrow("distinct_entities") + '</th>'
+    +   '<th class="r" data-sortcol="total_actions">Total' + arrow("total_actions") + '</th>'
+    +   '<th data-sortcol="last_action">Last Action' + arrow("last_action") + '</th>'
+    + '</tr></thead><tbody>'
+    + sorted.map(r => '<tr>'
+        + '<td><div class="email-cell">' + r.email + '</div></td>'
+        + '<td class="r">' + cell(r.calls_logged) + '</td>'
+        + '<td class="r">' + cell(r.appts_set) + '</td>'
+        + '<td class="r">' + cell(r.appts_confirmed) + '</td>'
+        + '<td class="r">' + cell(r.emails_sent) + '</td>'
+        + '<td class="r">' + cell(r.vendor_edits) + '</td>'
+        + '<td class="r">' + cell(r.notes_added) + '</td>'
+        + '<td class="r">' + cell(r.dismissals) + '</td>'
+        + '<td class="r">' + r.active_days + '</td>'
+        + '<td class="r">' + r.distinct_entities + '</td>'
+        + '<td class="r"><strong>' + r.total_actions + '</strong></td>'
+        + '<td><div class="last-login">' + fmtLoginTime(r.last_action) + '</div></td>'
+        + '</tr>').join("")
+    + '</tbody></table>';
+  document.getElementById("feed").innerHTML = html;
+  document.querySelectorAll(".logins-table th[data-sortcol]").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.sortcol;
+      if (activitySort.col === col) activitySort.dir *= -1;
+      else { activitySort.col = col; activitySort.dir = -1; }
+      renderActivityStats(rows);
+    });
+  });
+}
+
+function renderLoginStats(rows) {
+  const sorted = rows.slice().sort((a, b) => {
+    let va = a[loginSort.col], vb = b[loginSort.col];
+    if (loginSort.col === "last_login" || loginSort.col === "first_login") {
+      va = new Date(va || 0).getTime();
+      vb = new Date(vb || 0).getTime();
+    }
+    if (typeof va === "string") return loginSort.dir * va.localeCompare(vb);
+    return loginSort.dir * (va - vb);
+  });
+  const arrow = (col) => loginSort.col === col ? (loginSort.dir > 0 ? " ▲" : " ▼") : "";
+  const html = '<table class="logins-table">'
+    + '<thead><tr>'
+    +   '<th data-sortcol="email">User' + arrow("email") + '</th>'
+    +   '<th data-sortcol="last_login">Last Login' + arrow("last_login") + '</th>'
+    +   '<th class="r" data-sortcol="last_24h">24h' + arrow("last_24h") + '</th>'
+    +   '<th class="r" data-sortcol="last_7d">7 days' + arrow("last_7d") + '</th>'
+    +   '<th class="r" data-sortcol="last_30d">30 days' + arrow("last_30d") + '</th>'
+    +   '<th class="r" data-sortcol="distinct_days">Distinct Days' + arrow("distinct_days") + '</th>'
+    +   '<th class="r" data-sortcol="total_logins">Total' + arrow("total_logins") + '</th>'
+    + '</tr></thead><tbody>'
+    + sorted.map(r => '<tr>'
+        + '<td><div class="email-cell">' + r.email + '</div><div class="first-login">first seen ' + fmtLoginTime(r.first_login) + '</div></td>'
+        + '<td><div class="last-login">' + fmtLoginTime(r.last_login) + '</div></td>'
+        + '<td class="r">' + loginPill(r.last_24h) + '</td>'
+        + '<td class="r">' + loginPill(r.last_7d) + '</td>'
+        + '<td class="r">' + loginPill(r.last_30d) + '</td>'
+        + '<td class="r">' + r.distinct_days + '</td>'
+        + '<td class="r"><strong>' + r.total_logins + '</strong></td>'
+        + '</tr>').join("")
+    + '</tbody></table>';
+  document.getElementById("feed").innerHTML = html;
+  document.querySelectorAll(".logins-table th[data-sortcol]").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.sortcol;
+      if (loginSort.col === col) loginSort.dir *= -1;
+      else { loginSort.col = col; loginSort.dir = -1; }
+      renderLoginStats(rows);
+    });
+  });
+}
+
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => applyView(t.dataset.view)));
+document.getElementById("applyBtn").addEventListener("click", () => { offset = 0; load(); });
+document.getElementById("resetBtn").addEventListener("click", () => applyView("all"));
+document.getElementById("prevBtn").addEventListener("click", () => { offset = Math.max(0, offset - PAGE_SIZE); load(); });
+document.getElementById("nextBtn").addEventListener("click", () => { offset = offset + PAGE_SIZE; load(); });
+
+// Initial load
+load();
+</script>
+</body>
+</html>
