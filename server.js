@@ -619,8 +619,99 @@ app.get("/api/axxerion/write-status", (req, res) => {
     mode: AX_WRITE_ENABLED ? "live" : "dryrun",
     writableFields: Array.from(AX_WRITABLE_FIELDS),
     fieldCodes: AX_FIELD_CODES,
+    transitions: AX_WORKFLOW_TRANSITIONS,
     endpointConfigured: !!AX_WRITE_URL,
   });
+});
+
+// ── Workflow Status Transitions ──
+// PUT /webservices/ipg/rest/functions/executefunction/WorkOrder/{id}/{functionName}
+// Function names confirmed by San on 2026-04-29 (workflow perms still pending).
+// Casing matters: startWork is camelCase, others lowercase.
+const AX_EXECUTE_URL = process.env.AXXERION_EXECUTE_URL ||
+  "https://ipg.axxerion.us/webservices/ipg/rest/functions/executefunction/WorkOrder";
+
+const AX_WORKFLOW_TRANSITIONS = [
+  { from: "Assigned",            to: "Accepted",             fn: "confirmworker" },
+  { from: "Assigned",            to: "Need Reassignment",    fn: "reassign" },
+  { from: "Accepted",            to: "Work In Progress",     fn: "startWork" },
+  { from: "Work In Progress",    to: "Work Finished",        fn: "stopwork" },
+  { from: "Prepare Financials",  to: "Financials Submitted", fn: "submitfinancials" },
+];
+
+function findTransition(fromStatus, toStatus) {
+  const f = String(fromStatus || "").trim();
+  const t = String(toStatus || "").trim();
+  return AX_WORKFLOW_TRANSITIONS.find((x) =>
+    x.from.toLowerCase() === f.toLowerCase() && x.to.toLowerCase() === t.toLowerCase()
+  );
+}
+
+async function callAxxerionTransition({ id, functionName }) {
+  if (!id) throw new Error("WorkOrder id required for transition");
+  if (!functionName) throw new Error("functionName required");
+  const url = AX_EXECUTE_URL.replace(/\/$/, "") + "/" + encodeURIComponent(id) + "/" + encodeURIComponent(functionName);
+  const resp = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: AX_AUTH, "Content-Type": "application/json" },
+    body: "{}",
+    signal: AbortSignal.timeout(30000),
+  });
+  const text = await resp.text().catch(() => "");
+  let json = null; try { json = JSON.parse(text); } catch {}
+  if (!resp.ok) throw new Error("Axxerion " + resp.status + ": " + text.slice(0, 300));
+  // Axxerion returns 200 with errorMessage when permission denied / workflow blocked.
+  if (json && json.errorMessage) throw new Error(json.errorMessage + (json.warningMessage ? " — " + json.warningMessage : ""));
+  return json || {};
+}
+
+app.post("/api/axxerion/transition-status", async (req, res) => {
+  const { ref, id, toStatus, user } = req.body || {};
+  if (!ref || !toStatus) return res.status(400).json({ ok: false, error: "ref and toStatus required" });
+
+  const cached = findCachedWO(ref);
+  const woId = id || (cached && cached.ID) || null;
+  const fromStatus = cached ? (cached.Status || "") : "";
+  const transition = findTransition(fromStatus, toStatus);
+  if (!transition) {
+    return res.status(400).json({
+      ok: false,
+      error: "No workflow function for transition: " + fromStatus + " → " + toStatus,
+      validTransitions: AX_WORKFLOW_TRANSITIONS.filter((x) => x.from.toLowerCase() === String(fromStatus).toLowerCase()),
+    });
+  }
+
+  const userEmail = user || (req.session && req.session.user && req.session.user.email) || "unknown";
+  const mode = AX_WRITE_ENABLED ? "live" : "dryrun";
+
+  if (mode === "dryrun") {
+    await logWrite({
+      ref, id: woId, field: "status_transition",
+      oldValue: fromStatus, newValue: toStatus,
+      user: userEmail, mode: "dryrun", status: "success", error: null,
+    });
+    applyCachedUpdate(ref, "Status", toStatus);
+    return res.json({ ok: true, mode: "dryrun", transition, message: "Dry-run: cache updated, Axxerion NOT called" });
+  }
+
+  try {
+    await callAxxerionTransition({ id: woId, functionName: transition.fn });
+    await logWrite({
+      ref, id: woId, field: "status_transition",
+      oldValue: fromStatus, newValue: toStatus,
+      user: userEmail, mode: "live", status: "success", error: null,
+    });
+    applyCachedUpdate(ref, "Status", toStatus);
+    setTimeout(fetchWorkOrdersIncremental, 2000);
+    res.json({ ok: true, mode: "live", transition, message: "Status transitioned in Axxerion" });
+  } catch (err) {
+    await logWrite({
+      ref, id: woId, field: "status_transition",
+      oldValue: fromStatus, newValue: toStatus,
+      user: userEmail, mode: "live", status: "error", error: err.message || String(err),
+    });
+    res.status(502).json({ ok: false, mode: "live", error: err.message || String(err) });
+  }
 });
 
 // ── Ops Queue Persistence ──

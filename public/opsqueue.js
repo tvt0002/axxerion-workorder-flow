@@ -169,6 +169,59 @@ function composeAxDateTime(dateStr, timeStr) {
   return month + '/' + day + '/' + year + ' ' + h12 + ':' + minStr + ' ' + ap;
 }
 
+function axTransitionStatus(ref, toStatus, cb) {
+  var user = (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.email) ? CURRENT_USER.email : 'ops';
+  return fetch('/api/axxerion/transition-status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ref: ref, toStatus: toStatus, user: user })
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, body: d }; }); })
+    .then(function(res) { if (cb) cb(res); return res; })
+    .catch(function(e) { console.error('[AxTransition] Error:', e); if (cb) cb({ ok: false, body: { error: e.message } }); });
+}
+
+function openOqStatusTransition(ref) {
+  var wo = ALLDATA.find(function(r) { return r[10] === ref; });
+  if (!wo) { axWriteToast('WO not found in cache: ' + ref, 'error'); return; }
+  var fromStatus = wo[1] || '';
+  var transitions = (AX_WRITE_STATUS.transitions || []).filter(function(t) {
+    return t.from.toLowerCase() === fromStatus.toLowerCase();
+  });
+  var modeBadge = AX_WRITE_STATUS.enabled
+    ? '<span style="background:var(--green,#16a34a);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">LIVE</span>'
+    : '<span style="background:var(--orange,#f59e0b);color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-family:\'DM Mono\',monospace">DRY-RUN</span>';
+  var html = '<div class="psl" style="margin-bottom:6px">CHANGE STATUS — ' + ref + ' &nbsp; ' + modeBadge + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">Current status: <span style="color:var(--text);font-weight:600">' + (fromStatus || '(blank)') + '</span></div>';
+  if (!transitions.length) {
+    html += '<div style="padding:12px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.2);border-radius:6px;font-size:12px;color:var(--orange)">'
+         + 'No workflow transitions available from "' + fromStatus + '". '
+         + 'Ops cannot move this WO via API — change status in Axxerion directly.'
+         + '</div>';
+  } else {
+    html += '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-bottom:6px">AVAILABLE TRANSITIONS</div>';
+    transitions.forEach(function(t) {
+      html += '<button class="oq-btn oq-btn-g" style="display:block;width:100%;padding:10px;margin-bottom:6px;text-align:left" '
+           + 'onclick="submitOqStatusTransition(\'' + ref + '\',\'' + t.to.replace(/'/g, "\\'") + '\')">'
+           + '→ ' + t.to + ' <span style="font-family:\'DM Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.7);margin-left:8px">(' + t.fn + ')</span>'
+           + '</button>';
+    });
+  }
+  openOqModal(html);
+}
+
+function submitOqStatusTransition(ref, toStatus) {
+  axTransitionStatus(ref, toStatus, function(res) {
+    if (res.ok && res.body && res.body.mode === 'dryrun') {
+      axWriteToast('DRY-RUN: status change logged. Axxerion not called.', 'dryrun');
+    } else if (res.ok && res.body && res.body.mode === 'live') {
+      axWriteToast('Status updated in Axxerion: ' + ref + ' → ' + toStatus, 'success');
+    } else {
+      axWriteToast((res.body && res.body.error) || 'Status transition failed', 'error');
+    }
+  });
+  closeOqModal();
+}
+
 function axWriteToast(msg, kind) {
   var t = document.getElementById('axWriteToast');
   if (!t) {
@@ -507,7 +560,7 @@ function renderQueue() {
         + '<td style="' + dateSty + '">' + (apptTxt || '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.callCount + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
+        + '<td><button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q2\')">Log Call</button> <button class="oq-btn oq-btn-g" onclick="openOqSchedule(\'' + d.ref + '\')">Schedule</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -541,7 +594,7 @@ function renderQueue() {
         + '<td style="' + dateSty + '">' + (d.actualEnd || muted) + '</td>'
         + '<td>' + confBadge + '</td>'
         + '<td>' + lastAct + '</td>'
-        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
+        + '<td><button class="oq-btn oq-btn-g" onclick="confirmAppt(\'' + d.ref + '\')">Confirm</button> <button class="oq-btn" onclick="openOqAction(\'' + d.ref + '\',\'q3\')">Log</button> <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn oq-btn-r" onclick="openOqAction(\'' + d.ref + '\',\'q3\',\'noshow\')">No Show</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button></td>'
         + '</tr>';
     }).join('');
   }
@@ -570,7 +623,7 @@ function renderQueue() {
         + '<td class="r" style="font-family:\'DM Mono\',monospace;font-size:11px">' + (d.vendorEstCost ? '$' + Number(d.vendorEstCost).toLocaleString() : '<span style="color:var(--muted)">—</span>') + '</td>'
         + '<td style="font-family:\'DM Mono\',monospace;text-align:center">' + d.emailCount + '</td>'
         + '<td>' + lastEmail + '</td>'
-        + '<td>' + emailBtn + ' <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button> <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
+        + '<td>' + emailBtn + ' <button class="oq-btn" onclick="openOqStatusTransition(\'' + d.ref + '\')">Status →</button> <button class="oq-btn" title="History" onclick="openWOHistory(\'' + d.ref + '\',{property:\'' + (d.property||'').replace(/'/g,"\\'") + '\',bookmark:\'' + (d.bookmark||'').replace(/'/g,"\\'") + '\'})">🕐</button> <button class="oq-btn oq-btn-dim" onclick="dismissOq(\'' + d.ref + '\',\'q4\')">Dismiss</button></td>'
         + '</tr>';
     }).join('');
   }
