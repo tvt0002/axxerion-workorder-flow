@@ -337,6 +337,13 @@
         "store_code_ref": "L009",
         "phone": "240-280-4366",
         "email": ""
+      },
+      {
+        "name": "Diana Solorzano",
+        "role": "MSM",
+        "store_code_ref": "MD/EST",
+        "phone": "443-889-8089",
+        "email": "diana.solorzano@securespace.com"
       }
     ],
     "supervisors": [
@@ -1255,13 +1262,6 @@
         "store_code_ref": "L028",
         "phone": "718-600-4907",
         "email": ""
-      },
-      {
-        "name": "Felicia Acevado",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "",
-        "phone": "917 923 2021",
-        "email": ""
       }
     ],
     "supervisors": [
@@ -1458,7 +1458,7 @@
         "role": "Multi-Store Manager - L032, L033, L034",
         "store_code_ref": "L032",
         "phone": "512-762-3983",
-        "email": ""
+        "email": "angela.delossantos@securespace.com"
       }
     ],
     "supervisors": [
@@ -1502,7 +1502,7 @@
         "role": "Multi-Store Manager - L032, L033, L034",
         "store_code_ref": "L033",
         "phone": "512-762-3983",
-        "email": ""
+        "email": "angela.delossantos@securespace.com"
       },
       {
         "name": "Kimberly Wallace",
@@ -1553,7 +1553,7 @@
         "role": "Multi-Store Manager - L032, L033, L034",
         "store_code_ref": "L034",
         "phone": "512-762-3983",
-        "email": ""
+        "email": "angela.delossantos@securespace.com"
       }
     ],
     "supervisors": [
@@ -2743,13 +2743,6 @@
         "store_code_ref": "L058",
         "phone": "929 928 0129",
         "email": ""
-      },
-      {
-        "name": "Trayvon Hobbs",
-        "role": "Assistant Store Manager",
-        "store_code_ref": "L058",
-        "phone": "917 383 4783",
-        "email": ""
       }
     ],
     "supervisors": [
@@ -2841,9 +2834,16 @@
     "staff": [
       {
         "name": "Julius Cruz",
-        "role": "Assistant Store Manager",
+        "role": "Store Manager",
         "store_code_ref": "L060",
         "phone": "646 704 6416",
+        "email": ""
+      },
+      {
+        "name": "Trayvon Hobbs",
+        "role": "Assistant Store Manager",
+        "store_code_ref": "L060",
+        "phone": "917 383 4783",
         "email": ""
       }
     ],
@@ -2883,13 +2883,6 @@
     "store_cell_phone": "267-294-2619",
     "computers_onsite": "2",
     "staff": [
-      {
-        "name": "Evelise Hopkins",
-        "role": "Store Manager",
-        "store_code_ref": "L061",
-        "phone": "215 936 5527",
-        "email": ""
-      },
       {
         "name": "Jose Alequin",
         "role": "Assistant Store Manager",
@@ -3143,8 +3136,15 @@
         "name": "Stephanie Armstrong",
         "role": "Assistant Store Manager",
         "store_code_ref": "L066",
-        "phone": "living",
+        "phone": "917-244-7478",
         "email": ""
+      },
+      {
+        "name": "Diana Solorzano",
+        "role": "MSM",
+        "store_code_ref": "MD/EST",
+        "phone": "443-889-8089",
+        "email": "diana.solorzano@securespace.com"
       },
       {
         "name": "Manal",
@@ -3801,6 +3801,13 @@
         "store_code_ref": "L080",
         "phone": "(571) 361-9367",
         "email": ""
+      },
+      {
+        "name": "Diana Solorzano",
+        "role": "MSM",
+        "store_code_ref": "MD/EST",
+        "phone": "443-889-8089",
+        "email": "diana.solorzano@securespace.com"
       }
     ],
     "supervisors": [
