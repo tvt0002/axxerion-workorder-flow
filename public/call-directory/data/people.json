@@ -492,6 +492,21 @@
     ]
   },
   {
+    "name": "Diana Solorzano",
+    "email": "diana.solorzano@securespace.com",
+    "phone": "443-889-8089",
+    "roles": [
+      "MSM",
+      "MSM",
+      "MSM"
+    ],
+    "stores": [
+      "L009",
+      "L066",
+      "L080"
+    ]
+  },
+  {
     "name": "Steven Obney",
     "email": "sobney@securespace.com",
     "phone": "551-341-2919",
@@ -1170,17 +1185,6 @@
     ]
   },
   {
-    "name": "Felicia Acevado",
-    "email": "",
-    "phone": "917 923 2021",
-    "roles": [
-      "Assistant Store Manager"
-    ],
-    "stores": [
-      "L028"
-    ]
-  },
-  {
     "name": "Larain Geathers",
     "email": "",
     "phone": "571-352-7988",
@@ -1302,7 +1306,7 @@
   },
   {
     "name": "Angela Delossantos",
-    "email": "",
+    "email": "angela.delossantos@securespace.com",
     "phone": "512-762-3983",
     "roles": [
       "Multi-Store Manager - L032, L033, L034",
@@ -1860,17 +1864,6 @@
     ]
   },
   {
-    "name": "Trayvon Hobbs",
-    "email": "",
-    "phone": "917 383 4783",
-    "roles": [
-      "Assistant Store Manager"
-    ],
-    "stores": [
-      "L058"
-    ]
-  },
-  {
     "name": "Chonthicha Sumattra",
     "email": "",
     "phone": "253 888 3958",
@@ -1897,21 +1890,21 @@
     "email": "",
     "phone": "646 704 6416",
     "roles": [
-      "Assistant Store Manager"
+      "Store Manager"
     ],
     "stores": [
       "L060"
     ]
   },
   {
-    "name": "Evelise Hopkins",
+    "name": "Trayvon Hobbs",
     "email": "",
-    "phone": "215 936 5527",
+    "phone": "917 383 4783",
     "roles": [
-      "Store Manager"
+      "Assistant Store Manager"
     ],
     "stores": [
-      "L061"
+      "L060"
     ]
   },
   {
@@ -2038,7 +2031,7 @@
   {
     "name": "Stephanie Armstrong",
     "email": "",
-    "phone": "living",
+    "phone": "917-244-7478",
     "roles": [
       "Assistant Store Manager"
     ],
