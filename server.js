@@ -180,8 +180,30 @@ async function initDB() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_wo_writes_attempted_at ON wo_writes(attempted_at DESC)`);
     audit.init(pool);
     await audit.ensureTable();
-    console.log("[DB] Cache + audit_log + wo_writes tables ready");
+    console.log("[DB] Cache + audit_log + audit_log_archive + wo_writes tables ready");
   } catch (e) { console.error("[DB] Init error:", e.message); }
+}
+
+// Daily audit prune: archives Axxerion-diff events older than 540 days into
+// audit_log_archive, leaves ops actions / admin events / login events alone.
+// Fires once a day around 07:00 UTC (~02–03 ET, low-traffic window).
+const AUDIT_PRUNE_CUTOFF_DAYS = 540;
+function scheduleDailyAuditPrune() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(7, 0, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  const delay = next.getTime() - now.getTime();
+  setTimeout(async () => {
+    try {
+      const r = await audit.pruneOldEvents(AUDIT_PRUNE_CUTOFF_DAYS);
+      console.log(`[Audit] Daily prune: archived ${r.archived} rows in ${r.durationMs}ms (cutoff ${r.cutoffDays}d)`);
+    } catch (e) {
+      console.error("[Audit] Daily prune failed:", e.message);
+    }
+    scheduleDailyAuditPrune();
+  }, delay);
+  console.log(`[Audit] Next prune scheduled for ${next.toISOString()} (in ${Math.round(delay / 3600000)}h)`);
 }
 
 async function loadFromDB() {
@@ -1232,6 +1254,35 @@ app.post("/api/admin/remove-admin", requireAdmin, async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+// Audit log health snapshot (admin-only).
+app.get("/api/admin/audit-stats", requireAdmin, async (req, res) => {
+  try {
+    const stats = await audit.getAuditStats();
+    res.json({ ...stats, cutoffDays: AUDIT_PRUNE_CUTOFF_DAYS });
+  } catch (e) {
+    console.error("[Audit] stats failed:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Manual prune trigger (admin-only). Useful for testing or one-off cleanups.
+app.post("/api/admin/audit-prune", requireAdmin, async (req, res) => {
+  const cutoff = parseInt(req.body && req.body.cutoffDays, 10) || AUDIT_PRUNE_CUTOFF_DAYS;
+  try {
+    const r = await audit.pruneOldEvents(cutoff);
+    audit.logEvent({
+      actor: req.session.user.email, actorType: "user", sessionId: req.sessionID,
+      action: "audit.prune_triggered",
+      entityType: "audit_log",
+      metadata: { archived: r.archived, cutoff_days: r.cutoffDays, manual: true },
+    });
+    res.json(r);
+  } catch (e) {
+    console.error("[Audit] manual prune failed:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Manual trigger for the call directory sync (admin-only).
 // Body: { dryRun?: boolean, force?: boolean }
 app.post("/api/admin/sync-calldir", requireAdmin, async (req, res) => {
@@ -1306,4 +1357,7 @@ app.listen(PORT, async () => {
     }
   }, 60_000);
   console.log("[Startup] Call directory sync scheduled daily at 07:00 ET");
+
+  // 4. Daily audit-log prune (archive Axxerion-diff events > 540 days)
+  scheduleDailyAuditPrune();
 });

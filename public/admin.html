@@ -78,6 +78,38 @@ input.budget-input{font-family:'DM Mono',monospace;font-size:12px;width:80px;pad
   </div>
   <p class="footnote">Cost estimates based on Claude Sonnet 4.6 pricing ($3/MTok input, $15/MTok output). Actual Anthropic invoices may vary.</p>
 
+  <h2>Audit Log Health</h2>
+  <div class="card" style="padding:18px 20px;">
+    <div class="kpi-row" style="margin-bottom:14px;">
+      <div class="kpi" style="padding:14px 16px;">
+        <div class="kpi-label">Active Rows</div>
+        <div class="kpi-val" id="kAuditActiveRows" style="font-size:22px;">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;" id="kAuditActiveSize">—</div>
+      </div>
+      <div class="kpi" style="padding:14px 16px;">
+        <div class="kpi-label">Archived Rows</div>
+        <div class="kpi-val" id="kAuditArchiveRows" style="font-size:22px;">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;" id="kAuditArchiveSize">—</div>
+      </div>
+      <div class="kpi" style="padding:14px 16px;">
+        <div class="kpi-label">Last Prune</div>
+        <div class="kpi-val" id="kAuditLastPrune" style="font-size:18px;">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="kAuditLastPruneDetail">—</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:8px;">
+      <div style="font-size:11px;color:var(--muted);">
+        Retention: ops actions / admin events / logins kept <strong>forever</strong> · Axxerion diffs (<code>wo.*</code>) archived after <strong id="auditCutoff">540</strong> days · Daily prune at ~07:00 UTC
+      </div>
+      <button class="btn" id="auditPruneBtn" onclick="runAuditPrune()">Run Prune Now</button>
+    </div>
+    <h3 style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600;margin:20px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Top Actions (Active)</h3>
+    <table id="auditActionTable">
+      <thead><tr><th>Action</th><th style="text-align:right">Count</th></tr></thead>
+      <tbody><tr><td colspan="2" style="text-align:center;color:var(--muted);padding:14px">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
   <h2>Add Admin</h2>
   <div class="card" style="padding:16px;">
     <div class="add-admin-row">
@@ -164,10 +196,70 @@ function showMsg(text, ok) {
   setTimeout(() => { el.className = 'msg'; }, 4000);
 }
 
+function fmtAuditTime(iso) {
+  if (!iso) return '<span style="color:var(--muted)">—</span>';
+  const d = new Date(iso);
+  const now = Date.now();
+  const ago = now - d.getTime();
+  if (ago < 3600e3) return Math.floor(ago / 60e3) + 'm ago';
+  if (ago < 86400e3) return Math.floor(ago / 3600e3) + 'h ago';
+  if (ago < 30 * 86400e3) return Math.floor(ago / 86400e3) + 'd ago';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function loadAuditStats() {
+  try {
+    const r = await fetch('/api/admin/audit-stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('kAuditActiveRows').textContent = (d.active.rows || 0).toLocaleString();
+    document.getElementById('kAuditActiveSize').textContent = d.active.size + ' on disk';
+    document.getElementById('kAuditArchiveRows').textContent = (d.archive.rows || 0).toLocaleString();
+    document.getElementById('kAuditArchiveSize').textContent = d.archive.size + ' on disk';
+    if (d.cutoffDays) document.getElementById('auditCutoff').textContent = d.cutoffDays;
+    if (d.lastPrune) {
+      document.getElementById('kAuditLastPrune').innerHTML = fmtAuditTime(d.lastPrune.occurred_at);
+      const meta = d.lastPrune.metadata || {};
+      document.getElementById('kAuditLastPruneDetail').textContent =
+        'archived ' + (meta.archived || 0) + ' rows in ' + (meta.duration_ms || 0) + 'ms';
+    } else {
+      document.getElementById('kAuditLastPrune').textContent = 'Never';
+      document.getElementById('kAuditLastPruneDetail').textContent = 'first prune fires overnight';
+    }
+    const tbody = document.querySelector('#auditActionTable tbody');
+    if (!d.byAction || !d.byAction.length) {
+      tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:14px">No events yet</td></tr>';
+    } else {
+      tbody.innerHTML = d.byAction.map(a => {
+        const isWO = a.action.startsWith('wo.');
+        const tag = isWO
+          ? '<span style="font-size:9px;padding:1px 6px;border-radius:4px;background:rgba(var(--accent2-rgb),.15);color:var(--accent2);margin-left:6px;font-family:\'DM Mono\',monospace">archived after ' + (d.cutoffDays || 540) + 'd</span>'
+          : '<span style="font-size:9px;padding:1px 6px;border-radius:4px;background:rgba(var(--green-rgb),.15);color:var(--green);margin-left:6px;font-family:\'DM Mono\',monospace">kept forever</span>';
+        return '<tr><td style="font-family:\'DM Mono\',monospace;font-size:11px">' + a.action + tag + '</td>'
+             + '<td style="font-family:\'DM Mono\',monospace;text-align:right">' + a.count.toLocaleString() + '</td></tr>';
+      }).join('');
+    }
+  } catch (e) { console.warn('audit stats failed:', e); }
+}
+
+async function runAuditPrune() {
+  if (!confirm('Run audit prune now?\n\nThis archives Axxerion-diff events older than the cutoff into audit_log_archive. Ops actions, admin events, and logins are not touched.')) return;
+  const btn = document.getElementById('auditPruneBtn');
+  btn.disabled = true; btn.textContent = 'Pruning…';
+  try {
+    const r = await fetch('/api/admin/audit-prune', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const d = await r.json();
+    if (r.ok) { showMsg('Archived ' + d.archived + ' rows in ' + d.durationMs + 'ms', true); loadAuditStats(); }
+    else showMsg('Prune failed: ' + (d.error || 'unknown'), false);
+  } catch (e) { showMsg('Prune failed: ' + e.message, false); }
+  finally { btn.disabled = false; btn.textContent = 'Run Prune Now'; }
+}
+
 // Match parent theme
 if (localStorage.getItem('ax_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
 load();
+loadAuditStats();
 </script>
 </body>
 </html>
