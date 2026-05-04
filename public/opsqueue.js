@@ -261,6 +261,13 @@ function isoToAxDateTime(iso) {
 // elements alive at once on Windows Chrome thrashes paint and locks the cursor.
 var OQ_ACTIVE_EDIT = null;
 
+function oqTodayISO() {
+  var d = new Date();
+  var pad = function(n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+       + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
 function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   if (td.querySelector('input')) return; // already editing
   // Tear down any other in-flight edit immediately — no setTimeout window where
@@ -272,9 +279,12 @@ function oqInlineEdit(td, ref, fieldLabel, currentValue) {
   var origHTML = td.innerHTML;
   var origTitle = td.getAttribute('title') || '';
   var iso = axDateTimeToISO(currentValue);
+  // Empty cells prefill with today + current time. The `iso` snapshot stays empty
+  // so the no-op short-circuit only fires for unchanged populated cells.
+  var inputDefault = iso || oqTodayISO();
   // Mark cell as in-edit so the hover style stays calm and outline doesn't flicker.
   td.classList.add('oq-editing');
-  td.innerHTML = '<input type="datetime-local" value="' + iso + '" '
+  td.innerHTML = '<input type="datetime-local" value="' + inputDefault + '" '
     + 'style="font-family:\'DM Mono\',monospace;font-size:11px;background:var(--card);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:3px 6px;width:100%;box-sizing:border-box;outline:none">';
   var input = td.querySelector('input');
   var settled = false;
